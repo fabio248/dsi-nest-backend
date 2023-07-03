@@ -15,9 +15,8 @@ import { LoggerModule } from 'nestjs-pino';
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     LoggerModule.forRoot({
       pinoHttp: {
-        customProps: (req, res) => ({
+        customProps: (_req, _res) => ({
           context: 'HTTP',
-          method: req.method,
         }),
         transport: { target: 'pino-pretty' },
       },
