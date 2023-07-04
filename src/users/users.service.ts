@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 import { CreateUserDto, UpdateUserDto } from './dto/input';
 import { User } from './entities/user.entity';
 import { plainToInstance } from 'class-transformer';
@@ -8,6 +9,7 @@ import { UserResponse } from './dto/response/user.response';
 import { UserNotFoundException } from './exception';
 import { TransformStringToDate } from '../shared/utils/transform-date';
 import { EmailAlreadyTakenException } from './exception/email-already-taken.exception';
+import { InvalidCredentialsException } from './exception/invalid-credential.exception';
 
 @Injectable()
 export class UsersService {
@@ -23,7 +25,7 @@ export class UsersService {
 
     const { birthday, email } = createUserDto;
 
-    const isEmailAlreadyTaken = await this.userRepository.findBy({
+    const isEmailAlreadyTaken = await this.userRepository.findOneBy({
       email,
     });
 
@@ -55,7 +57,19 @@ export class UsersService {
     const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
-      throw new UserNotFoundException(id);
+      throw new UserNotFoundException({ id });
+    }
+
+    return plainToInstance(UserResponse, user);
+  }
+
+  async findOneByEmail(email: string): Promise<UserResponse> {
+    this.logger.log('Retrieve one user');
+
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (!user) {
+      throw new UserNotFoundException({ email });
     }
 
     return plainToInstance(UserResponse, user);
@@ -70,7 +84,7 @@ export class UsersService {
     const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
-      throw new UserNotFoundException(id);
+      throw new UserNotFoundException({ id });
     }
 
     if (updateUserDto.birthday) {
@@ -88,9 +102,32 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<UserResponse> {
+    this.logger.log('Delete one user');
+
     const user = await this.findOneById(id);
 
     this.userRepository.delete({ id });
+
+    return plainToInstance(UserResponse, user);
+  }
+
+  async verifyCredentials(
+    email: string,
+    password: string,
+  ): Promise<UserResponse> {
+    this.logger.log('Verify credentials');
+
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (!user) {
+      throw new InvalidCredentialsException();
+    }
+
+    const isMatchPassword = bcrypt.compareSync(password, user.password);
+
+    if (!isMatchPassword) {
+      throw new InvalidCredentialsException();
+    }
 
     return plainToInstance(UserResponse, user);
   }

@@ -1,7 +1,11 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
+import { UserRole } from '../../entities/user.entity';
 
 export class UserResponse {
+  @Expose()
+  id: number;
+
   @Expose()
   firstName: string;
 
@@ -21,7 +25,7 @@ export class UserResponse {
   dui: string;
 
   @Expose()
-  role: string;
+  role: UserRole;
 
   @Expose()
   birthday: Date;

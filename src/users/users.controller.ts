@@ -6,17 +6,22 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/input/create-user.input';
 import { UpdateUserDto } from './dto/input/update-user.input';
 import { UserResponse } from './dto/response/user.response';
 import { ApiBearerAuth } from '@nestjs/swagger';
-
+import RoleGuard from '../auth/guards/role.guard';
+import { UserRole } from './entities/user.entity';
+import { Public } from '../auth/decorators/public-route.decorator';
 @Controller({ path: 'users', version: '1' })
+@UseGuards(RoleGuard(UserRole.ADMIN, UserRole.CLIENT))
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Public()
   @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<UserResponse> {
     return this.usersService.create(createUserDto);
