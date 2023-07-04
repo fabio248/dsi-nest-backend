@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/input/create-user.input';
@@ -16,6 +17,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from './entities/user.entity';
 import { Public } from '../auth/decorators/public-route.decorator';
+import { FindAllUserArgs } from './dto/args/find-all-user.arg';
 @Controller({ path: 'users', version: '1' })
 @UseGuards(RoleGuard(UserRole.ADMIN, UserRole.CLIENT))
 export class UsersController {
@@ -29,8 +31,8 @@ export class UsersController {
 
   @ApiBearerAuth()
   @Get()
-  findAll(): Promise<UserResponse[]> {
-    return this.usersService.findAll();
+  findAll(@Query() args?: FindAllUserArgs) {
+    return this.usersService.findAll(args);
   }
 
   @ApiBearerAuth()

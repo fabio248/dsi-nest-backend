@@ -3,7 +3,6 @@ import {
   IsEnum,
   IsNotEmpty,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   Matches,
 } from 'class-validator';
@@ -39,8 +38,14 @@ export class CreateUserDto {
   })
   birthday: string | Date;
 
+  /**
+   * Numero de telefono en formato 0000-0000
+   * @example 7667-6833
+   */
   @IsOptional()
-  @IsPhoneNumber()
+  @Matches(/^[0-9]{4}-[0-9]{4}$/, {
+    message: 'The valid format is 0000-0000',
+  })
   phone?: string;
 
   @IsOptional()

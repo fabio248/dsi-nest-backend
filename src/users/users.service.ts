@@ -10,6 +10,7 @@ import { UserNotFoundException } from './exception';
 import { TransformStringToDate } from '../shared/utils/transform-date';
 import { EmailAlreadyTakenException } from './exception/email-already-taken.exception';
 import { InvalidCredentialsException } from './exception/invalid-credential.exception';
+import { FindAllUserArgs } from './dto/args/find-all-user.arg';
 
 @Injectable()
 export class UsersService {
@@ -43,10 +44,11 @@ export class UsersService {
     return plainToInstance(UserResponse, user);
   }
 
-  async findAll() {
+  async findAll(args: FindAllUserArgs) {
+    const { skip, take } = args;
     this.logger.log('Retrieve all users');
 
-    const listUser = await this.userRepository.find();
+    const listUser = await this.userRepository.find({ skip, take });
 
     return listUser.map((user) => plainToInstance(UserResponse, user));
   }
