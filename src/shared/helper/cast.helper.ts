@@ -12,6 +12,14 @@ export function trim(value: string): string {
   return value.trim();
 }
 
+export function trimAndcapitalizeFirstLetter(value: string) {
+  return capitalizeFirstLetter(trim(value));
+}
+
+export function capitalizeFirstLetter(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 export function toDate(value: string): Date {
   return new Date(value);
 }

@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Person } from '../../shared/entities/person.entity';
+import { Pet } from '../../pets/entities/pet.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -29,8 +30,8 @@ export class User extends Person {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CLIENT })
   role?: UserRole;
 
-  //   @OneToMany(() => Pet, (pet) => pet.user, { cascade: true })
-  //   pet: Pet[];
+  @OneToMany(() => Pet, (pet) => pet.user, { cascade: true })
+  pet: Pet[];
 
   //   @OneToMany(() => Appointment, (appointment) => appointment.client)
   //   appointments: Appointment[];

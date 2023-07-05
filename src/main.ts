@@ -31,7 +31,6 @@ async function bootstrap() {
     .setDescription('API REST para veterinaria Mitsum')
     .setVersion('1.0')
     .addBearerAuth()
-    .addBasicAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
