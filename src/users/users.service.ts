@@ -7,7 +7,7 @@ import { User } from './entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { UserResponse } from './dto/response/user.response';
 import { UserNotFoundException } from './exception';
-import { TransformStringToDate } from '../shared/utils/transform-date';
+import { TransformStringToDate } from '../shared/utils/transform-date.utils';
 import { EmailAlreadyTakenException } from './exception/email-already-taken.exception';
 import { InvalidCredentialsException } from './exception/invalid-credential.exception';
 import { FindAllUserArgs } from './dto/args/find-all-user.arg';

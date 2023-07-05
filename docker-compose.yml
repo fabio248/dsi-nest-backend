@@ -11,3 +11,13 @@ services:
       - 5432:5432
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+  postgres-test:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=dsi_nest_test
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+    ports:
+      - 5433:5432 # Difference port to avoid conflicts with principal service
+    volumes:
+      - ./postgres_data_test:/var/lib/postgresql/data

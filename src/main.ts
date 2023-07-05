@@ -7,11 +7,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   const configService = app.get(ConfigService);
   const port = configService.get('port');
+  const enviroment = configService.get('env');
 
-  app.useLogger(app.get(Logger));
-  app.useGlobalInterceptors(new LoggerErrorInterceptor());
+  if (enviroment !== 'test') {
+    app.useLogger(app.get(Logger));
+
+    app.useGlobalInterceptors(new LoggerErrorInterceptor());
+  }
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 

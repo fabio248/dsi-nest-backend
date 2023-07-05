@@ -1,4 +1,5 @@
 export const configuration = () => ({
+  env: process.env.NODE_ENV || 'development',
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
   baseUrl: process.env.BASE_URL,
   database: {
@@ -20,6 +21,12 @@ export const configuration = () => ({
       expire: process.env.JWT_EXPIRE_TIME_REFRESH_TOKEN
         ? parseInt(process.env.JWT_EXPIRE_TIME_REFRESH_TOKEN)
         : 730,
+    },
+  },
+  test: {
+    database: {
+      name: process.env.DB_NAME_TEST,
+      port: process.env.DB_NAME_PORT,
     },
   },
 });
