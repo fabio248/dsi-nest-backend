@@ -19,8 +19,8 @@ describe('UsersController (e2e)', () => {
   let app: INestApplication;
   let userRepository: Repository<User>;
   let listUser: User[];
-  const accessTokenAdmin = buildAccessToken(UserRole.ADMIN);
   let user: User;
+  const accessTokenAdmin = buildAccessToken(UserRole.ADMIN);
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

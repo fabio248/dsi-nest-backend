@@ -12,7 +12,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/input/create-user.input';
 import { UpdateUserDto } from './dto/input/update-user.input';
-import { UserResponse } from './dto/response/user.response';
+import { UserResponseDto } from './dto/response/user.response';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from './entities/user.entity';
@@ -25,7 +25,7 @@ export class UsersController {
 
   @Public()
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<UserResponse> {
+  create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto);
   }
 
@@ -37,7 +37,7 @@ export class UsersController {
 
   @ApiBearerAuth()
   @Get(':userId')
-  findOne(@Param('userId') id: string): Promise<UserResponse> {
+  findOne(@Param('userId') id: string): Promise<UserResponseDto> {
     return this.usersService.findOneById(+id);
   }
 

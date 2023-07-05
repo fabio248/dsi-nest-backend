@@ -1,8 +1,8 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { UserRole } from '../../entities/user.entity';
 
-export class UserResponse {
+export class UserResponseDto {
   @Expose()
   id: number;
 
@@ -16,19 +16,23 @@ export class UserResponse {
   lastName: string;
 
   @Expose()
-  phone: string;
-
-  @Expose()
-  direction: string;
-
-  @Expose()
-  dui: string;
-
-  @Expose()
   role: UserRole;
 
   @Expose()
-  birthday: Date;
+  phone?: string;
+
+  @Expose()
+  direction?: string;
+
+  @Expose()
+  dui?: string;
+
+  /**
+   * La fecha es retornada en este formato: dd/mm/aaaa
+   */
+  @Expose()
+  @Transform(({ value }) => value.toLocaleDateString('es-SV'))
+  birthday?: Date;
 
   @ApiHideProperty()
   @Exclude()

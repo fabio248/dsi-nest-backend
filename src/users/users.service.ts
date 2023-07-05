@@ -5,7 +5,7 @@ import * as bcrypt from 'bcryptjs';
 import { CreateUserDto, UpdateUserDto } from './dto/input';
 import { User } from './entities/user.entity';
 import { plainToInstance } from 'class-transformer';
-import { UserResponse } from './dto/response/user.response';
+import { UserResponseDto } from './dto/response/user.response';
 import { UserNotFoundException } from './exception';
 import { TransformStringToDate } from '../shared/utils/transform-date.utils';
 import { EmailAlreadyTakenException } from './exception/email-already-taken.exception';
@@ -21,7 +21,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserResponse> {
+  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     this.logger.log('Create a user');
 
     const { birthday, email } = createUserDto;
@@ -41,7 +41,7 @@ export class UsersService {
       birthday: transformedDate,
     });
 
-    return plainToInstance(UserResponse, user);
+    return plainToInstance(UserResponseDto, user);
   }
 
   async findAll(args: FindAllUserArgs) {
@@ -50,10 +50,10 @@ export class UsersService {
 
     const listUser = await this.userRepository.find({ skip, take });
 
-    return listUser.map((user) => plainToInstance(UserResponse, user));
+    return listUser.map((user) => plainToInstance(UserResponseDto, user));
   }
 
-  async findOneById(id: number): Promise<UserResponse> {
+  async findOneById(id: number): Promise<UserResponseDto> {
     this.logger.log('Retrieve one user');
 
     const user = await this.userRepository.findOneBy({ id });
@@ -62,10 +62,10 @@ export class UsersService {
       throw new UserNotFoundException({ id });
     }
 
-    return plainToInstance(UserResponse, user);
+    return plainToInstance(UserResponseDto, user);
   }
 
-  async findOneByEmail(email: string): Promise<UserResponse> {
+  async findOneByEmail(email: string): Promise<UserResponseDto> {
     this.logger.log('Retrieve one user');
 
     const user = await this.userRepository.findOneBy({ email });
@@ -74,13 +74,25 @@ export class UsersService {
       throw new UserNotFoundException({ email });
     }
 
-    return plainToInstance(UserResponse, user);
+    return plainToInstance(UserResponseDto, user);
+  }
+
+  async findOneByEmailGoogle(email: string): Promise<UserResponseDto | null> {
+    this.logger.log('Retrieve one user');
+
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (!user) {
+      return null;
+    }
+
+    return plainToInstance(UserResponseDto, user);
   }
 
   async update(
     id: number,
     updateUserDto: UpdateUserDto,
-  ): Promise<UserResponse> {
+  ): Promise<UserResponseDto> {
     this.logger.log('Update one user');
 
     const user = await this.userRepository.findOneBy({ id });
@@ -100,23 +112,23 @@ export class UsersService {
       ...updateUserDto,
     });
 
-    return plainToInstance(UserResponse, updatedUser);
+    return plainToInstance(UserResponseDto, updatedUser);
   }
 
-  async remove(id: number): Promise<UserResponse> {
+  async remove(id: number): Promise<UserResponseDto> {
     this.logger.log('Delete one user');
 
     const user = await this.findOneById(id);
 
     this.userRepository.delete({ id });
 
-    return plainToInstance(UserResponse, user);
+    return plainToInstance(UserResponseDto, user);
   }
 
   async verifyCredentials(
     email: string,
     password: string,
-  ): Promise<UserResponse> {
+  ): Promise<UserResponseDto> {
     this.logger.log('Verify credentials');
 
     const user = await this.userRepository.findOneBy({ email });
@@ -131,6 +143,6 @@ export class UsersService {
       throw new InvalidCredentialsException();
     }
 
-    return plainToInstance(UserResponse, user);
+    return plainToInstance(UserResponseDto, user);
   }
 }
