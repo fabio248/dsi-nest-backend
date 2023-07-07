@@ -6,9 +6,9 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
-import { UserRole } from '../../entities/user.entity';
 import { Transform } from 'class-transformer';
-import { hashSync } from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
+import { UserRole } from '../enum/role.enum';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -17,7 +17,7 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @Transform(({ value }: { value: string }) => hashSync(value, 10))
+  @Transform(({ value }: { value: string }) => bcrypt.hashSync(value, 10))
   password: string;
 
   @IsNotEmpty()

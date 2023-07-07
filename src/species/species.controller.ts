@@ -1,18 +1,18 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { SpeciesService } from './species.service';
 import { CreateSpeciesInput, UpdateSpeciesInput } from './dto/input';
-import { UserRole } from '../users/entities/user.entity';
 import RoleGuard from '../auth/guards/role.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 
 @Controller('species')
 @UseGuards(RoleGuard(UserRole.ADMIN))

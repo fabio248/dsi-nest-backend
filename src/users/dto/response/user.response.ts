@@ -1,6 +1,6 @@
 import { ApiHideProperty } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 import { Exclude, Expose, Transform } from 'class-transformer';
-import { UserRole } from '../../entities/user.entity';
 
 export class UserResponseDto {
   @Expose()

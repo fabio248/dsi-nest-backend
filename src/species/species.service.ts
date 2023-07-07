@@ -1,21 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CreateSpeciesInput, UpdateSpeciesInput } from './dto/input';
-import { Specie } from './entities/species.entity';
 import { plainToInstance } from 'class-transformer';
 import { SpecieResponseDto } from './dto/response/specie.response';
 import {
   SpecieAlreadyExitsException,
   SpecieNotFoundException,
 } from './exception';
+import { PrismaService } from '../database/database.service';
+import { Specie } from '@prisma/client';
 
 @Injectable()
 export class SpeciesService {
-  constructor(
-    @InjectRepository(Specie)
-    private readonly specieRepository: Repository<Specie>,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(
     createSpeciesDto: CreateSpeciesInput,
@@ -28,13 +24,15 @@ export class SpeciesService {
       throw new SpecieAlreadyExitsException(name);
     }
 
-    const newSpecie = await this.specieRepository.save(createSpeciesDto);
+    const newSpecie = await this.prismaService.specie.create({
+      data: createSpeciesDto,
+    });
 
     return plainToInstance(SpecieResponseDto, newSpecie);
   }
 
   async findAll(): Promise<SpecieResponseDto[]> {
-    const listSpecie = await this.specieRepository.find();
+    const listSpecie = await this.prismaService.specie.findMany();
 
     return listSpecie.map((specie) =>
       plainToInstance(SpecieResponseDto, specie),
@@ -42,7 +40,9 @@ export class SpeciesService {
   }
 
   async findOneById(id: number): Promise<SpecieResponseDto> {
-    const specie = await this.specieRepository.findOneBy({ id });
+    const specie = await this.prismaService.specie.findUnique({
+      where: { id },
+    });
 
     if (!specie) {
       throw new SpecieNotFoundException(id);
@@ -52,7 +52,9 @@ export class SpeciesService {
   }
 
   async findOneByName(name: string): Promise<SpecieResponseDto | null> {
-    const specie = await this.specieRepository.findOneBy({ name });
+    const specie = await this.prismaService.specie.findUnique({
+      where: { name },
+    });
 
     if (!specie) {
       return null;
@@ -61,19 +63,27 @@ export class SpeciesService {
     return plainToInstance(SpecieResponseDto, specie);
   }
 
-  async update(
-    id: number,
-    updateSpeciesDto: UpdateSpeciesInput,
-  ): Promise<SpecieResponseDto> {
-    const specie = await this.specieRepository.findOneBy({ id });
+  async findOne(id: number): Promise<Specie> {
+    const specie = await this.prismaService.specie.findUnique({
+      where: { id },
+    });
 
     if (!specie) {
       throw new SpecieNotFoundException(id);
     }
 
-    const updatedSpecie = await this.specieRepository.save({
-      ...specie,
-      ...updateSpeciesDto,
+    return specie;
+  }
+
+  async update(
+    id: number,
+    updateSpeciesDto: UpdateSpeciesInput,
+  ): Promise<SpecieResponseDto> {
+    await this.findOneById(id);
+
+    const updatedSpecie = await this.prismaService.specie.update({
+      where: { id },
+      data: updateSpeciesDto,
     });
 
     return plainToInstance(SpecieResponseDto, updatedSpecie);
@@ -82,7 +92,7 @@ export class SpeciesService {
   async remove(id: number): Promise<SpecieResponseDto> {
     const specie = await this.findOneById(id);
 
-    this.specieRepository.delete({ id });
+    this.prismaService.specie.delete({ where: { id } });
 
     return plainToInstance(SpecieResponseDto, specie);
   }

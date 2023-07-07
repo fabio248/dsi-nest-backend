@@ -1,13 +1,13 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/input/create-user.input';
@@ -15,9 +15,10 @@ import { UpdateUserDto } from './dto/input/update-user.input';
 import { UserResponseDto } from './dto/response/user.response';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import RoleGuard from '../auth/guards/role.guard';
-import { UserRole } from './entities/user.entity';
 import { Public } from '../auth/decorators/public-route.decorator';
 import { FindAllUserArgs } from './dto/args/find-all-user.arg';
+import { UserRole } from '@prisma/client';
+
 @Controller({ path: 'users', version: '1' })
 @UseGuards(RoleGuard(UserRole.ADMIN, UserRole.CLIENT))
 export class UsersController {

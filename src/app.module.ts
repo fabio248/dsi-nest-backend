@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { configuration } from './config';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
+import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
+import { PetsModule } from './pets/pets.module';
 import { SpeciesModule } from './species/species.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -14,29 +14,16 @@ import { SpeciesModule } from './species/species.module';
       isGlobal: true,
       load: [configuration],
     }),
-    TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
-    LoggerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const env = configService.get('env');
-        if (env !== 'test') {
-          return {
-            pinoHttp: {
-              transport: { target: 'pino-pretty' },
-            },
-          };
-        }
-        return {
-          pinoHttp: {
-            transport: { target: 'pino-pretty' },
-          },
-        };
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: { target: 'pino-pretty' },
       },
     }),
     UsersModule,
     AuthModule,
+    PetsModule,
     SpeciesModule,
+    DatabaseModule,
   ],
   controllers: [],
   providers: [],

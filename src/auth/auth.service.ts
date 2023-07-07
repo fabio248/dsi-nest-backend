@@ -9,6 +9,7 @@ import { JwtPayload, JwtTokenType } from './interfaces/jwt.interface';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/input';
 import { InvalidTokenException } from './exception';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,10 @@ export class AuthService {
 
     const { email } = createUserDto;
 
-    let user = await this.userService.findOneByEmailGoogle(email);
+    let user = plainToInstance(
+      UserResponseDto,
+      await this.userService.findOneWithSensitiveInfo({ email }),
+    );
 
     if (!user) {
       user = await this.userService.create(createUserDto);
