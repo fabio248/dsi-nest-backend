@@ -16,7 +16,7 @@ model User {
   lastName      String    @map("last_name")
   email         String    @unique()
   password      String
-  role          UserRole? @default(CLIENT)
+  role          UserRole? @default(client)
   phone         String?
   birthday      DateTime?
   direction     String?
@@ -78,11 +78,11 @@ model base {
 
 
 enum UserRole {
-  ADMIN
-  CLIENT
+  admin
+  client
 }
 
 enum Gender{
-  MACHO
-  HEMBRA
+  macho
+  hembra
 }

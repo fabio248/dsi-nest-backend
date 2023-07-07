@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto, UpdateUserDto } from './dto/input';
@@ -7,9 +8,10 @@ import { UserNotFoundException } from './exception';
 import { TransformStringToDate } from '../shared/utils/transform-date.utils';
 import { EmailAlreadyTakenException } from './exception/email-already-taken.exception';
 import { InvalidCredentialsException } from './exception/invalid-credential.exception';
-import { FindAllUserArgs } from './dto/args/find-all-user.arg';
+import { FindAllUserArgs } from './dto/args/find-all-user.args';
 import { PrismaService } from '../database/database.service';
 import { Prisma, User } from '@prisma/client';
+import { CreateUserWithPetDto } from './dto/input/create-user-with-pet.input';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +39,25 @@ export class UsersService {
     });
 
     return plainToInstance(UserResponseDto, user);
+  }
+
+  async createUserWithPet(createUserWithPetDto: CreateUserWithPetDto) {
+    //@ts-ignore
+    const createUserDto = { ...createUserWithPetDto, pet: undefined };
+    const { pet } = createUserWithPetDto;
+
+    pet.birthday = TransformStringToDate(pet.birthday as string);
+
+    createUserDto.birthday = TransformStringToDate(
+      createUserWithPetDto.birthday as string,
+    );
+
+    const response = await this.prisma.user.create({
+      data: { ...createUserDto, pets: { create: pet } },
+      include: { pets: true },
+    });
+
+    return plainToInstance(UserResponseDto, response);
   }
 
   async findAll(args: FindAllUserArgs) {

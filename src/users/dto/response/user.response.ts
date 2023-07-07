@@ -1,6 +1,8 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { UserRole } from '@prisma/client';
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { UserRole } from '../enum/role.enum';
+import { Pet } from '@prisma/client';
+import { PetResponseDto } from '../../../pets/dto/response/pet.response';
 
 export class UserResponseDto {
   @Expose()
@@ -26,6 +28,10 @@ export class UserResponseDto {
 
   @Expose()
   dui?: string;
+
+  @Expose()
+  @Type(() => PetResponseDto)
+  pets?: Pet[];
 
   /**
    * La fecha es retornada en este formato: dd/mm/aaaa

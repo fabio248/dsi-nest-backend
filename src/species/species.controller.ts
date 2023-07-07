@@ -15,7 +15,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 
 @Controller('species')
-@UseGuards(RoleGuard(UserRole.ADMIN))
+@UseGuards(RoleGuard(UserRole.admin))
 @ApiBearerAuth()
 export class SpeciesController {
   constructor(private readonly speciesService: SpeciesService) {}
