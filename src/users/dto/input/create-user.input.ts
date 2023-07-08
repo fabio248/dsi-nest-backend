@@ -10,7 +10,7 @@ import { Transform } from 'class-transformer';
 import * as bcrypt from 'bcryptjs';
 import { UserRole } from '../enum/role.enum';
 
-export class CreateUserDto {
+export class CreateUserInput {
   @IsNotEmpty()
   @IsEmail()
   email: string;

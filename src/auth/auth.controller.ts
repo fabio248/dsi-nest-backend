@@ -3,7 +3,8 @@ import { SignInInput } from './dto/input/sign-in.input';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/input';
 import { RefreshTokenInput } from './dto/input/refresh-token.input';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

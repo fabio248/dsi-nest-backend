@@ -11,9 +11,9 @@ import {
 import { SpeciesService } from './species.service';
 import { CreateSpeciesInput, UpdateSpeciesInput } from './dto/input';
 import RoleGuard from '../auth/guards/role.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-
+@ApiTags('Species')
 @Controller('species')
 @UseGuards(RoleGuard(UserRole.admin))
 @ApiBearerAuth()

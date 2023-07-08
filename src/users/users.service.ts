@@ -11,7 +11,7 @@ import { InvalidCredentialsException } from './exception/invalid-credential.exce
 import { FindAllUserArgs } from './dto/args/find-all-user.args';
 import { PrismaService } from '../database/database.service';
 import { Prisma, User } from '@prisma/client';
-import { CreateUserWithPetDto } from './dto/input/create-user-with-pet.input';
+import { CreateUserWithPetInput } from './dto/input/create-user-with-pet.input';
 
 @Injectable()
 export class UsersService {
@@ -24,13 +24,7 @@ export class UsersService {
 
     const { birthday, email } = createUserDto;
 
-    const isEmailAlreadyTaken = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (isEmailAlreadyTaken) {
-      throw new EmailAlreadyTakenException(email);
-    }
+    await this.thrwoErrorIfEmailIsAlreadyTaken(email);
 
     createUserDto.birthday = TransformStringToDate(birthday as string);
 
@@ -41,23 +35,68 @@ export class UsersService {
     return plainToInstance(UserResponseDto, user);
   }
 
-  async createUserWithPet(createUserWithPetDto: CreateUserWithPetDto) {
+  async createUserWithPet(createUserWithPetDto: CreateUserWithPetInput) {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
-    const { pet } = createUserWithPetDto;
+    const { pet, email } = createUserWithPetDto;
+    const { medicalHistory } = pet;
+    const { otherPet, food, physicalExam } = medicalHistory;
+
+    await this.thrwoErrorIfEmailIsAlreadyTaken(email);
 
     pet.birthday = TransformStringToDate(pet.birthday as string);
 
     createUserDto.birthday = TransformStringToDate(
-      createUserWithPetDto.birthday as string,
+      createUserDto.birthday as string,
     );
 
     const response = await this.prisma.user.create({
-      data: { ...createUserDto, pets: { create: pet } },
-      include: { pets: true },
+      data: {
+        ...createUserDto,
+        pets: {
+          create: {
+            ...pet,
+            medicalHistory: {
+              create: {
+                ...medicalHistory,
+                food: {
+                  create: food,
+                },
+                otherPet: {
+                  create: otherPet,
+                },
+                physicalExam: {
+                  create: physicalExam,
+                },
+              },
+            },
+            specie: { connect: { id: pet.specieId } },
+            specieId: undefined as never,
+          },
+        },
+      },
+      include: {
+        pets: {
+          include: {
+            medicalHistory: {
+              include: { food: true, physicalExam: true, otherPet: true },
+            },
+          },
+        },
+      },
     });
 
     return plainToInstance(UserResponseDto, response);
+  }
+
+  async thrwoErrorIfEmailIsAlreadyTaken(email: string): Promise<void> {
+    const isEmailAlreadyTaken = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (isEmailAlreadyTaken) {
+      throw new EmailAlreadyTakenException(email);
+    }
   }
 
   async findAll(args: FindAllUserArgs) {

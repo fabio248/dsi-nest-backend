@@ -11,19 +11,19 @@ import {
   UseGuards,
   forwardRef,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/input/create-user.input';
+import { CreateUserInput } from './dto/input/create-user.input';
 import { UpdateUserDto } from './dto/input/update-user.input';
 import { UserResponseDto } from './dto/response/user.response';
 import RoleGuard from '../auth/guards/role.guard';
 import { Public } from '../auth/decorators/public-route.decorator';
 import { FindAllUserArgs } from './dto/args/find-all-user.args';
-import { CreatePetDto } from '../pets/dto/input/create-pet.input';
+import { CreatePetInput } from '../pets/dto/input/create-pet.input';
 import { PetsService } from '../pets/pets.service';
-import { CreateUserWithPetDto } from './dto/input/create-user-with-pet.input';
-
+import { CreateUserWithPetInput } from './dto/input/create-user-with-pet.input';
+@ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
 @UseGuards(RoleGuard(UserRole.admin, UserRole.client))
 export class UsersController {
@@ -35,7 +35,7 @@ export class UsersController {
 
   @Public()
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
+  create(@Body() createUserDto: CreateUserInput): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto);
   }
 
@@ -69,15 +69,16 @@ export class UsersController {
   @ApiBearerAuth()
   @Post(':userId/pets')
   createPet(
-    @Query(':userId') userId: number,
-    @Body() createPetDto: CreatePetDto,
+    @Param('userId') userId: number,
+    @Body() createPetDto: CreatePetInput,
   ) {
+    console.log({ userId });
     return this.petService.create(userId, createPetDto);
   }
 
   @ApiBearerAuth()
   @Post('pets')
-  createUserWithPet(@Body() createUserWithPetDto: CreateUserWithPetDto) {
+  createUserWithPet(@Body() createUserWithPetDto: CreateUserWithPetInput) {
     return this.usersService.createUserWithPet(createUserWithPetDto);
   }
 }

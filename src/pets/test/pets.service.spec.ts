@@ -6,7 +6,7 @@ import {
   createMockPetRepository,
 } from '../mocks/pets.repository.mock';
 import { Pet } from '../entities/pet.entity';
-import { CreatePetDto } from '../dto/input/create-pet.input';
+import { CreatePetInput } from '../dto/input/create-pet.input';
 
 describe('PetsService', () => {
   let service: PetsService;
@@ -35,7 +35,7 @@ describe('PetsService', () => {
   it('should create a new pet', async () => {
     mockPetRepository.save.mockResolvedValueOnce(pet);
 
-    const actual = await service.create(pet as unknown as CreatePetDto);
+    const actual = await service.create(pet as unknown as CreatePetInput);
 
     expect(actual).toEqual(pet);
     expect(mockPetRepository.save).toHaveBeenCalledTimes(1);

@@ -1,8 +1,11 @@
-import { IsObject } from 'class-validator';
-import { CreatePetDto } from '../../../pets/dto/input/create-pet.input';
-import { CreateUserDto } from './create-user.input';
+import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { CreatePetInput } from '../../../pets/dto/input/create-pet.input';
+import { CreateUserInput } from './create-user.input';
+import { Type } from 'class-transformer';
 
-export class CreateUserWithPetDto extends CreateUserDto {
-  @IsObject()
-  pet: CreatePetDto;
+export class CreateUserWithPetInput extends CreateUserInput {
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePetInput)
+  pet: CreatePetInput;
 }
