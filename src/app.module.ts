@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { PetsModule } from './pets/pets.module';
 import { SpeciesModule } from './species/species.module';
 import { DatabaseModule } from './database/database.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DatabaseModule } from './database/database.module';
     PetsModule,
     SpeciesModule,
     DatabaseModule,
+    MailerModule,
   ],
   controllers: [],
   providers: [],

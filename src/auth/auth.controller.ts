@@ -1,9 +1,13 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { SignInInput } from './dto/input/sign-in.input';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/input';
-import { RefreshTokenInput } from './dto/input/refresh-token.input';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ChangePasswordInput,
+  RecoveryMailInput,
+  RefreshTokenInput,
+  SignInInput,
+} from './dto/input';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -22,5 +26,15 @@ export class AuthController {
   @Post('refresh-token')
   refreshToken(@Body() refreshTokenInput: RefreshTokenInput) {
     return this.authService.refreshToken(refreshTokenInput);
+  }
+
+  @Post('forgot-password')
+  sendRecoveryMail(@Body() recoveryMailInput: RecoveryMailInput) {
+    return this.authService.sendRecoveryEmail(recoveryMailInput);
+  }
+
+  @Post('change-password')
+  changePassword(@Body() changePasswordInput: ChangePasswordInput) {
+    return this.authService.changePassword(changePasswordInput);
   }
 }

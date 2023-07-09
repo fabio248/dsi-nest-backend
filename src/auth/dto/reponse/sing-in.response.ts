@@ -1,4 +1,4 @@
-export class SignInResponse {
+export class SignInResponseDto {
   accessToken: string;
   refreshToken: string;
 }

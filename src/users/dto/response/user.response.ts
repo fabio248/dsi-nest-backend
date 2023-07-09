@@ -50,4 +50,6 @@ export class UserResponseDto {
   @ApiHideProperty()
   @Exclude()
   updatedAt: string;
+
+  recoveryToken: string;
 }

@@ -203,4 +203,18 @@ export class UsersService {
 
     return plainToInstance(UserResponseDto, user);
   }
+
+  async isValidRecoveryToken(
+    userId: number,
+    recoveryToken: string,
+  ): Promise<boolean> {
+    const user = await this.findOneById(userId);
+    console.log({ recoveryToken: user.recoveryToken });
+
+    if (user.recoveryToken !== recoveryToken) {
+      return false;
+    }
+
+    return true;
+  }
 }

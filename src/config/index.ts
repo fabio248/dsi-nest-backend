@@ -29,4 +29,10 @@ export const configuration = () => ({
       port: process.env.DB_NAME_PORT,
     },
   },
+  smtp: {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 465,
+    email: process.env.SMTP_EMAIL,
+    password: process.env.SMTP_PASSWORD,
+  },
 });

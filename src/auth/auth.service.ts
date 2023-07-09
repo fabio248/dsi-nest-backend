@@ -1,27 +1,37 @@
-import { RefreshTokenInput } from './dto/input/refresh-token.input';
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import * as Jwt from 'jsonwebtoken';
-import { SignInInput } from './dto/input/sign-in.input';
-import { SignInResponse } from './dto/reponse/sing-in.response';
+import { SignInResponseDto } from './dto/reponse/sing-in.response';
 import { UserResponseDto } from '../users/dto/response/user.response';
 import { JwtPayload, JwtTokenType } from './interfaces/jwt.interface';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/input';
 import { InvalidTokenException } from './exception';
 import { plainToInstance } from 'class-transformer';
+import { MailerService } from '../mailer/mailer.service';
+import { getRecoveryMail } from './utils/mails/recovery-password.mail';
+import {
+  ChangePasswordInput,
+  RecoveryMailInput,
+  SignInInput,
+  RefreshTokenInput,
+} from './dto/input';
+import { ChangedPaswordResponseDto } from './dto/reponse';
+import { getChangedPasswordMail } from './utils/mails/changed-password.mail';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private readonly jwtSecret = this.configService.get('jwt.secret');
+  private secret = this.configService.get<string>('jwt.secret');
 
   constructor(
     private readonly configService: ConfigService,
     private readonly userService: UsersService,
+    private readonly mailerService: MailerService,
   ) {}
 
-  async singIn(signInInput: SignInInput): Promise<SignInResponse> {
+  async singIn(signInInput: SignInInput): Promise<SignInResponseDto> {
     this.logger.log('Sign In');
     const { email, password } = signInInput;
 
@@ -33,7 +43,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async signInGoogle(createUserDto: CreateUserDto): Promise<SignInResponse> {
+  async signInGoogle(createUserDto: CreateUserDto): Promise<SignInResponseDto> {
     this.logger.log('Sign in with google');
 
     const { email } = createUserDto;
@@ -120,6 +130,79 @@ export class AuthService {
       const accessToken = this.createAccessToken(user);
 
       return { accessToken };
+    } catch (error) {
+      throw new InvalidTokenException();
+    }
+  }
+
+  async sendRecoveryEmail(recoveryMailInput: RecoveryMailInput) {
+    const { email } = recoveryMailInput;
+
+    const user = await this.userService.findOneByEmail(email);
+
+    const recoveryToken = Jwt.sign({ sub: user.id }, this.secret as string, {
+      expiresIn: '15min',
+    });
+
+    this.userService.update(user.id, { recoveryToken });
+
+    const emailBody = getRecoveryMail(
+      user.firstName,
+      user.lastName,
+      recoveryToken,
+    );
+
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Recuperacion de contraseña',
+      html: emailBody,
+    });
+
+    return { message: `Mail sent to ${email}` };
+  }
+
+  async sendChangedPasswordMail(
+    userId: number,
+  ): Promise<ChangedPaswordResponseDto> {
+    const { email, firstName, lastName } = await this.userService.findOneById(
+      userId,
+    );
+
+    const emailBody = getChangedPasswordMail(firstName, lastName);
+
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Cambio de contraseña exitoso',
+      html: emailBody,
+    });
+
+    const response = new ChangedPaswordResponseDto(email);
+
+    return response;
+  }
+
+  async changePassword(
+    changePasswordInput: ChangePasswordInput,
+  ): Promise<ChangedPaswordResponseDto> {
+    try {
+      const { newPassword, recoveryToken } = changePasswordInput;
+      const { sub: userId } = Jwt.verify(recoveryToken, this.secret as string);
+
+      const isValidToken = await this.userService.isValidRecoveryToken(
+        +userId,
+        recoveryToken,
+      );
+
+      if (!isValidToken) {
+        throw new InvalidTokenException();
+      }
+
+      this.userService.update(+userId, {
+        password: newPassword,
+        recoveryToken: null,
+      });
+
+      return this.sendChangedPasswordMail(+userId);
     } catch (error) {
       throw new InvalidTokenException();
     }
