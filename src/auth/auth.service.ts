@@ -1,23 +1,21 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import * as Jwt from 'jsonwebtoken';
-import { SignInResponseDto } from './dto/reponse/sing-in.response';
+import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from '../users/dto/response/user.response';
 import { JwtPayload, JwtTokenType } from './interfaces/jwt.interface';
 import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/input';
+import { CreateUserInput } from '../users/dto/input';
 import { InvalidTokenException } from './exception';
-import { plainToInstance } from 'class-transformer';
 import { MailerService } from '../mailer/mailer.service';
-import { getRecoveryMail } from './utils/mails/recovery-password.mail';
+import { getRecoveryMail, getChangedPasswordMail } from './utils/mails';
 import {
   ChangePasswordInput,
   RecoveryMailInput,
   SignInInput,
   RefreshTokenInput,
 } from './dto/input';
-import { ChangedPaswordResponseDto } from './dto/reponse';
-import { getChangedPasswordMail } from './utils/mails/changed-password.mail';
+import { ChangedPaswordResponseDto, SignInResponseDto } from './dto/reponse';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +41,9 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async signInGoogle(createUserDto: CreateUserDto): Promise<SignInResponseDto> {
+  async signInGoogle(
+    createUserDto: CreateUserInput,
+  ): Promise<SignInResponseDto> {
     this.logger.log('Sign in with google');
 
     const { email } = createUserDto;

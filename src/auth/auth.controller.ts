@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/input';
+import { CreateUserInput } from '../users/dto/input';
 import {
   ChangePasswordInput,
   RecoveryMailInput,
@@ -19,7 +19,7 @@ export class AuthController {
   }
 
   @Post('login-google')
-  signInGoogle(@Body() createUserDto: CreateUserDto) {
+  signInGoogle(@Body() createUserDto: CreateUserInput) {
     return this.authService.signInGoogle(createUserDto);
   }
 

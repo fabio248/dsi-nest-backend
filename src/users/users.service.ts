@@ -1,25 +1,35 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { CreateUserDto, UpdateUserDto } from './dto/input';
 import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from './dto/response/user.response';
-import { UserNotFoundException } from './exception';
+import { Prisma, User } from '@prisma/client';
+import {
+  CreateUserInput,
+  UpdateUserDto,
+  CreateUserWithPetInput,
+} from './dto/input';
+import {
+  UserNotFoundException,
+  EmailAlreadyTakenException,
+  InvalidCredentialsException,
+} from './exception';
 import { TransformStringToDate } from '../shared/utils/transform-date.utils';
-import { EmailAlreadyTakenException } from './exception/email-already-taken.exception';
-import { InvalidCredentialsException } from './exception/invalid-credential.exception';
 import { FindAllUserArgs } from './dto/args/find-all-user.args';
 import { PrismaService } from '../database/database.service';
-import { Prisma, User } from '@prisma/client';
-import { CreateUserWithPetInput } from './dto/input/create-user-with-pet.input';
+import { UserWithPetResponseDto, UserResponseDto } from './dto/response';
+import { MailerService } from '../mailer/mailer.service';
+import { getWelcomeMail } from './utils/mails/welcome.mail';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailerService: MailerService,
+  ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
+  async create(createUserDto: CreateUserInput): Promise<UserResponseDto> {
     this.logger.log('Create a user');
 
     const { birthday, email } = createUserDto;
@@ -28,14 +38,18 @@ export class UsersService {
 
     createUserDto.birthday = TransformStringToDate(birthday as string);
 
-    const user = this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: createUserDto,
     });
+
+    this.sendWelcomeMail(user);
 
     return plainToInstance(UserResponseDto, user);
   }
 
-  async createUserWithPet(createUserWithPetDto: CreateUserWithPetInput) {
+  async createUserWithPet(
+    createUserWithPetDto: CreateUserWithPetInput,
+  ): Promise<UserWithPetResponseDto> {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
@@ -50,7 +64,7 @@ export class UsersService {
       createUserDto.birthday as string,
     );
 
-    const response = await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
         pets: {
@@ -86,7 +100,9 @@ export class UsersService {
       },
     });
 
-    return plainToInstance(UserResponseDto, response);
+    this.sendWelcomeMail(user);
+
+    return plainToInstance(UserWithPetResponseDto, user);
   }
 
   async thrwoErrorIfEmailIsAlreadyTaken(email: string): Promise<void> {
@@ -216,5 +232,16 @@ export class UsersService {
     }
 
     return true;
+  }
+
+  async sendWelcomeMail(user: User): Promise<void> {
+    const { firstName, lastName, email } = user;
+    const welcomeMail = getWelcomeMail(firstName, lastName);
+
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Bienvenido a Veterinaria Mitsum',
+      html: welcomeMail,
+    });
   }
 }

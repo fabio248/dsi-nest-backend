@@ -4,9 +4,10 @@ import { UsersController } from './users.controller';
 
 import { DatabaseModule } from '../database/database.module';
 import { PetsModule } from '../pets/pets.module';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
-  imports: [forwardRef(() => PetsModule), DatabaseModule],
+  imports: [forwardRef(() => PetsModule), DatabaseModule, MailerModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
