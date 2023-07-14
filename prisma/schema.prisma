@@ -71,7 +71,23 @@ model Pet {
   specie              Specie           @relation(fields: [specieId], references: [id])
   specieId            Int              @map("specie_id")
 
+  folder              Folder?          @relation(fields: [folderId],references: [id]) 
+  folderId            Int?             @map("folder_id")  
+
   @@map("pet")
+}
+
+model Folder {
+  id            Int       @default(autoincrement()) @unique()
+  name          String    @unique()       
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt()    @map("updated_at")
+
+  //relations
+  pets          Pet[]
+  folders       File[]
+
+  @@map("folder")
 }
 
 model MedicalHistory {
@@ -148,7 +164,7 @@ model OtherPet {
 
 model File {
   id                Int       @default(autoincrement()) @unique()
-  name              Boolean
+  name              String    @unique()
 
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt()    @map("updated_at")
@@ -156,6 +172,9 @@ model File {
   //relations
   medicalHistory    MedicalHistory  @relation(fields: [medicalHistoryId], references: [id])
   medicalHistoryId  Int             @map("medical_history_id")
+
+  folder            Folder          @relation(fields: [folderId],references: [id])
+  folderId          Int             @map("folder_id")
   
   @@map("file")
 }

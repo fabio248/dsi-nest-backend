@@ -23,6 +23,8 @@ import { FindAllUserArgs } from './dto/args/find-all-user.args';
 import { CreatePetInput } from '../pets/dto/input/create-pet.input';
 import { PetsService } from '../pets/pets.service';
 import { CreateUserWithPetInput } from './dto/input/create-user-with-pet.input';
+import { GenericArgs } from '../shared/args/generic.args';
+
 @ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
 @UseGuards(RoleGuard(UserRole.admin, UserRole.client))
@@ -47,23 +49,23 @@ export class UsersController {
 
   @ApiBearerAuth()
   @Get(':userId')
-  findOne(@Param('userId') id: string): Promise<UserResponseDto> {
-    return this.usersService.findOneById(+id);
+  findOne(@Param('userId') id: number): Promise<UserResponseDto> {
+    return this.usersService.findOneById(id);
   }
 
   @ApiBearerAuth()
   @Patch(':userId')
   update(
-    @Param('userId') userId: string,
+    @Param('userId') userId: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.usersService.update(+userId, updateUserDto);
+    return this.usersService.update(userId, updateUserDto);
   }
 
   @ApiBearerAuth()
   @Delete(':userId')
-  remove(@Param('userId') userId: string): Promise<UserResponseDto> {
-    return this.usersService.remove(+userId);
+  remove(@Param('userId') userId: number): Promise<UserResponseDto> {
+    return this.usersService.remove(userId);
   }
 
   @ApiBearerAuth()
@@ -72,7 +74,6 @@ export class UsersController {
     @Param('userId') userId: number,
     @Body() createPetDto: CreatePetInput,
   ) {
-    console.log({ userId });
     return this.petService.create(userId, createPetDto);
   }
 
@@ -80,5 +81,11 @@ export class UsersController {
   @Post('pets')
   createUserWithPet(@Body() createUserWithPetDto: CreateUserWithPetInput) {
     return this.usersService.createUserWithPet(createUserWithPetDto);
+  }
+
+  @ApiBearerAuth()
+  @Get(':userId/pets')
+  getUserWithPet(@Param('userId') userId: number, @Query() args?: GenericArgs) {
+    return this.usersService.findOneWithPet(userId, args);
   }
 }

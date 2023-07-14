@@ -6,14 +6,18 @@ import {
   Param,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PetsService } from './pets.service';
 import { UpdatePetDto } from './dto/input/update-pet.input';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
+import RoleGuard from '../auth/guards/role.guard';
+import { UserRole } from '../users/dto/enum/role.enum';
 
 @ApiTags('Pets')
 @Controller('pets')
+@UseGuards(RoleGuard(UserRole.ADMIN))
 export class PetsController {
   constructor(private readonly petsService: PetsService) {}
 

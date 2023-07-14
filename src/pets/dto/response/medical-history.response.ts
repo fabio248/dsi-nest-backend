@@ -3,6 +3,7 @@ import { FoodResponseDto } from './food.response';
 import { PhysicalExamResponseDto } from './physical-exam.response';
 import { OtherPetResponseDto } from './other-pet.response';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { FileResponseDto } from '../../../files/dto/response';
 
 export class MedicalHistoryResponseDto {
   @Expose()
@@ -54,4 +55,8 @@ export class MedicalHistoryResponseDto {
   @Expose()
   @Type(() => OtherPetResponseDto)
   otherPet: OtherPetResponseDto;
+
+  @Expose()
+  @Type(() => FileResponseDto)
+  files: FileResponseDto[];
 }

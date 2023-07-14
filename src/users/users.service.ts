@@ -19,6 +19,8 @@ import { PrismaService } from '../database/database.service';
 import { UserWithPetResponseDto, UserResponseDto } from './dto/response';
 import { MailerService } from '../mailer/mailer.service';
 import { getWelcomeMail } from './utils/mails/welcome.mail';
+import { GenericArgs } from '../shared/args/generic.args';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +29,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
+    private readonly fileService: FilesService,
   ) {}
 
   async create(createUserDto: CreateUserInput): Promise<UserResponseDto> {
@@ -34,7 +37,7 @@ export class UsersService {
 
     const { birthday, email } = createUserDto;
 
-    await this.thrwoErrorIfEmailIsAlreadyTaken(email);
+    await this.throwErrorIfEmailIsAlreadyTaken(email);
 
     createUserDto.birthday = TransformStringToDate(birthday as string);
 
@@ -56,7 +59,7 @@ export class UsersService {
     const { medicalHistory } = pet;
     const { otherPet, food, physicalExam } = medicalHistory;
 
-    await this.thrwoErrorIfEmailIsAlreadyTaken(email);
+    await this.throwErrorIfEmailIsAlreadyTaken(email);
 
     pet.birthday = TransformStringToDate(pet.birthday as string);
 
@@ -105,7 +108,7 @@ export class UsersService {
     return plainToInstance(UserWithPetResponseDto, user);
   }
 
-  async thrwoErrorIfEmailIsAlreadyTaken(email: string): Promise<void> {
+  async throwErrorIfEmailIsAlreadyTaken(email: string): Promise<void> {
     const isEmailAlreadyTaken = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -136,6 +139,46 @@ export class UsersService {
     }
 
     return plainToInstance(UserResponseDto, user);
+  }
+
+  async findOneWithPet(userId: number, args?: GenericArgs) {
+    const { skip, take } = args;
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        pets: {
+          skip,
+          take,
+          include: {
+            medicalHistory: {
+              include: {
+                food: true,
+                otherPet: true,
+                physicalExam: true,
+                files: true,
+              },
+            },
+            specie: true,
+          },
+        },
+      },
+    });
+
+    const response = plainToInstance(UserWithPetResponseDto, user);
+
+    //add url to each for get files
+    for (const pet of response.pets) {
+      for (const file of pet.medicalHistory.files) {
+        const url = await this.fileService.getUrlToGetFile(
+          file.name,
+          file.folderId,
+        );
+        file.url = url;
+      }
+    }
+
+    return response;
   }
 
   async findOneWithSensitiveInfo(

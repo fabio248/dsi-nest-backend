@@ -8,6 +8,7 @@ import { PetsModule } from './pets/pets.module';
 import { SpeciesModule } from './species/species.module';
 import { DatabaseModule } from './database/database.module';
 import { MailerModule } from './mailer/mailer.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MailerModule } from './mailer/mailer.module';
     SpeciesModule,
     DatabaseModule,
     MailerModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],
