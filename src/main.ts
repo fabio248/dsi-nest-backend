@@ -10,13 +10,10 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get('port');
-  const enviroment = configService.get('env');
 
-  if (enviroment !== 'test') {
-    app.useLogger(app.get(Logger));
+  app.useLogger(app.get(Logger));
 
-    app.useGlobalInterceptors(new LoggerErrorInterceptor());
-  }
+  app.useGlobalInterceptors(new LoggerErrorInterceptor());
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 

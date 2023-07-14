@@ -9,6 +9,7 @@ import { SpeciesModule } from './species/species.module';
 import { DatabaseModule } from './database/database.module';
 import { MailerModule } from './mailer/mailer.module';
 import { FilesModule } from './files/files.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FilesModule } from './files/files.module';
     DatabaseModule,
     MailerModule,
     FilesModule,
+    AppointmentsModule,
   ],
   controllers: [],
   providers: [],

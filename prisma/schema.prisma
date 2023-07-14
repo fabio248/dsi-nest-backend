@@ -181,7 +181,7 @@ model File {
 
 model Appointment {
   id                Int       @default(autoincrement()) @unique()
-  name              Boolean
+  name              String
   startDate         DateTime  @map("start_date")
   endDate           DateTime  @map("end_date")
   description       String
