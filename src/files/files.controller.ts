@@ -1,11 +1,22 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/input/create-file.input';
 import { ApiTags } from '@nestjs/swagger';
 import { GenericArgs } from '../shared/args/generic.args';
+import RoleGuard from '../auth/guards/role.guard';
+import { UserRole } from '@prisma/client';
 
 @ApiTags('Files')
 @Controller('files')
+@UseGuards(RoleGuard(UserRole.admin))
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 

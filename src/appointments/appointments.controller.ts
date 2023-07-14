@@ -6,14 +6,18 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentInput } from './dto/input';
 import { ApiTags } from '@nestjs/swagger';
 import { FindAllAppointmentArgs } from './dto/arg/find-all.args';
+import RoleGuard from '../auth/guards/role.guard';
+import { UserRole } from '@prisma/client';
 
 @ApiTags('Appointments')
 @Controller('appointments')
+@UseGuards(RoleGuard(UserRole.admin))
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
