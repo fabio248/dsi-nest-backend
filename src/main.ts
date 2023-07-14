@@ -23,6 +23,8 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
+  app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('Veterinaria Mitsum')
     .setDescription('API REST para veterinaria Mitsum')
