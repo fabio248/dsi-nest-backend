@@ -71,12 +71,15 @@ export class AuthService {
     this.logger.log('Sign Token');
 
     const payload: JwtPayload = {
-      sub: user.id,
+      identify: user.id,
       role: user.role,
-      tokenType: typeToken,
-      userEmail: user.email,
+      token_type: typeToken,
+      user_id: user.email,
       iat: Date.now(),
       exp: expiredToken.getTime(),
+      sub: user.id,
+      tokenType: typeToken,
+      userEmail: user.email,
     };
 
     const token = Jwt.sign(payload, this.jwtSecret);
