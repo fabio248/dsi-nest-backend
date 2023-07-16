@@ -74,14 +74,13 @@ export class PetsService {
   }
 
   async findAll(findAllPetsArgs: FindAllPetsArgs): Promise<PetResponseDto[]> {
-    const { take, skip, includeUserInfo } = findAllPetsArgs;
+    const { take, skip } = findAllPetsArgs;
 
     const listPets = await this.prisma.pet.findMany({
       skip,
       take,
       include: {
         ...this.includeRelation,
-        user: includeUserInfo,
       },
     });
 
