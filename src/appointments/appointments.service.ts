@@ -70,8 +70,8 @@ export class AppointmentsService {
     newAppointment: CreateAppointmentInput,
     existingAppointments: Appointment[],
   ): boolean {
-    const startDate = new Date(newAppointment.startDate);
-    const endDate = new Date(newAppointment.endDate);
+    const startDate = TransformStringToDate(newAppointment.startDate as string);
+    const endDate = TransformStringToDate(newAppointment.endDate as string);
 
     if (startDate <= new Date()) {
       return false;

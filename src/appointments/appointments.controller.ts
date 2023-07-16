@@ -17,7 +17,7 @@ import { UserRole } from '@prisma/client';
 
 @ApiTags('Appointments')
 @Controller('appointments')
-@UseGuards(RoleGuard(UserRole.admin))
+@UseGuards(RoleGuard(UserRole.admin, UserRole.client))
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
