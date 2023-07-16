@@ -107,6 +107,12 @@ export class PetsService {
     const pet = await this.findOneById(id);
     const { medicalHistory } = updatePetDto;
 
+    if (updatePetDto.birthday) {
+      updatePetDto.birthday = TransformStringToDate(
+        updatePetDto.birthday as string,
+      );
+    }
+
     if (medicalHistory) {
       await this.updateMedicalHistory(pet.medicalHistoryId, medicalHistory);
     }
