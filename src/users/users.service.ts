@@ -239,7 +239,7 @@ export class UsersService {
 
     this.prisma.user.delete({ where: { id } });
 
-    return plainToInstance(UserResponseDto, user);
+    return user;
   }
 
   async verifyCredentials(
