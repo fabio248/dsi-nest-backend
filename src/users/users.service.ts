@@ -237,7 +237,7 @@ export class UsersService {
 
     const user = await this.findOneById(id);
 
-    this.prisma.user.delete({ where: { id } });
+    await this.prisma.user.delete({ where: { id } });
 
     return user;
   }
