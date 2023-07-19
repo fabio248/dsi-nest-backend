@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, User, UserRole } from '@prisma/client';
 import {
   CreateUserInput,
   UpdateUserDto,
@@ -21,6 +21,8 @@ import { MailerService } from '../mailer/mailer.service';
 import { getWelcomeMail } from './utils/mails/welcome.mail';
 import { GenericArgs } from '../shared/args/generic.args';
 import { FilesService } from '../files/files.service';
+import { UserWithPaginationResponseDto } from './dto/response/user-with-pagination.response';
+import { getPaginationParams } from '../shared/helper/pagination-params.helper';
 
 @Injectable()
 export class UsersService {
@@ -118,13 +120,61 @@ export class UsersService {
     }
   }
 
-  async findAll(args: FindAllUserArgs) {
-    const { skip, take } = args;
+  async findAll(args: FindAllUserArgs): Promise<UserWithPaginationResponseDto> {
     this.logger.log('Retrieve all users');
+    const { page, limit, search } = args;
+    const where: Prisma.UserWhereInput = {};
+    let searchRole;
 
-    const listUser = await this.prisma.user.findMany({ skip, take });
+    if (search) {
+      searchRole = this.searchInRoleField(search);
 
-    return listUser.map((user) => plainToInstance(UserResponseDto, user));
+      where.OR = [
+        { firstName: { contains: search } },
+        { lastName: { contains: search } },
+        { email: { contains: search } },
+        { phone: { contains: search } },
+        { direction: { contains: search } },
+        { dui: { contains: search } },
+        { role: searchRole },
+      ];
+    }
+
+    const totalItems = await this.prisma.user.count({
+      where,
+    });
+    const paginationParams = getPaginationParams(totalItems, page, limit);
+
+    const listUser = await this.prisma.user.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      where,
+    });
+
+    const data = listUser.map((user) => plainToInstance(UserResponseDto, user));
+
+    return {
+      data,
+      ...paginationParams,
+    };
+  }
+
+  searchInRoleField(search: string): UserRole | undefined {
+    let searchRole: UserRole;
+
+    const possibleValuesRoleAdmin = ['administrador', 'admin'];
+
+    if (possibleValuesRoleAdmin.includes(search.toLocaleLowerCase())) {
+      searchRole = UserRole.admin;
+    }
+
+    const possibleValuesRoleClient = ['client', 'cliente'];
+
+    if (possibleValuesRoleClient.includes(search.toLocaleLowerCase())) {
+      searchRole = UserRole.client;
+    }
+
+    return searchRole;
   }
 
   async findOneById(id: number): Promise<UserResponseDto> {
@@ -224,6 +274,10 @@ export class UsersService {
       );
     }
 
+    if (updateUserDto.email) {
+      await this.throwErrorIfEmailIsAlreadyTaken(updateUserDto.email);
+    }
+
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
@@ -233,6 +287,7 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<UserResponseDto> {
+    //FIXME añadir que se borren las entidades asociadas
     this.logger.log('Delete one user');
 
     const user = await this.findOneById(id);
