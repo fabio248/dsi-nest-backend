@@ -73,7 +73,7 @@ export function getRecoveryMail(
 
   const name = `${firstName} ${lastName}`;
   const compiledTemplate = Handlebars.compile(template);
-  const renderedEmail = compiledTemplate({ name, recoveryToken });
+  const renderedEmail = compiledTemplate({ name, recoveryToken, urlFront });
 
   return renderedEmail;
 }
