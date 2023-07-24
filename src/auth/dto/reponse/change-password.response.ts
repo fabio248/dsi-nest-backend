@@ -1,7 +1,7 @@
-export class ChangedPaswordResponseDto {
+export class ChangedPasswordResponseDto {
   readonly message: string;
 
   constructor(email: string) {
-    this.message = `Password changed successfully, confimartion mail sent to ${email}`;
+    this.message = `Password changed successfully, confirmation mail sent to ${email}`;
   }
 }

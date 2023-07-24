@@ -4,7 +4,7 @@ export function getRecoveryMail(
   firstName: string,
   lastName: string,
   recoveryToken: string,
-  urlFront = 'https://veterianariamitsum.life',
+  urlFront: string,
 ) {
   const template = `
   <!DOCTYPE html>

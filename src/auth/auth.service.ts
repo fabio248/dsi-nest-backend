@@ -15,13 +15,14 @@ import {
   SignInInput,
   RefreshTokenInput,
 } from './dto/input';
-import { ChangedPaswordResponseDto, SignInResponseDto } from './dto/reponse';
+import { ChangedPasswordResponseDto, SignInResponseDto } from './dto/reponse';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private readonly jwtSecret = this.configService.get('jwt.secret');
   private secret = this.configService.get<string>('jwt.secret');
+  private urlRecoveryFront = this.configService.get<string>('url.recovery');
 
   constructor(
     private readonly configService: ConfigService,
@@ -153,11 +154,12 @@ export class AuthService {
       user.firstName,
       user.lastName,
       recoveryToken,
+      this.urlRecoveryFront,
     );
 
     this.mailerService.sendMail({
       to: email,
-      subject: 'Recuperacion de contraseña',
+      subject: 'Recuperación de contraseña',
       html: emailBody,
     });
 
@@ -166,7 +168,7 @@ export class AuthService {
 
   async sendChangedPasswordMail(
     userId: number,
-  ): Promise<ChangedPaswordResponseDto> {
+  ): Promise<ChangedPasswordResponseDto> {
     const { email, firstName, lastName } = await this.userService.findOneById(
       userId,
     );
@@ -179,14 +181,14 @@ export class AuthService {
       html: emailBody,
     });
 
-    const response = new ChangedPaswordResponseDto(email);
+    const response = new ChangedPasswordResponseDto(email);
 
     return response;
   }
 
   async changePassword(
     changePasswordInput: ChangePasswordInput,
-  ): Promise<ChangedPaswordResponseDto> {
+  ): Promise<ChangedPasswordResponseDto> {
     try {
       const { newPassword, recoveryToken } = changePasswordInput;
       const { sub: userId } = Jwt.verify(recoveryToken, this.secret as string);

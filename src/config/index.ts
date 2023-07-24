@@ -47,4 +47,7 @@ export const configuration = () => ({
       process.env.URL_PRODUCTION_ENVIRONMENT,
     ],
   },
+  url: {
+    recovery: process.env.URL_RECOVERY_PASSWORD,
+  },
 });
