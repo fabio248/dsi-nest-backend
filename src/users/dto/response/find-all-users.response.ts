@@ -1,8 +1,9 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { UserResponseDto } from './user.response';
 
-export class UserWithPaginationResponseDto {
+export class FindAllUsersResponseDto {
   @Expose()
+  @Type(() => UserResponseDto)
   data: UserResponseDto[];
 
   @Expose()
@@ -15,7 +16,7 @@ export class UserWithPaginationResponseDto {
   hasNextPage: boolean;
 
   @Expose()
-  hasPreviosPage: boolean;
+  hasPreviousPage: boolean;
 
   @Expose()
   nextPage: number | null;

@@ -21,7 +21,7 @@ import { MailerService } from '../mailer/mailer.service';
 import { getWelcomeMail } from './utils/mails/welcome.mail';
 import { GenericArgs } from '../shared/args/generic.args';
 import { FilesService } from '../files/files.service';
-import { UserWithPaginationResponseDto } from './dto/response/user-with-pagination.response';
+import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
 
 @Injectable()
@@ -120,7 +120,7 @@ export class UsersService {
     }
   }
 
-  async findAll(args: FindAllUserArgs): Promise<UserWithPaginationResponseDto> {
+  async findAll(args: FindAllUserArgs): Promise<FindAllUsersResponseDto> {
     this.logger.log('Retrieve all users');
     const { page, limit, search } = args;
     const where: Prisma.UserWhereInput = {};
@@ -145,18 +145,16 @@ export class UsersService {
     });
     const paginationParams = getPaginationParams(totalItems, page, limit);
 
-    const listUser = await this.prisma.user.findMany({
+    const data = await this.prisma.user.findMany({
       skip: (page - 1) * limit,
       take: limit,
       where,
     });
 
-    const data = listUser.map((user) => plainToInstance(UserResponseDto, user));
-
-    return {
+    return plainToInstance(FindAllUsersResponseDto, {
       data,
       ...paginationParams,
-    };
+    });
   }
 
   searchInRoleField(search: string): UserRole | undefined {
@@ -164,13 +162,13 @@ export class UsersService {
 
     const possibleValuesRoleAdmin = ['administrador', 'admin'];
 
-    if (possibleValuesRoleAdmin.includes(search.toLocaleLowerCase())) {
+    if (possibleValuesRoleAdmin.includes(search.toLowerCase())) {
       searchRole = UserRole.admin;
     }
 
     const possibleValuesRoleClient = ['client', 'cliente'];
 
-    if (possibleValuesRoleClient.includes(search.toLocaleLowerCase())) {
+    if (possibleValuesRoleClient.includes(search.toLowerCase())) {
       searchRole = UserRole.client;
     }
 

@@ -23,7 +23,7 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  app.enableCors();
+  app.enableCors({ origin: 'http://localhost:5173' });
 
   const config = new DocumentBuilder()
     .setTitle('Veterinaria Mitsum')

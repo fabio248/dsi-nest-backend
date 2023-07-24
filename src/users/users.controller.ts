@@ -24,7 +24,7 @@ import { CreatePetInput } from '../pets/dto/input/create-pet.input';
 import { PetsService } from '../pets/pets.service';
 import { CreateUserWithPetInput } from './dto/input/create-user-with-pet.input';
 import { GenericArgs } from '../shared/args/generic.args';
-import { UserWithPaginationResponseDto } from './dto/response/user-with-pagination.response';
+import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
 
 @ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
@@ -44,9 +44,7 @@ export class UsersController {
 
   @ApiBearerAuth()
   @Get()
-  findAll(
-    @Query() args?: FindAllUserArgs,
-  ): Promise<UserWithPaginationResponseDto> {
+  findAll(@Query() args?: FindAllUserArgs): Promise<FindAllUsersResponseDto> {
     return this.usersService.findAll(args);
   }
 

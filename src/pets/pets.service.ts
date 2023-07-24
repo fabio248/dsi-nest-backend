@@ -11,6 +11,9 @@ import { plainToInstance } from 'class-transformer';
 import { PetResponseDto } from './dto/response/pet.response';
 import { PetNotFoundException } from './exception/pet-not-found.exception';
 import { MedicalHistoryResponseDto } from './dto/response/medical-history.response';
+import { Gender, Prisma } from '@prisma/client';
+import { getPaginationParams } from '../shared/helper/pagination-params.helper';
+import { FindAllPetsResponseDto } from './dto/response/find-all-pets.response';
 
 @Injectable()
 export class PetsService {
@@ -73,18 +76,68 @@ export class PetsService {
     return plainToInstance(PetResponseDto, pet);
   }
 
-  async findAll(findAllPetsArgs: FindAllPetsArgs): Promise<PetResponseDto[]> {
-    const { take, skip } = findAllPetsArgs;
+  async findAll(
+    findAllPetsArgs: FindAllPetsArgs,
+  ): Promise<FindAllPetsResponseDto> {
+    const { page, limit, search } = findAllPetsArgs;
+    const where: Prisma.PetWhereInput = {};
+    let searchGender;
 
-    const listPets = await this.prisma.pet.findMany({
-      skip,
-      take,
+    if (search) {
+      searchGender = this.searchInGenderField(search);
+
+      where.OR = [
+        { raza: { contains: search } },
+        { color: { contains: search } },
+        { name: { contains: search } },
+        { specie: { name: { contains: search } } },
+        { gender: searchGender },
+        {
+          user: {
+            OR: [
+              { firstName: { contains: search } },
+              { lastName: { contains: search } },
+              { email: { contains: search } },
+            ],
+          },
+        },
+      ];
+    }
+
+    const data = await this.prisma.pet.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      where,
       include: {
         ...this.includeRelation,
       },
     });
 
-    return listPets.map((pet) => plainToInstance(PetResponseDto, pet));
+    const totalItem = await this.prisma.pet.count({ where });
+
+    const paginationParams = getPaginationParams(totalItem, page, limit);
+
+    return plainToInstance(FindAllPetsResponseDto, {
+      data,
+      ...paginationParams,
+    });
+  }
+
+  searchInGenderField(search: string): Gender | undefined {
+    let searchGender: Gender;
+
+    const macho = 'macho';
+    const hembra = 'hembra';
+
+    if (macho.includes(search.toLowerCase())) {
+      searchGender = Gender.macho;
+    }
+
+    if (hembra.includes(search.toLowerCase())) {
+      searchGender = Gender.hembra;
+    }
+
+    return searchGender;
   }
 
   async findOneById(id: number): Promise<PetResponseDto> {

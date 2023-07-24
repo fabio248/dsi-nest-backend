@@ -2,7 +2,7 @@ export interface PaginationParams {
   totalItems: number;
   totalPages: number;
   hasNextPage: boolean;
-  hasPreviosPage: boolean;
+  hasPreviousPage: boolean;
   nextPage: number | null;
   previousPage: number | null;
 }

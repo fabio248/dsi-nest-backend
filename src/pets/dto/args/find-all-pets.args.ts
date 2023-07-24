@@ -1,3 +1,3 @@
-import { GenericArgs } from '../../../shared/args/generic.args';
+import { GenericWithSearchArgs } from '../../../shared/args/generic-with-search.args';
 
-export class FindAllPetsArgs extends GenericArgs {}
+export class FindAllPetsArgs extends GenericWithSearchArgs {}
