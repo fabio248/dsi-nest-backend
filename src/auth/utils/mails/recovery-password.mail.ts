@@ -4,6 +4,7 @@ export function getRecoveryMail(
   firstName: string,
   lastName: string,
   recoveryToken: string,
+  urlFront = 'https://veterianariamitsum.life',
 ) {
   const template = `
   <!DOCTYPE html>
@@ -59,7 +60,7 @@ export function getRecoveryMail(
             <h1>Recuperación de Contraseña</h1>
             <p>Hola <strong>{{name}}</strong>,</p>
             <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta. Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
-            <p><a class="button" href="http://www.example.com?recoveryToken={{recoveryToken}}">Restablecer Contraseña</a></p>
+            <p><a class="button" href="{{urlFront}}?token={{recoveryToken}}">Restablecer Contraseña</a></p>
             <p>Si no solicitaste el restablecimiento de contraseña, puedes ignorar este correo electrónico.</p>
             <div class="footer">
             <p>Atentamente,</p>

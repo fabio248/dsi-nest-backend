@@ -3,7 +3,7 @@ import Handlebars from 'handlebars';
 export function getWelcomeMail(
   firstName: string,
   lastName: string,
-  dashboardLink = 'www.example.com/iniciar-sesions',
+  dashboardLink = 'https://www.veterianariamitsum.life/login',
 ) {
   const template = `
   <!DOCTYPE html>
