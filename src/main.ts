@@ -10,6 +10,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get('port');
+  const configCors = configService.get('cors');
 
   app.useLogger(app.get(Logger));
 
@@ -23,7 +24,7 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  app.enableCors({ origin: 'http://localhost:5173' });
+  app.enableCors(configCors);
 
   const config = new DocumentBuilder()
     .setTitle('Veterinaria Mitsum')
