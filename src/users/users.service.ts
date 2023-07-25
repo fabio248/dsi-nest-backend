@@ -285,12 +285,20 @@ export class UsersService {
   }
 
   async remove(id: number): Promise<UserResponseDto> {
-    //FIXME añadir que se borren las entidades asociadas
     this.logger.log('Delete one user');
 
     const user = await this.findOneById(id);
 
-    await this.prisma.user.delete({ where: { id } });
+    //delete user's appointmets
+    const deleteAppointments = this.prisma.appointment.deleteMany({
+      where: { clientId: id },
+    });
+
+    const deletePets = this.prisma.pet.deleteMany({ where: { userId: id } });
+
+    const deletUser = this.prisma.user.delete({ where: { id } });
+
+    await this.prisma.$transaction([deleteAppointments, deletePets, deletUser]);
 
     return user;
   }
