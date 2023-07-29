@@ -80,6 +80,7 @@ export class FilesService {
     return plainToInstance(FolderResponseDto, folder);
   }
 
+  //TODO: add validation when pet does not have medicalHistory
   async create(
     createFileDto: CreateFileDto,
     petId: number,

@@ -216,7 +216,11 @@ export class UsersService {
     const response = plainToInstance(UserWithPetResponseDto, user);
 
     //add url to each for get files
+
     for (const pet of response.pets) {
+      if (!pet.medicalHistory) {
+        continue;
+      }
       for (const file of pet.medicalHistory.files) {
         const url = await this.fileService.getUrlToGetFile(
           file.name,
