@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { configuration } from './config';
@@ -10,7 +11,7 @@ import { DatabaseModule } from './database/database.module';
 import { MailerModule } from './mailer/mailer.module';
 import { FilesModule } from './files/files.module';
 import { AppointmentsModule } from './appointments/appointments.module';
-
+import { ProductsModule } from './products/products.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,6 +31,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
     MailerModule,
     FilesModule,
     AppointmentsModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [],
