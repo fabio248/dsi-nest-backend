@@ -1,12 +1,5 @@
 /* eslint-disable prettier/prettier */
-import {
-  // IsDecimal,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Product } from '../enum/enum.category';
 export class CreateProductInput {
   @IsNotEmpty()
@@ -17,7 +10,7 @@ export class CreateProductInput {
   @IsString()
   descriptionProduct: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(Product)
   category: Product;
 

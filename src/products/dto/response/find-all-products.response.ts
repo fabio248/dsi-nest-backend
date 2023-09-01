@@ -2,7 +2,7 @@
 import { Expose, Type } from 'class-transformer';
 import { ProductResponseDto } from './product.response';
 
-export class FindAllproductsResponseDto {
+export class FindAllProductsResponseDto {
   @Expose()
   @Type(() => ProductResponseDto)
   data: ProductResponseDto[];
