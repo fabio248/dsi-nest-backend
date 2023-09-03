@@ -11,8 +11,8 @@ datasource db {
 }
 
 model User {
-  id            Int       @default(autoincrement()) @unique()
-  firstName      String    @map("first_name")
+  id            Int       @unique() @default(autoincrement())
+  firstName     String    @map("first_name")
   lastName      String    @map("last_name")
   email         String    @unique()
   password      String
@@ -20,191 +20,205 @@ model User {
   phone         String?
   birthday      DateTime?
   direction     String?
-  dui           String?   
+  dui           String?
   recoveryToken String?   @map("recovery_token")
 
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
-  pets          Pet[]
-  appointments  Appointment[]
+  // relations
+  pets         Pet[]
+  appointments Appointment[]
 
   @@map("user")
 }
 
 model Specie {
-  id            Int       @default(autoincrement()) @unique()
-  name          String    @unique()
+  id   Int    @unique() @default(autoincrement())
+  name String @unique()
 
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
-  pets          Pet[]
+  // relations
+  pets Pet[]
 
   @@map("specie")
 }
 
-
 model Pet {
-  id            Int       @default(autoincrement()) @unique()
-  name          String
-  gender        Gender
-  raza          String
-  color         String
-  isHaveTatto   Boolean   @map("is_have_tatto")
-  pedigree      Boolean   
-  birthday      DateTime
+  id          Int      @unique() @default(autoincrement())
+  name        String
+  gender      Gender
+  raza        String
+  color       String
+  isHaveTatto Boolean  @map("is_have_tatto")
+  pedigree    Boolean
+  birthday    DateTime
 
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
+  // relation
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @map("user_id")
 
-  //relation
-  user                User             @relation(fields: [userId], references: [id])
-  userId              Int              @map("user_id")
+  medicalHistory   MedicalHistory? @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  medicalHistoryId Int?            @map("medical_history_id")
 
-  medicalHistory      MedicalHistory?  @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  medicalHistoryId    Int?             @map("medical_history_id")
+  specie   Specie @relation(fields: [specieId], references: [id])
+  specieId Int    @map("specie_id")
 
-  specie              Specie           @relation(fields: [specieId], references: [id])
-  specieId            Int              @map("specie_id")
-
-  folder              Folder?          @relation(fields: [folderId],references: [id],onDelete: Cascade, onUpdate: Cascade) 
-  folderId            Int?             @map("folder_id")  
+  folder   Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  folderId Int?    @map("folder_id")
 
   @@map("pet")
 }
 
 model Folder {
-  id            Int       @default(autoincrement()) @unique()
-  name          String    @unique()       
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt()    @map("updated_at")
+  id        Int      @unique() @default(autoincrement())
+  name      String   @unique()
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
-  pets          Pet[]
-  folders       File[]
+  // relations
+  pets    Pet[]
+  folders File[]
 
   @@map("folder")
 }
 
 model MedicalHistory {
-  id                Int       @default(autoincrement()) @unique()
-  isHaveAllVaccine  Boolean   @map("is_have_all_vaccine")
-  isReproduced      Boolean   @map("is_reproduced")
-  descendants       String
-  room              String
-  diasesEvaluation  String    @map("diases_evaluation")
-  observation       String
+  id               Int     @unique() @default(autoincrement())
+  isHaveAllVaccine Boolean @map("is_have_all_vaccine")
+  isReproduced     Boolean @map("is_reproduced")
+  descendants      String
+  room             String
+  diasesEvaluation String  @map("diases_evaluation")
+  observation      String
 
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
-  pet               Pet[]
+  // relations
+  pet Pet[]
 
-  food              Food          @relation(fields: [foodId],references: [id], onDelete: Cascade, onUpdate: Cascade)
-  foodId            Int           @map("food_id")
+  food   Food @relation(fields: [foodId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  foodId Int  @map("food_id")
 
-  physicalExam      PhysicalExam  @relation(fields: [physicalExamId],references: [id], onDelete: Cascade, onUpdate: Cascade)
-  physicalExamId    Int           @map("phisical_exam_id")
+  physicalExam   PhysicalExam @relation(fields: [physicalExamId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  physicalExamId Int          @map("phisical_exam_id")
 
-  otherPet          OtherPet      @relation(fields: [otherPetId],references: [id], onDelete: Cascade, onUpdate: Cascade)
-  otherPetId        Int           @map("other_pet_id")
+  otherPet   OtherPet @relation(fields: [otherPetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  otherPetId Int      @map("other_pet_id")
 
-  files              File[]
+  diasnostic   Diagnostic? @relation(fields: [diagnosticId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  diagnosticId Int?        @unique() @map("diagnostic_id")
+
+  files File[]
 
   @@map("medical_history")
 }
 
 model Food {
-  id               Int       @default(autoincrement()) @unique()
-  quantity         String
-  type             String
+  id       Int    @unique() @default(autoincrement())
+  quantity String
+  type     String
 
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relation
+  // relation
   medicalHistories MedicalHistory[]
-
 
   @@map("food")
 }
 
 model PhysicalExam {
-  id                Int       @default(autoincrement()) @unique()
-  weight            Float
-  palpitations      String
+  id              Int      @unique() @default(autoincrement())
+  weight          Float
+  palpitations    String
+  temperature     Float?
+  cardiacRate     Float?   @map("cardiac_rate")
+  respiratoryRate Float?   @map("respiratory_rate")
+  pulse           String?
+  mucous          String?
+  laboratoryExam  String?  @map("laboratory_exam")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt() @map("updated_at")
 
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt()    @map("updated_at")
-
-  //relations
-  medicalHistories  MedicalHistory[]
+  // relations
+  medicalHistories MedicalHistory[]
 
   @@map("physical_exam")
 }
 
 model OtherPet {
-  id              Int       @default(autoincrement()) @unique()
-  isLiveOtherPets Boolean   @map("is_live_other_pets")
+  id              Int     @unique() @default(autoincrement())
+  isLiveOtherPets Boolean @map("is_live_other_pets")
   whichPets       String?
 
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   medicalHistories MedicalHistory[]
-  
+
   @@map("other_pet")
 }
 
 model File {
-  id                Int       @default(autoincrement()) @unique()
-  name              String    @unique()
+  id   Int    @unique() @default(autoincrement())
+  name String @unique()
 
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
-  medicalHistory    MedicalHistory  @relation(fields: [medicalHistoryId], references: [id])
-  medicalHistoryId  Int             @map("medical_history_id")
+  // relations
+  medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id])
+  medicalHistoryId Int            @map("medical_history_id")
 
-  folder            Folder?          @relation(fields: [folderId],references: [id], onDelete: SetNull, onUpdate: Cascade)
-  folderId          Int?             @map("folder_id")
-  
+  folder   Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  folderId Int?    @map("folder_id")
+
   @@map("file")
 }
 
 model Appointment {
-  id                Int       @default(autoincrement()) @unique()
-  name              String
-  startDate         DateTime  @map("start_date")
-  endDate           DateTime  @map("end_date")
-  description       String
+  id          Int      @unique() @default(autoincrement())
+  name        String
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  description String
 
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt()    @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
-  client            User      @relation(fields: [clientId],references: [id])
-  clientId          Int       @map("client_id")
-  
+  // relations
+  client   User @relation(fields: [clientId], references: [id])
+  clientId Int  @map("client_id")
+
   @@map("appointment")
 }
 
+model Diagnostic {
+  id          Int    @unique() @default(autoincrement())
+  description String
 
+  // relations
+  medicalHistory MedicalHistory?
 
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt() @map("updated_at")
+  medicalHistoryId Int
+}
 
 enum UserRole {
   admin
   client
 }
 
-enum Gender{
+enum Gender {
   macho
   hembra
 }
