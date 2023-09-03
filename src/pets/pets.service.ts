@@ -87,17 +87,17 @@ export class PetsService {
       searchGender = this.searchInGenderField(search);
 
       where.OR = [
-        { raza: { contains: search } },
-        { color: { contains: search } },
-        { name: { contains: search } },
-        { specie: { name: { contains: search } } },
+        { raza: { contains: search, mode: 'insensitive' } },
+        { color: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { specie: { name: { contains: search, mode: 'insensitive' } } },
         { gender: searchGender },
         {
           user: {
             OR: [
-              { firstName: { contains: search } },
-              { lastName: { contains: search } },
-              { email: { contains: search } },
+              { firstName: { contains: search, mode: 'insensitive' } },
+              { lastName: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
             ],
           },
         },

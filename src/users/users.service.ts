@@ -130,12 +130,12 @@ export class UsersService {
       searchRole = this.searchInRoleField(search);
 
       where.OR = [
-        { firstName: { contains: search } },
-        { lastName: { contains: search } },
-        { email: { contains: search } },
-        { phone: { contains: search } },
-        { direction: { contains: search } },
-        { dui: { contains: search } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+        { direction: { contains: search, mode: 'insensitive' } },
+        { dui: { contains: search, mode: 'insensitive' } },
         { role: searchRole },
       ];
     }
