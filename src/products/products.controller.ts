@@ -16,7 +16,7 @@ import { UpdateProductDto } from './dto/input/update-product-inputs';
 import { ProductResponseDto } from './dto/response/product.response';
 import { ProductsService } from './products.service';
 import { FindAllProductsArgs } from './dto/args/find-all-products_args';
-import { FindAllproductsResponseDto } from './dto/response/find-all-products.response';
+import { FindAllProductsResponseDto } from './dto/response/find-all-products.response';
 
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
@@ -45,7 +45,7 @@ export class ProductsController {
   @Get()
   findAll(
     @Query() args?: FindAllProductsArgs,
-  ): Promise<FindAllproductsResponseDto> {
+  ): Promise<FindAllProductsResponseDto> {
     return this.productsService.findAll(args);
   }
 

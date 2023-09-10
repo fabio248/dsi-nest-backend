@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { CanActivate, ExecutionContext, Type, mixin } from '@nestjs/common';
 import { Request } from 'express';
 import JwtAuthGuard from './jwt.guard';

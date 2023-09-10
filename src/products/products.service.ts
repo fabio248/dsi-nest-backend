@@ -7,7 +7,7 @@ import { Prisma } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { ProductNotFoundException } from './exception/product-not-found.exception';
 import { FindAllProductsArgs } from './dto/args/find-all-products_args';
-import { FindAllproductsResponseDto } from './dto/response/find-all-products.response';
+import { FindAllProductsResponseDto } from './dto/response/find-all-products.response';
 
 import { getPaginationParams } from 'src/shared/helper/pagination-params.helper';
 import { UpdateProductDto } from './dto/input/update-product-inputs';
@@ -52,7 +52,7 @@ export class ProductsService {
 
   async findAll(
     args: FindAllProductsArgs,
-  ): Promise<FindAllproductsResponseDto> {
+  ): Promise<FindAllProductsResponseDto> {
     this.logger.log('Retrieve all users');
     const { page, limit } = args;
     const where: Prisma.ProductWhereInput = {};
@@ -68,7 +68,7 @@ export class ProductsService {
     });
     const totalItem = await this.prisma.product.count({ where });
     const paginationParams = getPaginationParams(totalItem, page, limit);
-    return plainToInstance(FindAllproductsResponseDto, {
+    return plainToInstance(FindAllProductsResponseDto, {
       data,
       ...paginationParams,
     });
