@@ -58,8 +58,8 @@ export class UsersService {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
-    const { medicalHistory } = pet;
-    const { otherPet, food, physicalExam } = medicalHistory;
+    // const { medicalHistory } = pet;
+    // const { otherPet, food, physicalExam } = medicalHistory;
 
     await this.throwErrorIfEmailIsAlreadyTaken(email);
 
@@ -70,34 +70,21 @@ export class UsersService {
     );
 
     const user = await this.prisma.user.create({
-      data: {
-        ...createUserDto,
-        pets: {
-          create: {
-            ...pet,
-            medicalHistory: {
-              create: {
-                ...medicalHistory,
-                food: {
-                  create: food,
-                },
-                otherPet: {
-                  create: otherPet,
-                },
-                physicalExam: {
-                  create: physicalExam,
-                },
-              },
-            },
-            specie: { connect: { id: pet.specieId } },
-            specieId: undefined as never,
-          },
-        },
-      },
+      data: createUserDto,
+      //   {
+      //   createUserDto,
+      //   pets: {
+      //     create: {
+      //       ...pet,
+      //       specie: { connect: { id: pet.specieId } },
+      //       specieId: undefined as never,
+      //     },
+      //   },
+      // },
       include: {
         pets: {
           include: {
-            medicalHistory: {
+            medicalHistories: {
               include: { food: true, physicalExam: true, otherPet: true },
             },
           },
@@ -199,7 +186,7 @@ export class UsersService {
           skip,
           take,
           include: {
-            medicalHistory: {
+            medicalHistories: {
               include: {
                 food: true,
                 otherPet: true,

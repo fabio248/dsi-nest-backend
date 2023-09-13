@@ -20,8 +20,15 @@ export class PetsService {
   private readonly includeRelation = {
     user: true,
     specie: true,
-    medicalHistory: {
-      include: { food: true, otherPet: true, physicalExam: true },
+    medicalHistories: {
+      include: {
+        food: true,
+        otherPet: true,
+        physicalExam: true,
+        diagnostic: {
+          include: { treatments: true, surgicalIntervations: true },
+        },
+      },
     },
   };
 
@@ -33,13 +40,22 @@ export class PetsService {
   ) {}
 
   async create(userId: number, createPetDto: CreatePetInput) {
-    const { birthday, medicalHistory, specieId } = createPetDto;
-    const { food, physicalExam, otherPet } = medicalHistory;
+    const { birthday, medicalHistories, specieId } = createPetDto;
+    const { food, physicalExam, otherPet, diagnostic } = medicalHistories;
+    const { treatments, surgicalInterventions } = diagnostic;
 
     await this.specieService.findOneById(specieId);
     await this.userService.findOneById(userId);
 
     createPetDto.birthday = TransformStringToDate(birthday as string);
+
+    if (surgicalInterventions.length > 0) {
+      surgicalInterventions.forEach((surgicalIntervention) => {
+        surgicalIntervention.intervationDate = TransformStringToDate(
+          surgicalIntervention.intervationDate as string,
+        );
+      });
+    }
 
     const pet = await this.prisma.pet.create({
       data: {
@@ -55,9 +71,9 @@ export class PetsService {
             id: userId,
           },
         },
-        medicalHistory: {
+        medicalHistories: {
           create: {
-            ...medicalHistory,
+            ...medicalHistories,
             food: {
               create: food,
             },
@@ -67,10 +83,41 @@ export class PetsService {
             otherPet: {
               create: otherPet,
             },
+            diagnostic: {
+              create: {
+                description: diagnostic.description,
+                treatments: {
+                  createMany: {
+                    data: treatments,
+                  },
+                },
+                surgicalIntervations: {
+                  createMany: {
+                    data: surgicalInterventions,
+                  },
+                },
+              },
+            },
           },
         },
       },
-      include: this.includeRelation,
+      include: {
+        user: true,
+        specie: true,
+        medicalHistories: {
+          include: {
+            food: true,
+            otherPet: true,
+            physicalExam: true,
+            diagnostic: {
+              include: { treatments: true, surgicalIntervations: true },
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+      },
     });
 
     return plainToInstance(PetResponseDto, pet);
@@ -108,9 +155,7 @@ export class PetsService {
       skip: (page - 1) * limit,
       take: limit,
       where,
-      include: {
-        ...this.includeRelation,
-      },
+      include: this.includeRelation,
     });
 
     const totalItem = await this.prisma.pet.count({ where });
@@ -175,7 +220,7 @@ export class PetsService {
       data: {
         ...updatePetDto,
         specieId: undefined as never,
-        medicalHistory: undefined,
+        medicalHistories: undefined,
       },
       include: { ...this.includeRelation, user: false },
     });
@@ -188,6 +233,7 @@ export class PetsService {
     updateMedicalHistoryDto: UpdateMedicalHistoryDto,
   ): Promise<MedicalHistoryResponseDto> {
     const { food, physicalExam, otherPet } = updateMedicalHistoryDto;
+    // const { treatments, surgicalInterventions } = diagnostic;
 
     const medicalHistory = await this.prisma.medicalHistory.update({
       where: { id: medicalHistoryId },
@@ -198,6 +244,7 @@ export class PetsService {
         },
         physicalExam: { update: physicalExam },
         otherPet: { update: otherPet },
+        diagnostic: undefined,
       },
     });
 

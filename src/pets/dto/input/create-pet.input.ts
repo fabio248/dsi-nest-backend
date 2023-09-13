@@ -53,5 +53,5 @@ export class CreatePetInput {
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateMedicalHistoryInput)
-  medicalHistory: CreateMedicalHistoryInput;
+  medicalHistories: CreateMedicalHistoryInput;
 }

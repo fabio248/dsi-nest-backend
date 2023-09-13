@@ -1,5 +1,3 @@
-import { Type } from 'class-transformer';
-import { UpdateMedicalHistoryDto } from './update-medical-history.input';
 import {
   IsBoolean,
   IsEnum,
@@ -7,7 +5,6 @@ import {
   IsPositive,
   IsString,
   Matches,
-  ValidateNested,
 } from 'class-validator';
 import { Gender } from '../enum/gender.enum';
 
@@ -50,8 +47,8 @@ export class UpdatePetDto {
   @IsPositive()
   specieId?: number;
 
-  @ValidateNested({ each: true })
-  @IsOptional()
-  @Type(() => UpdateMedicalHistoryDto)
-  medicalHistory?: UpdateMedicalHistoryDto;
+  // @ValidateNested({ each: true })
+  // @IsOptional()
+  // @Type(() => UpdateMedicalHistoryDto)
+  // medicalHistory?: UpdateMedicalHistoryDto;
 }
