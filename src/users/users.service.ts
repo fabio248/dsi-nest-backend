@@ -58,8 +58,9 @@ export class UsersService {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
-    // const { medicalHistory } = pet;
-    // const { otherPet, food, physicalExam } = medicalHistory;
+    const { medicalHistories } = pet;
+    const { otherPet, food, physicalExam, diagnostic } = medicalHistories;
+    const { treatments, surgicalInterventions } = diagnostic;
 
     await this.throwErrorIfEmailIsAlreadyTaken(email);
 
@@ -69,23 +70,70 @@ export class UsersService {
       createUserDto.birthday as string,
     );
 
+    if (surgicalInterventions.length > 0) {
+      surgicalInterventions.forEach((surgicalIntervention) => {
+        surgicalIntervention.intervationDate = TransformStringToDate(
+          surgicalIntervention.intervationDate as string,
+        );
+      });
+    }
+
     const user = await this.prisma.user.create({
-      data: createUserDto,
-      //   {
-      //   createUserDto,
-      //   pets: {
-      //     create: {
-      //       ...pet,
-      //       specie: { connect: { id: pet.specieId } },
-      //       specieId: undefined as never,
-      //     },
-      //   },
-      // },
+      data: {
+        ...createUserDto,
+        pets: {
+          create: {
+            ...pet,
+            specieId: undefined as never,
+            specie: {
+              connect: {
+                id: pet.specieId,
+              },
+            },
+            medicalHistories: {
+              create: {
+                ...medicalHistories,
+                food: {
+                  create: food,
+                },
+                physicalExam: {
+                  create: physicalExam,
+                },
+                otherPet: {
+                  create: otherPet,
+                },
+                diagnostic: {
+                  create: {
+                    description: diagnostic.description,
+                    treatments: {
+                      createMany: {
+                        data: treatments,
+                      },
+                    },
+                    surgicalIntervations: {
+                      createMany: {
+                        data: surgicalInterventions,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       include: {
         pets: {
           include: {
             medicalHistories: {
-              include: { food: true, physicalExam: true, otherPet: true },
+              include: {
+                food: true,
+                otherPet: true,
+                physicalExam: true,
+                diagnostic: {
+                  include: { treatments: true, surgicalIntervations: true },
+                },
+              },
             },
           },
         },

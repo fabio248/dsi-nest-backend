@@ -202,8 +202,7 @@ export class PetsService {
     id: number,
     updatePetDto: UpdatePetDto,
   ): Promise<PetResponseDto> {
-    const pet = await this.findOneById(id);
-    const { medicalHistory } = updatePetDto;
+    await this.findOneById(id);
 
     if (updatePetDto.birthday) {
       updatePetDto.birthday = TransformStringToDate(
@@ -211,16 +210,11 @@ export class PetsService {
       );
     }
 
-    if (medicalHistory) {
-      await this.updateMedicalHistory(pet.medicalHistoryId, medicalHistory);
-    }
-
     const updatedPet = await this.prisma.pet.update({
       where: { id },
       data: {
         ...updatePetDto,
         specieId: undefined as never,
-        medicalHistories: undefined,
       },
       include: { ...this.includeRelation, user: false },
     });
