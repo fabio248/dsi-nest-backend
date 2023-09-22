@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const PDFDocument1 = require('pdfkit');
-// import { plainToInstance } from 'class-transformer';
+import { formatDocument } from './ConditionsFormat/formatedPdf';
+import { join } from 'path';
+const PDFDocument1 = require('pdfkit-table');
 
 @Injectable()
 export class GeneratePdfService {
@@ -15,8 +15,68 @@ export class GeneratePdfService {
       const doc = new PDFDocument1({
         size: 'LETTER',
         bufferPages: true,
+        // le decimos que la primera pag no sea por defecto
+        autoFirstPage: false,
       });
 
+      let pageNumber = 0;
+      // agregar paginacion y encabezado
+      doc.on('pagedAdded', () => {
+        pageNumber++;
+        if (pageNumber > 1) {
+          doc.image(
+            join(process.cwd(), 'Public/logo.png'),
+            doc.page.width - 100,
+            5,
+            { fit: [45, 45], align: 'center' },
+          );
+          doc
+            .moveTo(50, 55)
+            .lineTo(doc.page.width - 50, 55)
+            .stroke();
+        }
+
+        let bottom = doc.page.margins.bottom;
+
+        doc.page.margins.bottom = 0;
+        doc.text(
+          'Pag. ' + pageNumber,
+          (doc.page.width - 100) * 0.5,
+          doc.page.height - 50,
+          {
+            width: 100,
+            align: 'center',
+            lineBreak: false,
+          },
+        );
+        doc.page.margings.bottom = bottom;
+      });
+      doc.addPage();
+      doc.addPage();
+      doc.image(
+        join(process.cwd(), 'Public/logo.png'),
+        doc.page.width / 2 - 100,
+        150,
+        { width: 200 },
+      );
+      doc.text('', 0, 400);
+      doc.font('Helvetica-Bold').fontSize(24);
+      doc.text('DEV LATAM ', {
+        width: doc.page.width,
+        align: 'center',
+      });
+
+      const table = {
+        title: 'Tabla de datos',
+        subtittle: 'Subtitulo de la tabla',
+        headers: ['id', 'nombre'],
+        rows: [
+          ['1', 'Gutierrez'],
+          ['2', 'Francisco'],
+        ],
+      };
+
+      doc.table(table, { columnSize: [150, 300] });
       doc.text('Hello world!', 100, 100);
       doc.moveDown();
       doc.text('ASI QUEDARÁ EL PDF ME FALTA ESTILO');
@@ -31,23 +91,9 @@ export class GeneratePdfService {
 
       doc.end();
     });
-    // const PDF = this.formatDocument(pdfBuffer);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=filename.pdf');
-    res.setHeader('Content-Length', pdfBuffer.length);
+    const responsePDF = formatDocument(pdfBuffer, res);
 
     // Envía el PDF como respuesta
-    res.end(pdfBuffer);
-    // return plainToInstance(Buffer, pdfBuffer);
+    res.end(responsePDF);
   }
-
-  //   formatDocument(pdfBuffer: Buffer) {
-  //     const data = '';
-  //     data.set({
-  //       'Content-type': 'application/pdf',
-  //       'Content-Disposition': 'attachment; filename=filename.pdf',
-  //       'Content-Length': pdfBuffer.length,
-  //     });
-  //     return data
-  //   }
 }

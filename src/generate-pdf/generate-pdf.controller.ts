@@ -19,13 +19,5 @@ export class GeneratePdfController {
   @Get('/filename')
   async createPDF(@Param('id') id: number, @Res() res: any) {
     await this.generatePdfService.generatePDF(id, res);
-    // const buffer = await this.generatePdfService.generatePDF(id);
-
-    // res.set({
-    //   'Content-type': 'application/pdf',
-    //   'Content-Disposition': 'attachment; filename=filename.pdf',
-    //   'Content-Length': buffer.length,
-    // });
-    // res.end(buffer);
   }
 }
