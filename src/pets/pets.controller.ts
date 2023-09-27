@@ -15,8 +15,11 @@ import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
 import { UpdateMedicalHistoryDto } from './dto/input/update-medical-history.input';
-import { UpdateTreatmentDto } from './dto/input';
-import { TreatmentResponseDto } from './dto/response';
+import { UpdateSurgicalInterventionDto, UpdateTreatmentDto } from './dto/input';
+import {
+  SurgicalInterventionResponseDto,
+  TreatmentResponseDto,
+} from './dto/response';
 
 @ApiTags('Pets')
 @Controller('pets')
@@ -61,6 +64,18 @@ export class PetsController {
     @Body() updateTreatmentDto: UpdateTreatmentDto,
   ): Promise<TreatmentResponseDto> {
     return this.petsService.updateTreatment(treatmentId, updateTreatmentDto);
+  }
+
+  @Patch('/surgical-interventions/:surgicalInterventionId')
+  @ApiBearerAuth()
+  updateSurgicalIntervention(
+    @Param('surgicalInterventionId') surgicalInterventionId: number,
+    @Body() updateSurgicalInterventionDto: UpdateSurgicalInterventionDto,
+  ): Promise<SurgicalInterventionResponseDto> {
+    return this.petsService.updateSurgicalIntervention(
+      surgicalInterventionId,
+      updateSurgicalInterventionDto,
+    );
   }
 
   @Delete(':petId')

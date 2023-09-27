@@ -3,6 +3,7 @@ import {
   CreatePetInput,
   UpdatePetDto,
   UpdateTreatmentDto,
+  UpdateSurgicalInterventionDto,
 } from './dto/input';
 import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
 import { PrismaService } from '../database/database.service';
@@ -16,6 +17,7 @@ import {
   TreatmentResponseDto,
   FindAllPetsResponseDto,
   MedicalHistoryResponseDto,
+  SurgicalInterventionResponseDto,
 } from './dto/response';
 import { PetNotFoundException } from './exception/pet-not-found.exception';
 import { Gender, Prisma } from '@prisma/client';
@@ -256,6 +258,21 @@ export class PetsService {
     });
 
     return plainToInstance(TreatmentResponseDto, treatment);
+  }
+
+  async updateSurgicalIntervention(
+    surgicalInterventionId: number,
+    updateSurgicalInterventionDto: UpdateSurgicalInterventionDto,
+  ): Promise<SurgicalInterventionResponseDto> {
+    const surgicalIntervention = await this.prisma.sugicalIntervention.update({
+      where: { id: surgicalInterventionId },
+      data: updateSurgicalInterventionDto,
+    });
+
+    return plainToInstance(
+      SurgicalInterventionResponseDto,
+      surgicalIntervention,
+    );
   }
 
   async remove(id: number): Promise<PetResponseDto> {
