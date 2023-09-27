@@ -1,54 +1,9 @@
-import {
-  IsBoolean,
-  IsEnum,
-  IsOptional,
-  IsPositive,
-  IsString,
-  Matches,
-} from 'class-validator';
-import { Gender } from '../enum/gender.enum';
+import { OmitType, PartialType } from '@nestjs/swagger';
+import { CreatePetInput } from './create-pet.input';
 
-export class UpdatePetDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @IsEnum(Gender)
-  @IsOptional()
-  gender?: Gender;
-
-  @IsOptional()
-  @IsString()
-  raza?: string;
-
-  @IsOptional()
-  @IsString()
-  color?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isHaveTatto?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  pedigree?: boolean;
-
-  /**
-   * Fecha nacimiento en formato dd/mm/aaaa
-   * @example 19/12/2000
-   */
-  @IsOptional()
-  @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {
-    message: 'The valid format is dd/mm/yyyy',
-  })
-  birthday?: string | Date;
-
-  @IsOptional()
-  @IsPositive()
-  specieId?: number;
-
-  // @ValidateNested({ each: true })
-  // @IsOptional()
-  // @Type(() => UpdateMedicalHistoryDto)
-  // medicalHistory?: UpdateMedicalHistoryDto;
-}
+class CreatePetInputWithOutMedicalHistories extends OmitType(CreatePetInput, [
+  'medicalHistories',
+]) {}
+export class UpdatePetDto extends PartialType(
+  CreatePetInputWithOutMedicalHistories,
+) {}

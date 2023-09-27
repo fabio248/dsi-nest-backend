@@ -1,7 +1,7 @@
 import { Exclude, Expose } from 'class-transformer';
 import { ApiHideProperty } from '@nestjs/swagger';
 
-export class TreamentResponseDto {
+export class TreatmentResponseDto {
   @Expose()
   id: number;
 
@@ -12,7 +12,7 @@ export class TreamentResponseDto {
   days: number;
 
   @Expose()
-  frecuency: string;
+  frequency: string;
 
   @ApiHideProperty()
   @Exclude()

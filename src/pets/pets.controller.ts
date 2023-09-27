@@ -14,6 +14,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
+import { UpdateMedicalHistoryDto } from './dto/input/update-medical-history.input';
+import { UpdateTreatmentDto } from './dto/input';
+import { TreatmentResponseDto } from './dto/response';
 
 @ApiTags('Pets')
 @Controller('pets')
@@ -37,6 +40,27 @@ export class PetsController {
   @ApiBearerAuth()
   update(@Param('petId') petId: string, @Body() updatePetDto: UpdatePetDto) {
     return this.petsService.update(+petId, updatePetDto);
+  }
+
+  @Patch('/medical-histories/:medicalHistoryId')
+  @ApiBearerAuth()
+  updateMedicalHistory(
+    @Param('medicalHistoryId') medicalHistoryId: number,
+    @Body() updateMedicalHistoryDto: UpdateMedicalHistoryDto,
+  ) {
+    return this.petsService.updateMedicalHistory(
+      medicalHistoryId,
+      updateMedicalHistoryDto,
+    );
+  }
+
+  @Patch('/treatments/:treatmentId')
+  @ApiBearerAuth()
+  updateTreatment(
+    @Param('treatmentId') treatmentId: number,
+    @Body() updateTreatmentDto: UpdateTreatmentDto,
+  ): Promise<TreatmentResponseDto> {
+    return this.petsService.updateTreatment(treatmentId, updateTreatmentDto);
   }
 
   @Delete(':petId')

@@ -11,5 +11,9 @@ export class CreateTreatmentInput {
 
   @IsNotEmpty()
   @IsString()
-  frecuency: string;
+  frequency: string;
+
+  @IsNotEmpty()
+  @IsString()
+  quantity: string;
 }

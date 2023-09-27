@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ProductResponseDto } from './dto/response/product.response';
-import { CreateProductInput } from './dto/input/create-products-input';
+import { CreateProductInput } from './dto/input/create-product.input';
 import { PrismaService } from '../database/database.service';
 import { Prisma } from '@prisma/client';
 
@@ -10,7 +10,7 @@ import { FindAllProductsArgs } from './dto/args/find-all-products_args';
 import { FindAllProductsResponseDto } from './dto/response/find-all-products.response';
 
 import { getPaginationParams } from 'src/shared/helper/pagination-params.helper';
-import { UpdateProductDto } from './dto/input/update-product-inputs';
+import { UpdateProductDto } from './dto/input/update-product.input';
 
 @Injectable()
 export class ProductsService {
@@ -85,13 +85,13 @@ export class ProductsService {
     return product;
   }
 
-  async updateProduct(productId: number, updateProductId: UpdateProductDto) {
+  async updateProduct(productId: number, updateProduct: UpdateProductDto) {
     this.logger.log('Update a Product');
     await this.findOneById(productId);
 
     const updatedProduct = await this.prisma.product.update({
-      where: { id: Number(productId) },
-      data: updateProductId,
+      where: { id: productId },
+      data: updateProduct,
     });
 
     return plainToInstance(UpdateProductDto, updatedProduct);

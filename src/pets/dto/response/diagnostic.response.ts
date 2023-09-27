@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { SurgicalInterventionResponseDto } from './surgical-intervention.response';
-import { TreamentResponseDto } from './treament.response';
+import { TreatmentResponseDto } from './treatment.response';
 
 export class DiagnosticResponseDto {
   @Expose()
@@ -16,7 +16,7 @@ export class DiagnosticResponseDto {
 
   @Expose()
   @Type(() => SurgicalInterventionResponseDto)
-  treatments: TreamentResponseDto[];
+  treatments: TreatmentResponseDto[];
 
   @ApiHideProperty()
   @Exclude()

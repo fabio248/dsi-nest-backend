@@ -1,19 +1,25 @@
-import { UpdateMedicalHistoryDto } from './dto/input/update-medical-history.input';
+import {
+  UpdateMedicalHistoryDto,
+  CreatePetInput,
+  UpdatePetDto,
+  UpdateTreatmentDto,
+} from './dto/input';
 import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
-import { PrismaService } from './../database/database.service';
+import { PrismaService } from '../database/database.service';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { CreatePetInput } from './dto/input/create-pet.input';
-import { UpdatePetDto } from './dto/input/update-pet.input';
 import { TransformStringToDate } from '../shared/utils/transform-date.utils';
 import { SpeciesService } from '../species/species.service';
 import { UsersService } from '../users/users.service';
 import { plainToInstance } from 'class-transformer';
-import { PetResponseDto } from './dto/response/pet.response';
+import {
+  PetResponseDto,
+  TreatmentResponseDto,
+  FindAllPetsResponseDto,
+  MedicalHistoryResponseDto,
+} from './dto/response';
 import { PetNotFoundException } from './exception/pet-not-found.exception';
-import { MedicalHistoryResponseDto } from './dto/response/medical-history.response';
 import { Gender, Prisma } from '@prisma/client';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
-import { FindAllPetsResponseDto } from './dto/response/find-all-pets.response';
 
 @Injectable()
 export class PetsService {
@@ -186,7 +192,7 @@ export class PetsService {
   }
 
   async findOneById(id: number): Promise<PetResponseDto> {
-    const pet = this.prisma.pet.findUnique({
+    const pet = await this.prisma.pet.findUnique({
       where: { id },
       include: this.includeRelation,
     });
@@ -212,10 +218,7 @@ export class PetsService {
 
     const updatedPet = await this.prisma.pet.update({
       where: { id },
-      data: {
-        ...updatePetDto,
-        specieId: undefined as never,
-      },
+      data: updatePetDto,
       include: { ...this.includeRelation, user: false },
     });
 
@@ -227,7 +230,6 @@ export class PetsService {
     updateMedicalHistoryDto: UpdateMedicalHistoryDto,
   ): Promise<MedicalHistoryResponseDto> {
     const { food, physicalExam, otherPet } = updateMedicalHistoryDto;
-    // const { treatments, surgicalInterventions } = diagnostic;
 
     const medicalHistory = await this.prisma.medicalHistory.update({
       where: { id: medicalHistoryId },
@@ -238,11 +240,22 @@ export class PetsService {
         },
         physicalExam: { update: physicalExam },
         otherPet: { update: otherPet },
-        diagnostic: undefined,
       },
     });
 
     return plainToInstance(MedicalHistoryResponseDto, medicalHistory);
+  }
+
+  async updateTreatment(
+    treatmentId: number,
+    updateTreatmentDto: UpdateTreatmentDto,
+  ): Promise<TreatmentResponseDto> {
+    const treatment = await this.prisma.treatment.update({
+      where: { id: treatmentId },
+      data: updateTreatmentDto,
+    });
+
+    return plainToInstance(TreatmentResponseDto, treatment);
   }
 
   async remove(id: number): Promise<PetResponseDto> {

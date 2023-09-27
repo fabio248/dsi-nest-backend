@@ -26,7 +26,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   pets         Pet[]
   appointments Appointment[]
 
@@ -40,12 +40,11 @@ model Specie {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   pets Pet[]
 
   @@map("specie")
 }
-
 
 model Pet {
   id          Int      @unique() @default(autoincrement())
@@ -60,7 +59,7 @@ model Pet {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relation
+  // relation
   user   User @relation(fields: [userId], references: [id])
   userId Int  @map("user_id")
 
@@ -81,7 +80,7 @@ model Folder {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   pets    Pet[]
   folders File[]
 
@@ -132,7 +131,6 @@ model Food {
   // relation
   medicalHistories MedicalHistory[]
 
-
   @@map("food")
 }
 
@@ -176,7 +174,7 @@ model File {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id])
   medicalHistoryId Int            @map("medical_history_id")
 
@@ -196,13 +194,12 @@ model Appointment {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   client   User @relation(fields: [clientId], references: [id])
   clientId Int  @map("client_id")
 
   @@map("appointment")
 }
-
 
 model Product {
   id                 Int      @unique() @default(autoincrement())
@@ -212,9 +209,10 @@ model Product {
   sizeProduct        String
   sellingProduct     Float
 
-
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
+
+  @@map("product")
 }
 
 model Diagnostic {
@@ -249,9 +247,10 @@ model SugicalIntervention {
 }
 
 model Treatment {
-  id        Int    @unique() @default(autoincrement())
+  id        Int     @unique() @default(autoincrement())
   name      String
-  frecuency String
+  quantity  String?
+  frequency String
   days      Int
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -274,7 +273,9 @@ enum Category {
   reproduccion
   terrario_acuario
   transporte
+  medicamento
 }
+
 enum UserRole {
   admin
   client
