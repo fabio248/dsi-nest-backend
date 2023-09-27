@@ -1,8 +1,7 @@
 import { ApiHideProperty } from '@nestjs/swagger';
-import { PhysicalExam } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
 
-export class PhysicalExamResponseDto implements PhysicalExam {
+export class PhysicalExamResponseDto {
   @Expose()
   id: number;
 
@@ -11,6 +10,24 @@ export class PhysicalExamResponseDto implements PhysicalExam {
 
   @Expose()
   palpitations: string;
+
+  @Expose()
+  temperature?: number;
+
+  @Expose()
+  respiratoryRate?: number;
+
+  @Expose()
+  cardiacRate?: number;
+
+  @Expose()
+  laboratoryExam?: string;
+
+  @Expose()
+  pulse?: string;
+
+  @Expose()
+  mucous?: string;
 
   @ApiHideProperty()
   @Exclude()

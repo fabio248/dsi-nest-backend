@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Expose, Exclude } from 'class-transformer';
-import { Product } from '../enum/enum.category';
+import { CategoryProduct } from '../enum/enum.category';
 
 export class ProductResponseDto {
   @Expose()
@@ -14,7 +14,7 @@ export class ProductResponseDto {
   descriptionProduct: string;
 
   @Expose()
-  category: Product;
+  category: CategoryProduct;
 
   @Expose()
   sizeProduct: string;

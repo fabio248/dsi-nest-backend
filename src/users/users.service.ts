@@ -58,8 +58,9 @@ export class UsersService {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
-    const { medicalHistory } = pet;
-    const { otherPet, food, physicalExam } = medicalHistory;
+    const { medicalHistories } = pet;
+    const { otherPet, food, physicalExam, diagnostic } = medicalHistories;
+    const { treatments, surgicalInterventions } = diagnostic;
 
     await this.throwErrorIfEmailIsAlreadyTaken(email);
 
@@ -69,36 +70,70 @@ export class UsersService {
       createUserDto.birthday as string,
     );
 
+    if (surgicalInterventions.length > 0) {
+      surgicalInterventions.forEach((surgicalIntervention) => {
+        surgicalIntervention.intervationDate = TransformStringToDate(
+          surgicalIntervention.intervationDate as string,
+        );
+      });
+    }
+
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
         pets: {
           create: {
             ...pet,
-            medicalHistory: {
+            specieId: undefined as never,
+            specie: {
+              connect: {
+                id: pet.specieId,
+              },
+            },
+            medicalHistories: {
               create: {
-                ...medicalHistory,
+                ...medicalHistories,
                 food: {
                   create: food,
-                },
-                otherPet: {
-                  create: otherPet,
                 },
                 physicalExam: {
                   create: physicalExam,
                 },
+                otherPet: {
+                  create: otherPet,
+                },
+                diagnostic: {
+                  create: {
+                    description: diagnostic.description,
+                    treatments: {
+                      createMany: {
+                        data: treatments,
+                      },
+                    },
+                    surgicalIntervations: {
+                      createMany: {
+                        data: surgicalInterventions,
+                      },
+                    },
+                  },
+                },
               },
             },
-            specie: { connect: { id: pet.specieId } },
-            specieId: undefined as never,
           },
         },
       },
       include: {
         pets: {
           include: {
-            medicalHistory: {
-              include: { food: true, physicalExam: true, otherPet: true },
+            medicalHistories: {
+              include: {
+                food: true,
+                otherPet: true,
+                physicalExam: true,
+                diagnostic: {
+                  include: { treatments: true, surgicalIntervations: true },
+                },
+              },
             },
           },
         },
@@ -130,12 +165,12 @@ export class UsersService {
       searchRole = this.searchInRoleField(search);
 
       where.OR = [
-        { firstName: { contains: search } },
-        { lastName: { contains: search } },
-        { email: { contains: search } },
-        { phone: { contains: search } },
-        { direction: { contains: search } },
-        { dui: { contains: search } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+        { direction: { contains: search, mode: 'insensitive' } },
+        { dui: { contains: search, mode: 'insensitive' } },
         { role: searchRole },
       ];
     }
@@ -199,7 +234,7 @@ export class UsersService {
           skip,
           take,
           include: {
-            medicalHistory: {
+            medicalHistories: {
               include: {
                 food: true,
                 otherPet: true,

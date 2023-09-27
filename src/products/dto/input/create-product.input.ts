@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { Product } from '../enum/enum.category';
+import { CategoryProduct } from '../enum/enum.category';
+import { Category } from '@prisma/client';
+
 export class CreateProductInput {
   @IsNotEmpty()
   @IsString()
@@ -11,8 +13,8 @@ export class CreateProductInput {
   descriptionProduct: string;
 
   @IsNotEmpty()
-  @IsEnum(Product)
-  category: Product;
+  @IsEnum(CategoryProduct)
+  category: Category;
 
   @IsNotEmpty()
   @IsString()
