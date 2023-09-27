@@ -1,112 +1,99 @@
+/* eslint-disable prettier/prettier */
 import { Injectable, Logger } from '@nestjs/common';
-import { formatDocument } from './ConditionsFormat/formatedPdf';
-import { join } from 'path';
-const PDFDocument1 = require('pdfkit-table');
+import { formatDocument } from './ConditionsFormat/ConditionsFormat_ConstanciaSalud';
+import { PetsService } from 'src/pets/pets.service';
+import { CreateDocumentInput } from './dto/input/create-constancia.input';
+//libreria de generacion de pdf
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const PDFDocument1 = require(`pdfkit-table`);
+
+//cabeceras de los documentos
+import { addHeader } from './Headers/header-ConstanciaSalud';
+//cuerpo del documento
+import { addFields } from './Body/Body-ConstanciaSalud';
+//pie de pagina
+import { finalText } from './Footer/footer-ConstanciaSalud';
 
 @Injectable()
 export class GeneratePdfService {
   private readonly logger = new Logger(GeneratePdfService.name);
 
-  async generatePDF(id: number, res: any): Promise<void> {
-    this.logger.log('Create PDF');
+  constructor(private readonly petsService: PetsService) {}
 
+  async generatePDF_ConstanciaSalud(
+    id: number,
+    createDocumentInput: CreateDocumentInput,
+    res: any,
+  ): Promise<void> {
+    this.logger.log(`Create PDF`);
+
+    const dataPet = await this.petsService.findOneById(id);
+
+    //genera la estructura base del pdf, formato y demas
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       const doc = new PDFDocument1({
-        size: 'LETTER',
+        size: [612, 792], // Tamaño de página carta (8.5 x 11 pulgadas)
         bufferPages: true,
         autoFirstPage: true, // Hacer que la primera página se agregue automáticamente
+        margin: { top: 50, right: 50, bottom: 50, left: 50 }, // Márgenes
       });
 
       // Contiene el contenido final del documento PDF
       const buffer = [] as Buffer[];
 
-      // Espacio vertical entre elementos
-      const verticalSpacing = 5;
-
       // Función para agregar encabezado en la primera página
-      const addHeader = () => {
-        // Agrega "Veterinaria Mistun" a la izquierda del documento y al mismo nivel
-        doc.text('Veterinaria Mistun', 60, 65, {
-          width: doc.page.width - 250, // Ajusta la posición horizontal según sea necesario
-          align: 'left', // Alinea el texto a la izquierda
-        });
+      const headers = addHeader(doc);
 
-        // Imagen en el lado derecho del encabezado
-        doc.image(
-          join(process.cwd(), 'Public/logo.png'),
-          doc.page.width - 100,
-          33, // Ajusta la posición vertical para que esté al mismo nivel que el texto
-          { fit: [45, 45], align: 'center' },
-        );
+      doc.moveDown();
+      doc.text(`CONSTANCIA DE SALUD MÉDICA DE LA MASCOTA`, {
+        width: doc.page.width - 100,
+        align: `center`,
+      });
+      doc.moveDown(2);
 
-        // Línea horizontal debajo del encabezado
-        doc
-          .moveTo(50, 80) // Ajusta la posición vertical
-          .lineTo(doc.page.width - 50, 80) // Ajusta la posición vertical
-          .stroke();
+      const body = addFields(dataPet, createDocumentInput, doc);
 
-        // Espacio vertical entre elementos
-        doc.moveDown(verticalSpacing);
+      // Crear la tabla con filas dinámicas
+
+      const table = {
+        title: `VACUNAS:`,
+        subtitle: `Registro de Vacunación de la mascota`,
+        subtitleFontSize: 50,
+        headers: [`Fecha de aplicación`, `Vacuna`, 'Marca y lote'],
+        rows: [
+          [
+            `${createDocumentInput.vaccinesDate}`,
+            `${createDocumentInput.vaccine}`,
+            `${createDocumentInput.vaccinesBrandAndLot}`,
+          ],
+          [' ', ' ', ' '],
+          [' ', ' ', ' '],
+          [' ', ' ', ' '],
+        ],
+        widths: [150, 300],
+        layout: 'lightHorizontalLines',
+        fontSize: 52, // Aumentamos el tamaño de fuente a 16 aquí
+        rowHeight: 40, // Ajusta la altura de la fila si es necesario
+        font: 'Public/Fonts/Merriweather-Light.ttf', // Ruta a la fuente que deseas usar
       };
 
-      // Función para agregar los campos solicitados
-      const addFields = () => {
-        // Alinea "Nombre:" y agrega la variable cambiante
-        doc.text('Nombre: {variable cambiante}', { continued: true });
-        doc.moveDown(); // Salto de línea
-        // Alinea "Especie:"
-        doc.text('Especie:', { continued: true });
-        doc.moveDown(); // Salto de línea
-        // Alinea "Raza:"
-        doc.text('Raza:', { continued: true });
-        doc.moveDown(); // Salto de línea
-        // Alinea "Sexo:"
-        doc.text('Sexo:', { continued: true });
-        doc.moveDown(); // Salto de línea
-        // Alinea "Edad:"
-        doc.text('Edad:', { continued: true });
-        doc.moveDown(); // Salto de línea
-        // Alinea "Peso:"
-        doc.text('Peso:', { continued: true });
-        doc.moveDown(); // Salto de línea
-        // Alinea "Fecha de Nacimiento:"
-        doc.text('Fecha de Nacimiento:', { continued: true });
-        doc.moveDown(); // Salto de línea
-        // Alinea "Identificación del microchip:"
-        doc.text('Identificación del microchip:');
-      };
+      doc.table(table, { columnSize: [150, 300] });
 
-      // Manejo de eventos para recopilar el contenido del PDF
-      doc.on('data', buffer.push.bind(buffer));
-      doc.on('end', () => {
+      doc.on(`data`, buffer.push.bind(buffer));
+      doc.on(`end`, () => {
         const pdfData = Buffer.concat(buffer);
         resolve(pdfData);
       });
 
       // Contenido del PDF, como logo y texto
-      addHeader();
+      headers;
 
-      // Alinea "Constancia de Salud" al centro
-      doc.text('Constancia de Salud', {
-        width: doc.page.width - 100,
-        align: 'center',
-      });
+      //contenido del PDF, cuerpo renderizado del documento
+      body;
 
-      // Agrega los campos sin espacio adicional
-      addFields();
-
-      const table = {
-        title: 'Tabla de datos',
-        subtitle: 'Subtítulo de la tabla',
-        headers: ['ID', 'Nombre'],
-        rows: [
-          ['1', 'Gutierrez'],
-          ['2', 'Francisco'],
-        ],
-      };
-
-      doc.table(table, { columnSize: [150, 300] });
-
+      // Pie de pagina
+      const footer = finalText(doc, createDocumentInput);
+      footer;
       doc.end();
     });
 
