@@ -36,7 +36,7 @@ export class PetsController {
   @Get(':petId')
   @ApiBearerAuth()
   findOne(@Param('petId') petId: string) {
-    return this.petsService.findOneById(+petId);
+    return this.petsService.findOnePetById(+petId);
   }
 
   @Patch(':petId')

@@ -19,7 +19,12 @@ import {
   MedicalHistoryResponseDto,
   SurgicalInterventionResponseDto,
 } from './dto/response';
-import { PetNotFoundException } from './exception/pet-not-found.exception';
+import {
+  MedicalHistoryNotFoundException,
+  PetNotFoundException,
+  SurgicalInterventionNotFoundException,
+  TreatmentNotFoundException,
+} from './exception';
 import { Gender, Prisma } from '@prisma/client';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
 
@@ -193,7 +198,7 @@ export class PetsService {
     return searchGender;
   }
 
-  async findOneById(id: number): Promise<PetResponseDto> {
+  async findOnePetById(id: number): Promise<PetResponseDto> {
     const pet = await this.prisma.pet.findUnique({
       where: { id },
       include: this.includeRelation,
@@ -206,11 +211,63 @@ export class PetsService {
     return plainToInstance(PetResponseDto, pet);
   }
 
+  async findOneMedicalHistoryById(medicalHistoryId: number) {
+    const medicalHistory = await this.prisma.medicalHistory.findUnique({
+      where: { id: medicalHistoryId },
+      include: {
+        food: true,
+        otherPet: true,
+        physicalExam: true,
+        diagnostic: {
+          include: { treatments: true, surgicalIntervations: true },
+        },
+      },
+    });
+
+    if (!medicalHistory) {
+      throw new MedicalHistoryNotFoundException(medicalHistoryId);
+    }
+
+    return plainToInstance(MedicalHistoryResponseDto, medicalHistory);
+  }
+
+  async findOneTreatmentById(
+    treatmentId: number,
+  ): Promise<TreatmentResponseDto> {
+    const treatment = await this.prisma.treatment.findUnique({
+      where: { id: treatmentId },
+    });
+
+    if (!treatment) {
+      throw new TreatmentNotFoundException(treatmentId);
+    }
+
+    return plainToInstance(TreatmentResponseDto, treatment);
+  }
+
+  async findOneSurgicalInterventionById(
+    surgicalInterventionId: number,
+  ): Promise<SurgicalInterventionResponseDto> {
+    const surgicalIntervention =
+      await this.prisma.sugicalIntervention.findUnique({
+        where: { id: surgicalInterventionId },
+      });
+
+    if (!surgicalIntervention) {
+      throw new SurgicalInterventionNotFoundException(surgicalInterventionId);
+    }
+
+    return plainToInstance(
+      SurgicalInterventionResponseDto,
+      surgicalIntervention,
+    );
+  }
+
   async update(
     id: number,
     updatePetDto: UpdatePetDto,
   ): Promise<PetResponseDto> {
-    await this.findOneById(id);
+    await this.findOnePetById(id);
 
     if (updatePetDto.birthday) {
       updatePetDto.birthday = TransformStringToDate(
@@ -233,6 +290,8 @@ export class PetsService {
   ): Promise<MedicalHistoryResponseDto> {
     const { food, physicalExam, otherPet } = updateMedicalHistoryDto;
 
+    await this.findOneMedicalHistoryById(medicalHistoryId);
+
     const medicalHistory = await this.prisma.medicalHistory.update({
       where: { id: medicalHistoryId },
       data: {
@@ -252,6 +311,8 @@ export class PetsService {
     treatmentId: number,
     updateTreatmentDto: UpdateTreatmentDto,
   ): Promise<TreatmentResponseDto> {
+    await this.findOneTreatmentById(treatmentId);
+
     const treatment = await this.prisma.treatment.update({
       where: { id: treatmentId },
       data: updateTreatmentDto,
@@ -264,6 +325,14 @@ export class PetsService {
     surgicalInterventionId: number,
     updateSurgicalInterventionDto: UpdateSurgicalInterventionDto,
   ): Promise<SurgicalInterventionResponseDto> {
+    await this.findOneSurgicalInterventionById(surgicalInterventionId);
+
+    if (updateSurgicalInterventionDto.intervationDate) {
+      updateSurgicalInterventionDto.intervationDate = TransformStringToDate(
+        updateSurgicalInterventionDto.intervationDate as string,
+      );
+    }
+
     const surgicalIntervention = await this.prisma.sugicalIntervention.update({
       where: { id: surgicalInterventionId },
       data: updateSurgicalInterventionDto,
@@ -276,7 +345,7 @@ export class PetsService {
   }
 
   async remove(id: number): Promise<PetResponseDto> {
-    await this.findOneById(id);
+    await this.findOnePetById(id);
 
     const deletedPet = await this.prisma.pet.delete({
       where: { id },
