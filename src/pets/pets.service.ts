@@ -4,6 +4,7 @@ import {
   UpdatePetDto,
   UpdateTreatmentDto,
   UpdateSurgicalInterventionDto,
+  CreateMedicalHistoryInput,
 } from './dto/input';
 import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
 import { PrismaService } from '../database/database.service';
@@ -18,6 +19,7 @@ import {
   FindAllPetsResponseDto,
   MedicalHistoryResponseDto,
   SurgicalInterventionResponseDto,
+  DiagnosticResponseDto,
 } from './dto/response';
 import {
   MedicalHistoryNotFoundException,
@@ -27,6 +29,8 @@ import {
 } from './exception';
 import { Gender, Prisma } from '@prisma/client';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
+import { UpdateDiagnosticDto } from './dto/input/update-diagnostic.input';
+import { DiagnosticNotFoundException } from './exception/diagnostic-not-found.exception';
 
 @Injectable()
 export class PetsService {
@@ -52,84 +56,25 @@ export class PetsService {
     private readonly userService: UsersService,
   ) {}
 
-  async create(userId: number, createPetDto: CreatePetInput) {
-    const { birthday, medicalHistories, specieId } = createPetDto;
-    const { food, physicalExam, otherPet, diagnostic } = medicalHistories;
-    const { treatments, surgicalInterventions } = diagnostic;
+  async create(
+    userId: number,
+    createPetDto: CreatePetInput,
+  ): Promise<PetResponseDto> {
+    const { birthday, specieId } = createPetDto;
 
     await this.specieService.findOneById(specieId);
     await this.userService.findOneById(userId);
 
     createPetDto.birthday = TransformStringToDate(birthday as string);
 
-    if (surgicalInterventions.length > 0) {
-      surgicalInterventions.forEach((surgicalIntervention) => {
-        surgicalIntervention.intervationDate = TransformStringToDate(
-          surgicalIntervention.intervationDate as string,
-        );
-      });
-    }
-
     const pet = await this.prisma.pet.create({
       data: {
         ...createPetDto,
-        specieId: undefined as never,
-        specie: {
-          connect: {
-            id: specieId,
-          },
-        },
-        user: {
-          connect: {
-            id: userId,
-          },
-        },
-        medicalHistories: {
-          create: {
-            ...medicalHistories,
-            food: {
-              create: food,
-            },
-            physicalExam: {
-              create: physicalExam,
-            },
-            otherPet: {
-              create: otherPet,
-            },
-            diagnostic: {
-              create: {
-                description: diagnostic.description,
-                treatments: {
-                  createMany: {
-                    data: treatments,
-                  },
-                },
-                surgicalIntervations: {
-                  createMany: {
-                    data: surgicalInterventions,
-                  },
-                },
-              },
-            },
-          },
-        },
+        userId,
       },
       include: {
         user: true,
         specie: true,
-        medicalHistories: {
-          include: {
-            food: true,
-            otherPet: true,
-            physicalExam: true,
-            diagnostic: {
-              include: { treatments: true, surgicalIntervations: true },
-            },
-          },
-          orderBy: {
-            createdAt: 'asc',
-          },
-        },
       },
     });
 
@@ -184,14 +129,11 @@ export class PetsService {
   searchInGenderField(search: string): Gender | undefined {
     let searchGender: Gender;
 
-    const macho = 'macho';
-    const hembra = 'hembra';
-
-    if (macho.includes(search.toLowerCase())) {
+    if (Gender.macho.includes(search.toLowerCase())) {
       searchGender = Gender.macho;
     }
 
-    if (hembra.includes(search.toLowerCase())) {
+    if (Gender.hembra.includes(search.toLowerCase())) {
       searchGender = Gender.hembra;
     }
 
@@ -352,5 +294,84 @@ export class PetsService {
     });
 
     return plainToInstance(PetResponseDto, deletedPet);
+  }
+
+  async createMedicalHistory(
+    petId: number,
+    medicalHistoryInput: CreateMedicalHistoryInput,
+  ): Promise<MedicalHistoryResponseDto> {
+    await this.findOnePetById(petId);
+
+    const { food, physicalExam, otherPet, diagnostic } = medicalHistoryInput;
+    const { treatments, surgicalIntervations } = diagnostic;
+
+    if (surgicalIntervations?.length > 0) {
+      surgicalIntervations.forEach((surgicalIntervention) => {
+        surgicalIntervention.intervationDate = TransformStringToDate(
+          surgicalIntervention.intervationDate as string,
+        );
+      });
+    }
+
+    const medicalHistory = await this.prisma.medicalHistory.create({
+      data: {
+        ...medicalHistoryInput,
+        pet: {
+          connect: {
+            id: petId,
+          },
+        },
+        food: { create: food },
+        physicalExam: { create: physicalExam },
+        otherPet: { create: otherPet },
+        diagnostic: {
+          create: {
+            ...diagnostic,
+            treatments: { createMany: { data: treatments } },
+            surgicalIntervations: surgicalIntervations
+              ? {
+                  createMany: { data: surgicalIntervations },
+                }
+              : (undefined as never),
+          },
+        },
+      },
+      include: {
+        food: true,
+        otherPet: true,
+        physicalExam: true,
+        diagnostic: {
+          include: { treatments: true, surgicalIntervations: true },
+        },
+      },
+    });
+
+    medicalHistory.diagnostic.medicalHistoryId = medicalHistory.id;
+
+    return plainToInstance(MedicalHistoryResponseDto, medicalHistory);
+  }
+
+  async updateDiagnostic(
+    medicalHistoryId: number,
+    updateDiagnosticInput: UpdateDiagnosticDto,
+  ): Promise<DiagnosticResponseDto> {
+    const diagnostic = await this.prisma.diagnostic.findFirst({
+      where: {
+        medicalHistoryId,
+      },
+    });
+
+    if (!diagnostic) {
+      throw new DiagnosticNotFoundException(medicalHistoryId);
+    }
+
+    const updatedDiagnostic = await this.prisma.diagnostic.update({
+      where: {
+        id: diagnostic.id,
+      },
+      data: updateDiagnosticInput,
+    });
+
+    return plainToInstance(DiagnosticResponseDto, updatedDiagnostic);
   }
 }
