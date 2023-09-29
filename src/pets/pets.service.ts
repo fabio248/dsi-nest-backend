@@ -34,7 +34,7 @@ import { DiagnosticNotFoundException } from './exception/diagnostic-not-found.ex
 
 @Injectable()
 export class PetsService {
-  private readonly includeRelation = {
+  private readonly includeRelation: Prisma.PetInclude = {
     user: true,
     specie: true,
     medicalHistories: {
@@ -42,7 +42,7 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
-        diagnostic: {
+        diagnostics: {
           include: { treatments: true, surgicalIntervations: true },
         },
       },
@@ -160,7 +160,7 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
-        diagnostic: {
+        diagnostics: {
           include: { treatments: true, surgicalIntervations: true },
         },
       },
@@ -302,8 +302,8 @@ export class PetsService {
   ): Promise<MedicalHistoryResponseDto> {
     await this.findOnePetById(petId);
 
-    const { food, physicalExam, otherPet, diagnostic } = medicalHistoryInput;
-    const { treatments, surgicalIntervations } = diagnostic;
+    const { food, physicalExam, otherPet, diagnostics } = medicalHistoryInput;
+    const { treatments, surgicalIntervations } = diagnostics;
 
     if (surgicalIntervations?.length > 0) {
       surgicalIntervations.forEach((surgicalIntervention) => {
@@ -324,9 +324,9 @@ export class PetsService {
         food: { create: food },
         physicalExam: { create: physicalExam },
         otherPet: { create: otherPet },
-        diagnostic: {
+        diagnostics: {
           create: {
-            ...diagnostic,
+            ...diagnostics,
             treatments: { createMany: { data: treatments } },
             surgicalIntervations: surgicalIntervations
               ? {
@@ -340,13 +340,11 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
-        diagnostic: {
+        diagnostics: {
           include: { treatments: true, surgicalIntervations: true },
         },
       },
     });
-
-    medicalHistory.diagnostic.medicalHistoryId = medicalHistory.id;
 
     return plainToInstance(MedicalHistoryResponseDto, medicalHistory);
   }

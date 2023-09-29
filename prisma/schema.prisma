@@ -112,8 +112,8 @@ model MedicalHistory {
   otherPet   OtherPet @relation(fields: [otherPetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   otherPetId Int      @map("other_pet_id")
 
-  files      File[]
-  Diagnostic Diagnostic[]
+  files       File[]
+  diagnostics Diagnostic[]
 
   @@map("medical_history")
 }
