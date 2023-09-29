@@ -15,10 +15,11 @@ export class CreateDiagnosticInput {
 
   @Type(() => CreateTreatmentInput)
   @ValidateNested({ each: true })
+  @IsNotEmpty()
   treatments: CreateTreatmentInput[];
 
   @Type(() => CreateSurgicalInterventionInput)
   @ValidateNested({ each: true })
   @IsOptional()
-  surgicalInterventions?: CreateSurgicalInterventionInput[];
+  surgicalIntervations?: CreateSurgicalInterventionInput[];
 }

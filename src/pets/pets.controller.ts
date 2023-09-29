@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -15,11 +16,16 @@ import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
 import { UpdateMedicalHistoryDto } from './dto/input/update-medical-history.input';
-import { UpdateSurgicalInterventionDto, UpdateTreatmentDto } from './dto/input';
+import {
+  CreateMedicalHistoryInput,
+  UpdateSurgicalInterventionDto,
+  UpdateTreatmentDto,
+} from './dto/input';
 import {
   SurgicalInterventionResponseDto,
   TreatmentResponseDto,
 } from './dto/response';
+import { UpdateDiagnosticDto } from './dto/input/update-diagnostic.input';
 
 @ApiTags('Pets')
 @Controller('pets')
@@ -82,5 +88,29 @@ export class PetsController {
   @ApiBearerAuth()
   remove(@Param('petId') petId: string) {
     return this.petsService.remove(+petId);
+  }
+
+  @Post(':petId/medical-histories')
+  @ApiBearerAuth()
+  createMedicalHistory(
+    @Param('petId') petId: number,
+    @Body() createMedicalHistoryDto: CreateMedicalHistoryInput,
+  ) {
+    return this.petsService.createMedicalHistory(
+      petId,
+      createMedicalHistoryDto,
+    );
+  }
+
+  @Patch('/medical-histories/:medicalHistoryId/diagnostics')
+  @ApiBearerAuth()
+  updateDiagnostic(
+    @Param('medicalHistoryId') medicalHistoryId: number,
+    @Body() updateDiagnosticDto: UpdateDiagnosticDto,
+  ) {
+    return this.petsService.updateDiagnostic(
+      medicalHistoryId,
+      updateDiagnosticDto,
+    );
   }
 }

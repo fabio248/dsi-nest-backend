@@ -11,7 +11,7 @@ export class CreateSurgicalInterventionInput {
 
   /**
    * Dia de intervención en formato dd/mm/aaaa
-   * @example 19/12/2023
+   * @example 31/01/2024
    */
   @IsNotEmpty()
   @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {

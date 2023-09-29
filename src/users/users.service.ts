@@ -58,9 +58,6 @@ export class UsersService {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
-    const { medicalHistories } = pet;
-    const { otherPet, food, physicalExam, diagnostic } = medicalHistories;
-    const { treatments, surgicalInterventions } = diagnostic;
 
     await this.throwErrorIfEmailIsAlreadyTaken(email);
 
@@ -70,56 +67,11 @@ export class UsersService {
       createUserDto.birthday as string,
     );
 
-    if (surgicalInterventions.length > 0) {
-      surgicalInterventions.forEach((surgicalIntervention) => {
-        surgicalIntervention.intervationDate = TransformStringToDate(
-          surgicalIntervention.intervationDate as string,
-        );
-      });
-    }
-
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
         pets: {
-          create: {
-            ...pet,
-            specieId: undefined as never,
-            specie: {
-              connect: {
-                id: pet.specieId,
-              },
-            },
-            medicalHistories: {
-              create: {
-                ...medicalHistories,
-                food: {
-                  create: food,
-                },
-                physicalExam: {
-                  create: physicalExam,
-                },
-                otherPet: {
-                  create: otherPet,
-                },
-                diagnostic: {
-                  create: {
-                    description: diagnostic.description,
-                    treatments: {
-                      createMany: {
-                        data: treatments,
-                      },
-                    },
-                    surgicalIntervations: {
-                      createMany: {
-                        data: surgicalInterventions,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          create: pet,
         },
       },
       include: {
@@ -130,7 +82,7 @@ export class UsersService {
                 food: true,
                 otherPet: true,
                 physicalExam: true,
-                diagnostic: {
+                diagnostics: {
                   include: { treatments: true, surgicalIntervations: true },
                 },
               },
@@ -253,15 +205,16 @@ export class UsersService {
     //add url to each for get files
 
     for (const pet of response.pets) {
-      if (!pet.medicalHistory) {
+      if (pet.medicalHistories.length <= 0) {
         continue;
       }
-      for (const file of pet.medicalHistory.files) {
-        const url = await this.fileService.getUrlToGetFile(
-          file.name,
-          file.folderId,
-        );
-        file.url = url;
+      for (const medicalHistory of pet.medicalHistories) {
+        for (const file of medicalHistory.files) {
+          file.url = await this.fileService.getUrlToGetFile(
+            file.name,
+            file.folderId,
+          );
+        }
       }
     }
 

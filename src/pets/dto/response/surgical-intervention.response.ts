@@ -12,7 +12,7 @@ export class SurgicalInterventionResponseDto {
   description: string;
 
   @Expose()
-  @Transform(({ value }) => value.toLocaleDateString('es-SV'))
+  @Transform(({ value }) => value?.toLocaleDateString('es-SV'))
   intervationDate: Date;
 
   @ApiHideProperty()

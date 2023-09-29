@@ -85,8 +85,7 @@ export class FilesService {
     createFileDto: CreateFileDto,
     petId: number,
   ): Promise<FileResponseDto> {
-    const { mimetype } = createFileDto;
-    const { medicalHistoryId } = await this.petService.findOnePetById(petId);
+    const { mimetype, medicalHistoryId } = createFileDto;
     const folder = await this.findOrCreateFolderByPetId(petId);
     const fileName = await this.createKeyNameForFile(petId, mimetype);
 

@@ -1,4 +1,4 @@
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { FoodResponseDto } from './food.response';
 import { PhysicalExamResponseDto } from './physical-exam.response';
 import { OtherPetResponseDto } from './other-pet.response';
@@ -28,8 +28,8 @@ export class MedicalHistoryResponseDto {
   @Expose()
   observation: string;
 
-  @ApiHideProperty()
-  @Exclude()
+  @Expose()
+  @Transform(({ value }) => value.toLocaleDateString('es-SV'))
   createdAt: Date;
 
   @ApiHideProperty()
