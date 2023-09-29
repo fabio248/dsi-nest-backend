@@ -63,5 +63,5 @@ export class MedicalHistoryResponseDto {
 
   @Expose()
   @Type(() => DiagnosticResponseDto)
-  diagnostic: DiagnosticResponseDto;
+  diagnostics: DiagnosticResponseDto;
 }
