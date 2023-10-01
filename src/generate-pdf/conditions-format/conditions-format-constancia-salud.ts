@@ -1,5 +1,5 @@
-/* eslint-disable prettier/prettier */
-export function formatDocument(pdfBuffer: Buffer, res: any) {
+import { Response } from 'express';
+export function formatDocument(pdfBuffer: Buffer, res: Response) {
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader(
     'Content-Disposition',

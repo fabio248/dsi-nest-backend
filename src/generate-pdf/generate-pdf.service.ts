@@ -1,18 +1,20 @@
-/* eslint-disable prettier/prettier */
 import { Injectable, Logger } from '@nestjs/common';
-import { formatDocument } from './ConditionsFormat/ConditionsFormat_ConstanciaSalud';
+import { formatDocument } from './conditions-format/conditions-format-constancia-salud';
 import { PetsService } from 'src/pets/pets.service';
 import { CreateDocumentInput } from './dto/input/create-constancia.input';
+import { Response } from 'express';
 //libreria de generacion de pdf
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument1 = require(`pdfkit-table`);
 
 //cabeceras de los documentos
-import { addHeader } from './Headers/header-ConstanciaSalud';
+import { addHeader } from './headers/header-constancia-salud';
 //cuerpo del documento
-import { addFields } from './Body/Body-ConstanciaSalud';
+import { addFields } from './body/body-constancia-salud';
 //pie de pagina
-import { finalText } from './Footer/footer-ConstanciaSalud';
+import { finalText } from './footer/footer-constancia-salud';
+
+//fonts
+import { MerriweatherLight } from './utils/fonts/fonts.style';
 
 @Injectable()
 export class GeneratePdfService {
@@ -20,10 +22,10 @@ export class GeneratePdfService {
 
   constructor(private readonly petsService: PetsService) {}
 
-  async generatePDF_ConstanciaSalud(
+  async generaPDFContanciaSalud(
     id: number,
     createDocumentInput: CreateDocumentInput,
-    res: any,
+    res: Response,
   ): Promise<void> {
     this.logger.log(`Create PDF`);
 
@@ -74,7 +76,7 @@ export class GeneratePdfService {
         layout: 'lightHorizontalLines',
         fontSize: 52, // Aumentamos el tamaño de fuente a 16 aquí
         rowHeight: 40, // Ajusta la altura de la fila si es necesario
-        font: 'Public/Fonts/Merriweather-Light.ttf', // Ruta a la fuente que deseas usar
+        font: MerriweatherLight, // Ruta a la fuente que deseas usar
       };
 
       doc.table(table, { columnSize: [150, 300] });

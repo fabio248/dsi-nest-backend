@@ -2,6 +2,12 @@
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
 import { CreateDocumentInput } from '../dto/input/create-constancia.input';
 
+//fonts
+import {
+  MerriweatherLight,
+  MerriweatherBlack,
+} from '../utils/fonts/fonts.style';
+
 export function addFields(
   dataPet: PetResponseDto,
   createDocumentInput: CreateDocumentInput,
@@ -25,23 +31,21 @@ export function addFields(
 
   // -- pruebas de estilos
 
-  doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
-    .text(`Propiedad de Sr. (Sra.): `, {
-      continued: true, // Continúa en la misma línea
-      align: 'left',
-    });
+  doc.font(MerriweatherBlack).text(`Propiedad de Sr. (Sra.): `, {
+    continued: true, // Continúa en la misma línea
+    align: 'left',
+  });
 
   // Obtén el texto después de " : "
   const textAfterColon = `${dataPet.user.firstName} ${dataPet.user.lastName}`;
 
   // Cambia la fuente para el texto después de " : "
-  doc.font(`Public/Fonts/Merriweather-Light.ttf`).text(textAfterColon, {
+  doc.font(MerriweatherLight).text(textAfterColon, {
     align: 'left',
   });
 
   // DUI
-  doc.font(`Public/Fonts/Merriweather-Black.ttf`).text(`DUI: `, {
+  doc.font(MerriweatherBlack).text(`DUI: `, {
     continued: true, // Continúa en la misma línea
     align: 'left',
   });
@@ -50,13 +54,13 @@ export function addFields(
   const duiText = `${dataPet.user?.dui || 'No se ha proporcionado ningun DUI'}`;
 
   // Cambia la fuente para el texto después de "DUI:"
-  doc.font(`Public/Fonts/Merriweather-Light.ttf`).text(duiText, {
+  doc.font(MerriweatherLight).text(duiText, {
     align: 'left',
   });
   // doc.moveDown();
 
   // Dirección
-  doc.font(`Public/Fonts/Merriweather-Black.ttf`).text(`Con dirección: `, {
+  doc.font(MerriweatherBlack).text(`Con dirección: `, {
     continued: true, // Continúa en la misma línea
     align: 'left',
   });
@@ -68,51 +72,45 @@ export function addFields(
   }`;
 
   // Cambia la fuente para el texto después de "Con dirección:"
-  doc.font(`Public/Fonts/Merriweather-Light.ttf`).text(directionText, {
+  doc.font(MerriweatherLight).text(directionText, {
     align: 'left',
   });
   doc.moveDown(1);
 
   // Encargado responsable, dirección de destino y código postal
-  doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
-    .text(`Viajará con el encargado responsable: `, {
-      continued: true, // Continúa en la misma línea
-      align: 'left',
-    });
+  doc.font(MerriweatherBlack).text(`Viajará con el encargado responsable: `, {
+    continued: true, // Continúa en la misma línea
+    align: 'left',
+  });
 
   // Texto después de "Viajará con el encargado responsable:"
   const responsibleText = `${createDocumentInput.responsible} (Propietario),`;
 
   // Cambia la fuente para el texto después de "Viajará con el encargado responsable:"
-  doc.font(`Public/Fonts/Merriweather-Light.ttf`).text(responsibleText, {
+  doc.font(MerriweatherLight).text(responsibleText, {
     continue: true,
     align: 'left',
   });
 
-  doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
-    .text(`Con dirección de destino: `, {
-      continued: true, // Continúa en la misma línea
-      align: 'left',
-    });
+  doc.font(MerriweatherBlack).text(`Con dirección de destino: `, {
+    continued: true, // Continúa en la misma línea
+    align: 'left',
+  });
 
   const direction = `${createDocumentInput.destinationAdress}`;
 
-  doc.font(`Public/Fonts/Merriweather-Light.ttf`).text(direction + ',', {
+  doc.font(MerriweatherLight).text(direction + ',', {
     continue: true,
     align: 'left',
   });
-  doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
-    .text(`y  Zip código postal: `, {
-      continued: true, // Continúa en la misma línea
-      align: 'left',
-    });
+  doc.font(MerriweatherBlack).text(`y  Zip código postal: `, {
+    continued: true, // Continúa en la misma línea
+    align: 'left',
+  });
 
   const codePostal = ` ${createDocumentInput.codePostal}.`;
 
-  doc.font(`Public/Fonts/Merriweather-Light.ttf`).text(codePostal, {
+  doc.font(MerriweatherLight).text(codePostal, {
     align: 'left',
   });
 
@@ -121,7 +119,7 @@ export function addFields(
 
   // Alinea "Dicho ejemplar se encuentra en buen estado..."
   doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
+    .font(MerriweatherBlack)
     .text(
       `Dicho ejemplar se encuentra en buen estado de salud, libre de enfermedades infectocontagiosas/parasitosis; tiene su esquema de vacunación completo, por lo cual es apto para vivir en comunidad`,
       {

@@ -1,18 +1,16 @@
-/* eslint-disable prettier/prettier */
 import { join } from 'path';
-// const PDFDocument1 = require(`pdfkit-table`);
+
+//fonts
+import { MerriweatherBlack } from '../utils/fonts/fonts.style';
 
 export function addHeader(doc: any) {
   // Agrega el texto del encabezado agrupado
+  doc.font(MerriweatherBlack).text(`Clínica Veterinaria Mistun.`, 50, 40, {
+    width: doc.page.width - 100,
+    align: `center`,
+  });
   doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
-    .text(`Clínica Veterinaria Mistun,`, 50, 40, {
-      width: doc.page.width - 100,
-      align: `left`,
-    });
-
-  doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
+    .font(MerriweatherBlack)
     .text(
       `Barrio Santa Lucía, Casa #23, sobre 1° Av. Norte, Zacatecoluca, La Paz.`,
       50,
@@ -23,15 +21,13 @@ export function addHeader(doc: any) {
       },
     );
 
-  doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
-    .text(`Saulvet99@gmail.com`, 50, doc.y, {
-      width: doc.page.width - 100,
-      align: `left`,
-    });
+  doc.font(MerriweatherBlack).text(`Saulvet99@gmail.com`, 50, doc.y, {
+    width: doc.page.width - 100,
+    align: `left`,
+  });
 
   doc
-    .font(`Public/Fonts/Merriweather-Black.ttf`)
+    .font(MerriweatherBlack)
     .text(`Teléfono 6136-6565; 2200-3554.`, 50, doc.y, {
       width: doc.page.width - 100,
       align: `left`,
