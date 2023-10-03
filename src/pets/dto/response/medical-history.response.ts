@@ -29,6 +29,9 @@ export class MedicalHistoryResponseDto {
   observation: string;
 
   @Expose()
+  diagnosticId: string;
+
+  @Expose()
   @Transform(({ value }) => value.toLocaleDateString('es-SV'))
   createdAt: Date;
 
