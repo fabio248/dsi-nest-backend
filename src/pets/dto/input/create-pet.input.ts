@@ -5,11 +5,8 @@ import {
   IsPositive,
   IsString,
   Matches,
-  ValidateNested,
 } from 'class-validator';
 import { Gender } from '../enum/gender.enum';
-import { CreateMedicalHistoryInput } from './create-medical-history.input';
-import { Type } from 'class-transformer';
 
 export class CreatePetInput {
   @IsNotEmpty()
@@ -49,9 +46,4 @@ export class CreatePetInput {
   @IsNotEmpty()
   @IsPositive()
   specieId: number;
-
-  @IsNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => CreateMedicalHistoryInput)
-  medicalHistory: CreateMedicalHistoryInput;
 }

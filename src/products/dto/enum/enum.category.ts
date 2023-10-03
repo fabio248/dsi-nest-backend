@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-export enum Product {
+export enum CategoryProduct {
   ACCESORIOS = 'accesorios',
   ALIMENTOS = 'alimentos',
   BIENESTAR = 'bienestar',
@@ -9,4 +9,5 @@ export enum Product {
   REPRODUCCION = 'reproduccion',
   TERRARIO_ACUARIO = 'terrario_acuario',
   TRANSPORTE = 'transporte',
+  MEDICAMENTO = 'medicamento',
 }

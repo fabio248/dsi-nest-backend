@@ -58,8 +58,6 @@ export class UsersService {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
-    const { medicalHistory } = pet;
-    const { otherPet, food, physicalExam } = medicalHistory;
 
     await this.throwErrorIfEmailIsAlreadyTaken(email);
 
@@ -73,32 +71,21 @@ export class UsersService {
       data: {
         ...createUserDto,
         pets: {
-          create: {
-            ...pet,
-            medicalHistory: {
-              create: {
-                ...medicalHistory,
-                food: {
-                  create: food,
-                },
-                otherPet: {
-                  create: otherPet,
-                },
-                physicalExam: {
-                  create: physicalExam,
-                },
-              },
-            },
-            specie: { connect: { id: pet.specieId } },
-            specieId: undefined as never,
-          },
+          create: pet,
         },
       },
       include: {
         pets: {
           include: {
-            medicalHistory: {
-              include: { food: true, physicalExam: true, otherPet: true },
+            medicalHistories: {
+              include: {
+                food: true,
+                otherPet: true,
+                physicalExam: true,
+                diagnostic: {
+                  include: { treatments: true, surgicalIntervations: true },
+                },
+              },
             },
           },
         },
@@ -130,12 +117,12 @@ export class UsersService {
       searchRole = this.searchInRoleField(search);
 
       where.OR = [
-        { firstName: { contains: search } },
-        { lastName: { contains: search } },
-        { email: { contains: search } },
-        { phone: { contains: search } },
-        { direction: { contains: search } },
-        { dui: { contains: search } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+        { direction: { contains: search, mode: 'insensitive' } },
+        { dui: { contains: search, mode: 'insensitive' } },
         { role: searchRole },
       ];
     }
@@ -199,7 +186,7 @@ export class UsersService {
           skip,
           take,
           include: {
-            medicalHistory: {
+            medicalHistories: {
               include: {
                 food: true,
                 otherPet: true,
@@ -218,15 +205,16 @@ export class UsersService {
     //add url to each for get files
 
     for (const pet of response.pets) {
-      if (!pet.medicalHistory) {
+      if (pet.medicalHistories.length <= 0) {
         continue;
       }
-      for (const file of pet.medicalHistory.files) {
-        const url = await this.fileService.getUrlToGetFile(
-          file.name,
-          file.folderId,
-        );
-        file.url = url;
+      for (const medicalHistory of pet.medicalHistories) {
+        for (const file of medicalHistory.files) {
+          file.url = await this.fileService.getUrlToGetFile(
+            file.name,
+            file.folderId,
+          );
+        }
       }
     }
 
