@@ -13,6 +13,7 @@ export function addFieldsEutanasia(
   dataPet: PetResponseDto,
   createEutanasiaInput: CreateEutanasiaInput,
   doc: any,
+  lastWeightPet: number,
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
   doc.moveDown();
@@ -74,15 +75,13 @@ export function addFieldsEutanasia(
   doc.moveDown(0.5);
 
   // Peso
-  doc.font(MerriweatherBlack).text(`Peso: `, {
+  doc.font(MerriweatherBlack).text(`Peso:`, {
     continued: true,
     align: 'left',
   });
-  doc
-    .font(MerriweatherLight)
-    .text(dataPet.medicalHistory.physicalExam.weight + ' Kg', {
-      align: 'left',
-    });
+  doc.font(MerriweatherLight).text(` ${lastWeightPet} Kg`, {
+    align: 'left',
+  });
   doc.moveDown(0.5);
 
   // Color

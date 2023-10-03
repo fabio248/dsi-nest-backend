@@ -12,12 +12,13 @@ export function addFields(
   dataPet: PetResponseDto,
   createDocumentInput: CreateConstanciaSaludInput,
   doc: any,
+  LastWeightPet: number,
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
 
   const fieldGroups = [
     `Nombre: ${dataPet.name}    |    Especie: ${dataPet.specie.name}    |    Raza: ${dataPet.raza}`,
-    `Sexo: ${dataPet.gender}    |    Edad: ${dataPet.birthday}    |    Peso: ${dataPet.medicalHistory.physicalExam.weight} Kg`,
+    `Sexo: ${dataPet.gender}    |    Edad: ${dataPet.birthday}    |    Peso: ${LastWeightPet} Kg`,
     `Identificación del microchip: ${createDocumentInput.microChip}`,
   ];
 

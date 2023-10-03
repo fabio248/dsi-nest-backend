@@ -40,7 +40,9 @@ export class GeneratePdfService {
   ): Promise<void> {
     this.logger.log(`Create PDF - Constancia de Salud`);
 
-    const dataPet = await this.petsService.findOneById(id);
+    const dataPet = await this.petsService.findOnePetById(id);
+
+    const LastWeightPet = await this.petsService.getLastWeightPet(id);
 
     //genera la estructura base del pdf, formato y demas
     const pdfBuffer: Buffer = await new Promise((resolve) => {
@@ -64,7 +66,7 @@ export class GeneratePdfService {
       });
       doc.moveDown(2);
 
-      const body = addFields(dataPet, createDocumentInput, doc);
+      const body = addFields(dataPet, createDocumentInput, doc, LastWeightPet);
 
       // Crear la tabla con filas dinámicas
 
@@ -123,8 +125,9 @@ export class GeneratePdfService {
   ): Promise<void> {
     this.logger.log(`Create PDF Eutanasia`);
 
-    const dataPet = await this.petsService.findOneById(idPet);
+    const dataPet = await this.petsService.findOnePetById(idPet);
 
+    const lastWeightPet = await this.petsService.getLastWeightPet(idPet);
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       const doc = new PDFDocument1({
         size: [612, 792],
@@ -143,6 +146,7 @@ export class GeneratePdfService {
         dataPet,
         createEutanasiaInput,
         doc,
+        lastWeightPet,
       );
 
       doc.on(`data`, buffer.push.bind(buffer));
