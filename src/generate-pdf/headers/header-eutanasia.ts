@@ -1,14 +1,24 @@
+/* eslint-disable prettier/prettier */
 import { join } from 'path';
 
 //fonts
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
 
-export function addHeaderConstanciaSalud(doc: any) {
+export function addHeaderEutanasia(doc: any) {
+  const DateNow = Date.now();
+  const fecha = new Date(DateNow);
+
+  const dia = fecha.getDate();
+  const mes = fecha.getMonth() + 1; // Los meses se cuentan desde 0, por lo que sumamos 1
+  const anio = fecha.getFullYear();
+
+  const fechaFormateada = `${dia}/${mes}/${anio}`;
   // Agrega el texto del encabezado agrupado
   doc.font(MerriweatherBlack).text(`Clínica Veterinaria Mistun.`, 50, 40, {
     width: doc.page.width - 100,
     align: `center`,
   });
+  doc.moveDown(0.1);
   doc
     .font(MerriweatherBlack)
     .text(
@@ -21,14 +31,10 @@ export function addHeaderConstanciaSalud(doc: any) {
       },
     );
 
-  doc.font(MerriweatherBlack).text(`Saulvet99@gmail.com`, 50, doc.y, {
-    width: doc.page.width - 100,
-    align: `left`,
-  });
-
+  doc.moveDown(1);
   doc
     .font(MerriweatherBlack)
-    .text(`Teléfono 6136-6565; 2200-3554.`, 50, doc.y, {
+    .text(`Documento Expedido: ${fechaFormateada}`, 50, doc.y, {
       width: doc.page.width - 100,
       align: `left`,
     });

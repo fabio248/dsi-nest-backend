@@ -1,13 +1,13 @@
-import { CreateDocumentInput } from '../dto/input/create-constancia.input';
+import { CreateConstanciaSaludInput } from '../dto/input/create-constancia.input';
 //fonts
 import {
   MerriweatherBlack,
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
 
-export async function finalText(
+export async function finalTextConstanciaDeSalud(
   doc: any,
-  createDocumentInput: CreateDocumentInput,
+  createDocumentInput: CreateConstanciaSaludInput,
 ) {
   // Establece el formato de fuente igual al de addFields
   doc.font(MerriweatherBlack);

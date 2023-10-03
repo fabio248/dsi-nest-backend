@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
-import { CreateDocumentInput } from '../dto/input/create-constancia.input';
+import { CreateConstanciaSaludInput } from '../dto/input/create-constancia.input';
 
 //fonts
 import {
@@ -10,7 +10,7 @@ import {
 
 export function addFields(
   dataPet: PetResponseDto,
-  createDocumentInput: CreateDocumentInput,
+  createDocumentInput: CreateConstanciaSaludInput,
   doc: any,
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
@@ -128,5 +128,5 @@ export function addFields(
     );
 
   // Añade espacio vertical entre el texto anterior y la tabla
-  doc.moveDown(3);
+  doc.moveDown(2);
 }

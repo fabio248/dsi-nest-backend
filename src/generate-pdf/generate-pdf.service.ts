@@ -1,20 +1,31 @@
+/* eslint-disable prettier/prettier */
 import { Injectable, Logger } from '@nestjs/common';
 import { formatDocument } from './conditions-format/conditions-format-constancia-salud';
 import { PetsService } from 'src/pets/pets.service';
-import { CreateDocumentInput } from './dto/input/create-constancia.input';
+import { CreateConstanciaSaludInput } from './dto/input/create-constancia.input';
+import { CreateEutanasiaInput } from './dto/input/create-eutanasia.input';
+
 import { Response } from 'express';
-//libreria de generacion de pdf
+//libreria de generacion de pdf "pdfkit-table"
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument1 = require(`pdfkit-table`);
 
 //cabeceras de los documentos
-import { addHeader } from './headers/header-constancia-salud';
+import { addHeaderConstanciaSalud } from './headers/header-constancia-salud';
+import { addHeaderEutanasia } from './headers/header-eutanasia';
 //cuerpo del documento
 import { addFields } from './body/body-constancia-salud';
+import { addFieldsEutanasia } from './body/body-eutanasia';
 //pie de pagina
-import { finalText } from './footer/footer-constancia-salud';
+import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
+import { finalTextEutanasia } from './footer/footer-eutanasia';
 
 //fonts
-import { MerriweatherLight } from './utils/fonts/fonts.style';
+import {
+  // MerriweatherBlack,
+  MerriweatherLight,
+} from './utils/fonts/fonts.style';
 
 @Injectable()
 export class GeneratePdfService {
@@ -24,10 +35,10 @@ export class GeneratePdfService {
 
   async generaPDFContanciaSalud(
     id: number,
-    createDocumentInput: CreateDocumentInput,
+    createDocumentInput: CreateConstanciaSaludInput,
     res: Response,
   ): Promise<void> {
-    this.logger.log(`Create PDF`);
+    this.logger.log(`Create PDF - Constancia de Salud`);
 
     const dataPet = await this.petsService.findOneById(id);
 
@@ -44,12 +55,12 @@ export class GeneratePdfService {
       const buffer = [] as Buffer[];
 
       // Función para agregar encabezado en la primera página
-      const headers = addHeader(doc);
+      const headers = addHeaderConstanciaSalud(doc);
 
       doc.moveDown();
       doc.text(`CONSTANCIA DE SALUD MÉDICA DE LA MASCOTA`, {
-        width: doc.page.width - 100,
-        align: `center`,
+        // width: doc.page.width - 100,
+        align: `left`,
       });
       doc.moveDown(2);
 
@@ -94,8 +105,58 @@ export class GeneratePdfService {
       body;
 
       // Pie de pagina
-      const footer = finalText(doc, createDocumentInput);
+      const footer = finalTextConstanciaDeSalud(doc, createDocumentInput);
       footer;
+      doc.end();
+    });
+
+    const responsePDF = formatDocument(pdfBuffer, res);
+
+    // Envía el PDF como respuesta
+    res.end(responsePDF);
+  }
+
+  async generatePDFEutanasia(
+    idPet: number,
+    createEutanasiaInput: CreateEutanasiaInput,
+    res: Response,
+  ): Promise<void> {
+    this.logger.log(`Create PDF Eutanasia`);
+
+    const dataPet = await this.petsService.findOneById(idPet);
+
+    const pdfBuffer: Buffer = await new Promise((resolve) => {
+      const doc = new PDFDocument1({
+        size: [612, 792],
+        bufferPages: true,
+        autoFirstPage: true,
+        margin: { top: 50, right: 50, bottom: 50, left: 50 },
+      });
+
+      // Contiene el contenido final del documento PDF
+      const buffer = [] as Buffer[];
+
+      // Función para agregar encabezado en la primera página
+      const headersEutanasia = addHeaderEutanasia(doc);
+
+      const bodyEutanasia = addFieldsEutanasia(
+        dataPet,
+        createEutanasiaInput,
+        doc,
+      );
+
+      doc.on(`data`, buffer.push.bind(buffer));
+      doc.on(`end`, () => {
+        const pdfData = Buffer.concat(buffer);
+        resolve(pdfData);
+      });
+
+      headersEutanasia;
+
+      bodyEutanasia;
+
+      const footerEutanasia = finalTextEutanasia(doc);
+      footerEutanasia;
       doc.end();
     });
 

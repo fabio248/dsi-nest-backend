@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   IsNotEmpty,
   IsString,
@@ -9,7 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 
-export class CreateDocumentInput {
+export class CreateConstanciaSaludInput {
   @IsNotEmpty()
   @IsString()
   microChip: string;
