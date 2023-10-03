@@ -42,7 +42,7 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
-        diagnostics: {
+        diagnostic: {
           include: { treatments: true, surgicalIntervations: true },
         },
       },
@@ -160,7 +160,7 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
-        diagnostics: {
+        diagnostic: {
           include: { treatments: true, surgicalIntervations: true },
         },
       },
@@ -302,8 +302,8 @@ export class PetsService {
   ): Promise<MedicalHistoryResponseDto> {
     await this.findOnePetById(petId);
 
-    const { food, physicalExam, otherPet, diagnostics } = medicalHistoryInput;
-    const { treatments, surgicalIntervations } = diagnostics;
+    const { food, physicalExam, otherPet, diagnostic } = medicalHistoryInput;
+    const { treatments, surgicalIntervations } = diagnostic;
 
     if (surgicalIntervations?.length > 0) {
       surgicalIntervations.forEach((surgicalIntervention) => {
@@ -324,9 +324,9 @@ export class PetsService {
         food: { create: food },
         physicalExam: { create: physicalExam },
         otherPet: { create: otherPet },
-        diagnostics: {
+        diagnostic: {
           create: {
-            ...diagnostics,
+            ...diagnostic,
             treatments: { createMany: { data: treatments } },
             surgicalIntervations: surgicalIntervations
               ? {
@@ -340,7 +340,7 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
-        diagnostics: {
+        diagnostic: {
           include: { treatments: true, surgicalIntervations: true },
         },
       },
@@ -353,9 +353,12 @@ export class PetsService {
     medicalHistoryId: number,
     updateDiagnosticInput: UpdateDiagnosticDto,
   ): Promise<DiagnosticResponseDto> {
-    const diagnostic = await this.prisma.diagnostic.findFirst({
+    const { diagnostic } = await this.prisma.medicalHistory.findUnique({
       where: {
-        medicalHistoryId,
+        id: medicalHistoryId,
+      },
+      include: {
+        diagnostic: true,
       },
     });
 

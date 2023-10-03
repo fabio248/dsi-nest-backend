@@ -82,7 +82,7 @@ export class UsersService {
                 food: true,
                 otherPet: true,
                 physicalExam: true,
-                diagnostics: {
+                diagnostic: {
                   include: { treatments: true, surgicalIntervations: true },
                 },
               },

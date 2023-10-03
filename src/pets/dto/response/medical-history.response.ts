@@ -29,6 +29,9 @@ export class MedicalHistoryResponseDto {
   observation: string;
 
   @Expose()
+  diagnosticId: string;
+
+  @Expose()
   @Transform(({ value }) => value.toLocaleDateString('es-SV'))
   createdAt: Date;
 
@@ -63,5 +66,5 @@ export class MedicalHistoryResponseDto {
 
   @Expose()
   @Type(() => DiagnosticResponseDto)
-  diagnostics: DiagnosticResponseDto;
+  diagnostic: DiagnosticResponseDto;
 }

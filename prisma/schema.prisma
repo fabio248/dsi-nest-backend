@@ -112,8 +112,10 @@ model MedicalHistory {
   otherPet   OtherPet @relation(fields: [otherPetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   otherPetId Int      @map("other_pet_id")
 
-  files       File[]
-  diagnostics Diagnostic[]
+  diagnostic   Diagnostic? @relation(fields: [diagnosticId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  diagnosticId Int?        @unique @map("diagnostic_id")
+
+  files File[]
 
   @@map("medical_history")
 }
@@ -218,8 +220,7 @@ model Diagnostic {
   description String
 
   // relations
-  medicalHistory       MedicalHistory?       @relation(fields: [medicalHistoryId], references: [id])
-  medicalHistoryId     Int?                  @unique @map("medical_history_id")
+  medicalHistory       MedicalHistory[]
   surgicalIntervations SugicalIntervention[]
   treatments           Treatment[]
   createdAt            DateTime              @default(now()) @map("created_at")
