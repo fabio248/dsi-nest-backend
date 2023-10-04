@@ -4,9 +4,9 @@ import { formatDocument } from './conditions-format/conditions-format-constancia
 import { PetsService } from 'src/pets/pets.service';
 import { CreateConstanciaSaludInput } from './dto/input/create-constancia.input';
 import { CreateEutanasiaInput } from './dto/input/create-eutanasia.input';
-
+import { CreateConsentimientoInput } from './dto/input/create-consentimiento.input';
 import { Response } from 'express';
-//libreria de generacion de pdf "pdfkit-table"
+import { CalcAgePet } from './utils/Calc/utils-age';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument1 = require(`pdfkit-table`);
@@ -14,12 +14,15 @@ const PDFDocument1 = require(`pdfkit-table`);
 //cabeceras de los documentos
 import { addHeaderConstanciaSalud } from './headers/header-constancia-salud';
 import { addHeaderEutanasia } from './headers/header-eutanasia';
+import { addHeaderConsentimiento } from './headers/header-consentimiento';
 //cuerpo del documento
-import { addFields } from './body/body-constancia-salud';
+import { addFieldsConstanciaSalud } from './body/body-constancia-salud';
 import { addFieldsEutanasia } from './body/body-eutanasia';
+import { addFieldsConsentimiento } from './body/body-consentimiento';
 //pie de pagina
 import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
 import { finalTextEutanasia } from './footer/footer-eutanasia';
+import { finalTextConsentimiento } from './footer/footer-consentimiento';
 
 //fonts
 import {
@@ -44,6 +47,7 @@ export class GeneratePdfService {
 
     const LastWeightPet = await this.petsService.getLastWeightPet(id);
 
+    const agePet = CalcAgePet(dataPet.birthday.toString());
     //genera la estructura base del pdf, formato y demas
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       const doc = new PDFDocument1({
@@ -66,7 +70,13 @@ export class GeneratePdfService {
       });
       doc.moveDown(2);
 
-      const body = addFields(dataPet, createDocumentInput, doc, LastWeightPet);
+      const body = addFieldsConstanciaSalud(
+        dataPet,
+        createDocumentInput,
+        doc,
+        LastWeightPet,
+        agePet,
+      );
 
       // Crear la tabla con filas dinámicas
 
@@ -127,6 +137,8 @@ export class GeneratePdfService {
 
     const dataPet = await this.petsService.findOnePetById(idPet);
 
+    const edadPet = CalcAgePet(dataPet.birthday.toString());
+
     const lastWeightPet = await this.petsService.getLastWeightPet(idPet);
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       const doc = new PDFDocument1({
@@ -147,6 +159,7 @@ export class GeneratePdfService {
         createEutanasiaInput,
         doc,
         lastWeightPet,
+        edadPet,
       );
 
       doc.on(`data`, buffer.push.bind(buffer));
@@ -161,6 +174,58 @@ export class GeneratePdfService {
 
       const footerEutanasia = finalTextEutanasia(doc);
       footerEutanasia;
+      doc.end();
+    });
+
+    const responsePDF = formatDocument(pdfBuffer, res);
+
+    // Envía el PDF como respuesta
+    res.end(responsePDF);
+  }
+
+  async generatePDFConsentimiento(
+    idPet: number,
+    createConsentimientoInput: CreateConsentimientoInput,
+    res: Response,
+  ) {
+    this.logger.log(`Create PDF Consentimiento de anestecia y cirugia `);
+
+    const dataPet = await this.petsService.findOnePetById(idPet);
+
+    const edadPet = CalcAgePet(dataPet.birthday.toString());
+
+    const pdfBuffer: Buffer = await new Promise((resolve) => {
+      const doc = new PDFDocument1({
+        size: [612, 792],
+        bufferPages: true,
+        autoFirstPage: true,
+        margin: { top: 50, right: 50, bottom: 50, left: 50 },
+      });
+      // Contiene el contenido final del documento PDF en formato buffer
+      const buffer = [] as Buffer[];
+
+      // Función para agregar encabezado en la primera página
+      const headersEutanasia = addHeaderConsentimiento(doc);
+
+      const bodyEutanasia = addFieldsConsentimiento(
+        dataPet,
+        createConsentimientoInput,
+        doc,
+        edadPet,
+      );
+
+      doc.on(`data`, buffer.push.bind(buffer));
+      doc.on(`end`, () => {
+        const pdfData = Buffer.concat(buffer);
+        resolve(pdfData);
+      });
+
+      headersEutanasia;
+
+      bodyEutanasia;
+
+      const footerConsentimiento = finalTextConsentimiento(doc);
+      footerConsentimiento;
       doc.end();
     });
 

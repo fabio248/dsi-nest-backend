@@ -14,6 +14,7 @@ export function addFieldsEutanasia(
   createEutanasiaInput: CreateEutanasiaInput,
   doc: any,
   lastWeightPet: number,
+  age: number,
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
   doc.moveDown();
@@ -69,7 +70,7 @@ export function addFieldsEutanasia(
     continued: true,
     align: 'left',
   });
-  doc.font(MerriweatherLight).text(dataPet.birthday, {
+  doc.font(MerriweatherLight).text(`${age} Años`, {
     align: 'left',
   });
   doc.moveDown(0.5);

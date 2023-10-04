@@ -8,17 +8,18 @@ import {
   MerriweatherBlack,
 } from '../utils/fonts/fonts.style';
 
-export function addFields(
+export function addFieldsConstanciaSalud(
   dataPet: PetResponseDto,
   createDocumentInput: CreateConstanciaSaludInput,
   doc: any,
   LastWeightPet: number,
+  age: number,
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
 
   const fieldGroups = [
     `Nombre: ${dataPet.name}    |    Especie: ${dataPet.specie.name}    |    Raza: ${dataPet.raza}`,
-    `Sexo: ${dataPet.gender}    |    Edad: ${dataPet.birthday}    |    Peso: ${LastWeightPet} Kg`,
+    `Sexo: ${dataPet.gender}    |    Edad: ${age} Años    |    Peso: ${LastWeightPet} Kg`,
     `Identificación del microchip: ${createDocumentInput.microChip}`,
   ];
 
