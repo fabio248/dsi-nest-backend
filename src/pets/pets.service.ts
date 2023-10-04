@@ -5,6 +5,8 @@ import {
   UpdateTreatmentDto,
   UpdateSurgicalInterventionDto,
   CreateMedicalHistoryInput,
+  CreateTreatmentInput,
+  CreateSurgicalInterventionInput,
 } from './dto/input';
 import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
 import { PrismaService } from '../database/database.service';
@@ -363,7 +365,7 @@ export class PetsService {
     });
 
     if (!diagnostic) {
-      throw new DiagnosticNotFoundException(medicalHistoryId);
+      throw new DiagnosticNotFoundException({ medicalHistoryId });
     }
 
     const updatedDiagnostic = await this.prisma.diagnostic.update({
@@ -374,5 +376,77 @@ export class PetsService {
     });
 
     return plainToInstance(DiagnosticResponseDto, updatedDiagnostic);
+  }
+
+  async findOneDiagnosticById(
+    diagnosticId: number,
+  ): Promise<DiagnosticResponseDto> {
+    const diagnostic = await this.prisma.diagnostic.findUnique({
+      where: { id: diagnosticId },
+      include: { treatments: true, surgicalIntervations: true },
+    });
+
+    if (!diagnostic) {
+      throw new DiagnosticNotFoundException({ diagnosticId });
+    }
+
+    return plainToInstance(DiagnosticResponseDto, diagnostic);
+  }
+
+  async createTreatment(
+    diagnosticId: number,
+    createTreatmentInput: CreateTreatmentInput,
+  ): Promise<TreatmentResponseDto> {
+    await this.findOneDiagnosticById(diagnosticId);
+
+    const treatment = await this.prisma.treatment.create({
+      data: {
+        ...createTreatmentInput,
+        diagnosticId,
+      },
+    });
+
+    return plainToInstance(TreatmentResponseDto, treatment);
+  }
+
+  async createSurgicalIntervention(
+    diagnosticId: number,
+    createSurgicalInterventionInput: CreateSurgicalInterventionInput,
+  ): Promise<SurgicalInterventionResponseDto> {
+    await this.findOneDiagnosticById(diagnosticId);
+
+    createSurgicalInterventionInput.intervationDate = TransformStringToDate(
+      createSurgicalInterventionInput.intervationDate as string,
+    );
+
+    const surgicalIntervention = await this.prisma.sugicalIntervention.create({
+      data: {
+        ...createSurgicalInterventionInput,
+        diagnosticId,
+      },
+    });
+
+    return plainToInstance(
+      SurgicalInterventionResponseDto,
+      surgicalIntervention,
+    );
+  }
+
+  async deleteTreatment(treatmentId: number): Promise<void> {
+    await this.findOneTreatmentById(treatmentId);
+
+    await this.prisma.treatment.delete({
+      where: { id: treatmentId },
+    });
+  }
+
+  async deleteSurgicalIntervention(
+    surgicalInterventionId: number,
+  ): Promise<void> {
+    await this.findOneSurgicalInterventionById(surgicalInterventionId);
+
+    await this.prisma.sugicalIntervention.delete({
+      where: { id: surgicalInterventionId },
+    });
   }
 }

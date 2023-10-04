@@ -18,6 +18,8 @@ import { UserRole } from '../users/dto/enum/role.enum';
 import { UpdateMedicalHistoryDto } from './dto/input/update-medical-history.input';
 import {
   CreateMedicalHistoryInput,
+  CreateSurgicalInterventionInput,
+  CreateTreatmentInput,
   UpdateSurgicalInterventionDto,
   UpdateTreatmentDto,
 } from './dto/input';
@@ -112,5 +114,42 @@ export class PetsController {
       medicalHistoryId,
       updateDiagnosticDto,
     );
+  }
+
+  @Post('/medical-histories/diagnostics/:diagnosticId/treatments')
+  @ApiBearerAuth()
+  createTreatment(
+    @Param('diagnosticId') diagnosticId: number,
+    @Body() createTreatmentInput: CreateTreatmentInput,
+  ) {
+    return this.petsService.createTreatment(diagnosticId, createTreatmentInput);
+  }
+
+  @Post('/medical-histories/diagnostics/:diagnosticId/surgical-interventions')
+  @ApiBearerAuth()
+  createSurgicalIntervention(
+    @Param('diagnosticId') diagnosticId: number,
+    @Body() createSurgicalInterventionDto: CreateSurgicalInterventionInput,
+  ) {
+    return this.petsService.createSurgicalIntervention(
+      diagnosticId,
+      createSurgicalInterventionDto,
+    );
+  }
+
+  @Delete('/medical-histories/diagnostics/treatments/:treatmentId')
+  @ApiBearerAuth()
+  deleteTreatment(@Param('treatmentId') treatmentId: number) {
+    return this.petsService.deleteTreatment(treatmentId);
+  }
+
+  @Delete(
+    '/medical-histories/diagnostics/surgical-interventions/:surgicalInterventionId',
+  )
+  @ApiBearerAuth()
+  deleteSurgicalIntervention(
+    @Param('surgicalInterventionId') surgicalInterventionId: number,
+  ) {
+    return this.petsService.deleteSurgicalIntervention(surgicalInterventionId);
   }
 }
