@@ -7,7 +7,7 @@ import { plainToInstance } from 'class-transformer';
 import { CreateFileDto } from './dto/input/create-file.input';
 import { PrismaService } from '../database/database.service';
 import { FolderResponseDto, FileResponseDto } from './dto/response';
-import { PetsService } from './../pets/pets.service';
+import { PetsService } from '../pets/pets.service';
 import { GenericArgs } from '../shared/args/generic.args';
 
 @Injectable()
@@ -106,18 +106,17 @@ export class FilesService {
 
   async findAll(args: GenericArgs): Promise<FileResponseDto[]> {
     const { skip, take } = args;
-    const response = [];
     const listFiles = await this.prisma.file.findMany({ skip, take });
 
-    for (const file of listFiles) {
-      const fileWithUrl = {
-        ...file,
-        url: await this.getUrlToGetFile(file.name, file.folderId),
-      };
-      response.push(plainToInstance(FileResponseDto, fileWithUrl));
-    }
-
-    return response;
+    return await Promise.all(
+      listFiles.map(async (file) => {
+        const fileWithUrl = {
+          ...file,
+          url: await this.getUrlToGetFile(file.name, file.folderId),
+        };
+        return plainToInstance(FileResponseDto, fileWithUrl);
+      }),
+    );
   }
 
   async findOne(id: number): Promise<FileResponseDto> {
