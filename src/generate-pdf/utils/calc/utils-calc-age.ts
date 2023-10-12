@@ -15,7 +15,6 @@ export function CalcAgePet(birthday: string): number {
   const edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
   const mesActual = hoy.getMonth();
   const mesNac = fechaNacimiento.getMonth();
-
   if (
     mesActual < mesNac ||
     (mesActual === mesNac && hoy.getDate() < fechaNacimiento.getDate())

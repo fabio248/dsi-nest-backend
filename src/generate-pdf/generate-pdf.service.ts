@@ -5,8 +5,9 @@ import { PetsService } from 'src/pets/pets.service';
 import { CreateConstanciaSaludInput } from './dto/input/create-constancia.input';
 import { CreateEutanasiaInput } from './dto/input/create-eutanasia.input';
 import { CreateConsentimientoInput } from './dto/input/create-consentimiento.input';
+import { CreateHojaClinicaInput } from './dto/input/create-hoja-clinica.input';
 import { Response } from 'express';
-import { CalcAgePet } from './utils/Calc/utils-age';
+import { CalcAgePet } from './utils/calc/utils-calc-age';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument1 = require(`pdfkit-table`);
@@ -15,20 +16,16 @@ const PDFDocument1 = require(`pdfkit-table`);
 import { addHeaderConstanciaSalud } from './headers/header-constancia-salud';
 import { addHeaderEutanasia } from './headers/header-eutanasia';
 import { addHeaderConsentimiento } from './headers/header-consentimiento';
+import { addHeaderHojaClinica } from './headers/header-hoja-clinica';
 //cuerpo del documento
 import { addFieldsConstanciaSalud } from './body/body-constancia-salud';
 import { addFieldsEutanasia } from './body/body-eutanasia';
 import { addFieldsConsentimiento } from './body/body-consentimiento';
+import { addFieldsHojaClinica } from './body/body-hoja-clinica';
 //pie de pagina
 import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
 import { finalTextEutanasia } from './footer/footer-eutanasia';
 import { finalTextConsentimiento } from './footer/footer-consentimiento';
-
-//fonts
-import {
-  // MerriweatherBlack,
-  MerriweatherLight,
-} from './utils/fonts/fonts.style';
 
 @Injectable()
 export class GeneratePdfService {
@@ -77,32 +74,7 @@ export class GeneratePdfService {
         LastWeightPet,
         agePet,
       );
-
       // Crear la tabla con filas dinámicas
-
-      const table = {
-        title: `VACUNAS:`,
-        subtitle: `Registro de Vacunación de la mascota`,
-        subtitleFontSize: 50,
-        headers: [`Fecha de aplicación`, `Vacuna`, 'Marca y lote'],
-        rows: [
-          [
-            `${createDocumentInput.vaccinesDate}`,
-            `${createDocumentInput.vaccine}`,
-            `${createDocumentInput.vaccinesBrandAndLot}`,
-          ],
-          [' ', ' ', ' '],
-          [' ', ' ', ' '],
-          [' ', ' ', ' '],
-        ],
-        widths: [150, 300],
-        layout: 'lightHorizontalLines',
-        fontSize: 52, // Aumentamos el tamaño de fuente a 16 aquí
-        rowHeight: 40, // Ajusta la altura de la fila si es necesario
-        font: MerriweatherLight, // Ruta a la fuente que deseas usar
-      };
-
-      doc.table(table, { columnSize: [150, 300] });
 
       doc.on(`data`, buffer.push.bind(buffer));
       doc.on(`end`, () => {
@@ -226,6 +198,65 @@ export class GeneratePdfService {
 
       const footerConsentimiento = finalTextConsentimiento(doc);
       footerConsentimiento;
+      doc.end();
+    });
+
+    const responsePDF = formatDocument(pdfBuffer, res);
+
+    // Envía el PDF como respuesta
+    res.end(responsePDF);
+  }
+
+  async generatePDFHojaClinica(
+    idPet: number,
+    createHojaClinicaInput: CreateHojaClinicaInput,
+    res: Response,
+    medicalHistoryId: number,
+  ) {
+    this.logger.log(`Create PDF Hoja Clinica`);
+
+    const dataPet = await this.petsService.findOnePetById(1);
+
+    const dataMedicalHistory = await this.petsService.findOneMedicalHistoryById(
+      medicalHistoryId,
+    );
+
+    const edadPet = CalcAgePet(dataPet.birthday.toString());
+
+    const lastWeightPet = await this.petsService.getLastWeightPet(idPet);
+
+    const pdfBuffer: Buffer = await new Promise((resolve) => {
+      const doc = new PDFDocument1({
+        size: [612, 792],
+        bufferPages: true,
+        autoFirstPage: true,
+        margin: { top: 50, right: 50, bottom: 50, left: 50 },
+      });
+      const buffer = [] as Buffer[];
+
+      const headersEutanasia = addHeaderHojaClinica(
+        doc,
+        createHojaClinicaInput,
+      );
+      const bodyHojaClinica = addFieldsHojaClinica(
+        dataPet,
+        createHojaClinicaInput,
+        doc,
+        lastWeightPet,
+        edadPet,
+        dataMedicalHistory,
+      );
+
+      doc.on(`data`, buffer.push.bind(buffer));
+      doc.on(`end`, () => {
+        const pdfData = Buffer.concat(buffer);
+        resolve(pdfData);
+      });
+
+      headersEutanasia;
+
+      bodyHojaClinica;
+
       doc.end();
     });
 

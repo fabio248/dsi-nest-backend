@@ -2,6 +2,11 @@
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
 import { CreateConstanciaSaludInput } from '../dto/input/create-constancia.input';
 
+//formato para la tabla
+import { formatTable } from '../utils/calc/utils-calc-tableFormat';
+import { PDFDocument } from 'pdf-lib';
+type TableFunction = (doc: PDFDocument) => void;
+
 //fonts
 import {
   MerriweatherLight,
@@ -128,6 +133,36 @@ export function addFieldsConstanciaSalud(
         align: `left`,
       },
     );
+
+  const tableVaccines = {
+    title: `VACUNAS:`,
+    subtitle: `Registro de Vacunación de la mascota`,
+    subtitleFontSize: 50,
+    headers: [`Fecha de aplicación`, `Vacuna`, 'Marca y lote'],
+    rows: [] as Array<Array<string>>,
+    widths: [150, 300],
+    layout: 'lightHorizontalLines',
+    fontSize: 52, // Aumentamos el tamaño de fuente a 16 aquí
+    rowHeight: 40, // Ajusta la altura de la fila si es necesario
+    font: MerriweatherLight, // Ruta a la fuente que deseas usar
+  };
+
+  //asignacion dinámica
+  for (let i = 0; i < createDocumentInput.vaccines.length; i += 3) {
+    const row = [
+      createDocumentInput.vaccines[i],
+      createDocumentInput.vaccines[i + 1],
+      createDocumentInput.vaccines[i + 2],
+    ];
+    tableVaccines.rows.push(row);
+  }
+
+  const tableConstanciaSaludFormat = formatTable(
+    doc,
+    tableVaccines as unknown as TableFunction,
+  );
+
+  tableConstanciaSaludFormat;
 
   // Añade espacio vertical entre el texto anterior y la tabla
   doc.moveDown(2);

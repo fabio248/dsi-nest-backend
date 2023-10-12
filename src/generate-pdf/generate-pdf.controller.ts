@@ -1,5 +1,13 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Res, UseGuards, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Res,
+  UseGuards,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Response } from 'express';
 import { GeneratePdfService } from './generate-pdf.service';
@@ -7,6 +15,7 @@ import { GeneratePdfService } from './generate-pdf.service';
 import { CreateConstanciaSaludInput } from './dto/input/create-constancia.input';
 import { CreateEutanasiaInput } from './dto/input/create-eutanasia.input';
 import { CreateConsentimientoInput } from './dto/input/create-consentimiento.input';
+import { CreateHojaClinicaInput } from './dto/input/create-hoja-clinica.input';
 // Proteccion de controllador
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
@@ -58,6 +67,23 @@ export class GeneratePdfController {
       idPet,
       createConsentimientoInput,
       res,
+    );
+  }
+
+  @ApiBearerAuth()
+  @Public()
+  @Get('/hoja-clinica/:idPet')
+  async createPDF_Hoja_Clinica(
+    @Param('idPet') idPet: number,
+    @Query('medicalHistoryId') medicalHistoryId: number,
+    @Body() createHojaClinicaInput: CreateHojaClinicaInput,
+    @Res() res: Response,
+  ) {
+    return this.generatePdfService.generatePDFHojaClinica(
+      idPet,
+      createHojaClinicaInput,
+      res,
+      medicalHistoryId,
     );
   }
 }

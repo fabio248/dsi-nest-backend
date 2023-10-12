@@ -1,9 +1,13 @@
 import { join } from 'path';
+import { CreateHojaClinicaInput } from '../dto/input/create-hoja-clinica.input';
 
 //fonts
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
 
-export function addHeaderConsentimiento(doc: any) {
+export function addHeaderHojaClinica(
+  doc: any,
+  createHojaClinicaInput: CreateHojaClinicaInput,
+) {
   const DateNow = Date.now();
   const fecha = new Date(DateNow);
 
@@ -31,6 +35,18 @@ export function addHeaderConsentimiento(doc: any) {
     );
 
   doc.moveDown(1);
+
+  doc.font(MerriweatherBlack).text(`Hoja Clínica N°: `, 50, doc.y, {
+    continued: true,
+    width: doc.page.width - 100,
+    align: `left`,
+  });
+
+  doc.font(MerriweatherBlack).text(`${createHojaClinicaInput.clinicalNumber}`, {
+    width: doc.page.width - 100,
+    align: `left`,
+  });
+
   doc
     .font(MerriweatherBlack)
     .text(`Documento Expedido: ${fechaFormateada}`, 50, doc.y, {
@@ -49,8 +65,8 @@ export function addHeaderConsentimiento(doc: any) {
 
   // Línea horizontal debajo del encabezado
   doc
-    .moveTo(50, 108) // Ajusta la posición vertical
-    .lineTo(doc.page.width - 50, 108) // Ajusta la posición vertical
+    .moveTo(50, 120) // Ajusta la posición vertical
+    .lineTo(doc.page.width - 50, 120) // Ajusta la posición vertical
     .stroke();
 
   // Espacio vertical entre elementos
