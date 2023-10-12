@@ -63,7 +63,7 @@ export class GeneratePdfService {
       doc.moveDown();
       doc.text(`CONSTANCIA DE SALUD MÉDICA DE LA MASCOTA`, {
         // width: doc.page.width - 100,
-        align: `left`,
+        align: `center`,
       });
       doc.moveDown(2);
 

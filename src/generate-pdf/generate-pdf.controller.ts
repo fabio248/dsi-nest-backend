@@ -28,7 +28,6 @@ export class GeneratePdfController {
   constructor(private readonly generatePdfService: GeneratePdfService) {}
 
   @ApiBearerAuth()
-  @Public()
   @Get('/constancia-salud/:idPet')
   async createPDF_constancia_salud(
     @Param('idPet') idPet: number,
@@ -71,7 +70,6 @@ export class GeneratePdfController {
   }
 
   @ApiBearerAuth()
-  @Public()
   @Get('/hoja-clinica/:idPet')
   async createPDF_Hoja_Clinica(
     @Param('idPet') idPet: number,
