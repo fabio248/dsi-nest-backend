@@ -17,7 +17,7 @@ export async function finalTextConstanciaDeSalud(
   doc
     .font(MerriweatherBlack)
     .text(
-      'Estando así sus vacunas vigentes, y para los usos que el interesado estime conveniente ejemplar se encuentra apto para su traslado' +
+      'Estando así sus vacunas vigentes, y para los usos que el interesado estime conveniente ejemplar se encuentra apto para su traslado ' +
         `por vía aérea, marítima o terrestre. Por lo que se extiende la presente constancia en Zacatecoluca, La Paz, el día: `,
       {
         continued: true,

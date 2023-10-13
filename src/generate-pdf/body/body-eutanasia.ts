@@ -18,7 +18,7 @@ export function addFieldsEutanasia(
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
   doc.moveDown();
-  doc.font(MerriweatherBlack).text('AUTORIZACION PARA EUTANASIA ', {
+  doc.font(MerriweatherBlack).text('AUTORIZACIÓN PARA EUTANASIA ', {
     align: 'center',
   });
   // Añade espacio vertical entre el texto anterior y la tabla
@@ -143,7 +143,7 @@ export function addFieldsEutanasia(
   // El Propietario o responsable del Animal arriba individualizado
   doc
     .font(MerriweatherBlack)
-    .text(`El Propietario o responsable del Animal arriba individualizado: `, {
+    .text(`El Propietario o Responsable del Animal arriba individualizado: `, {
       continued: true,
       align: 'left',
     });
@@ -162,7 +162,7 @@ export function addFieldsEutanasia(
     .font(MerriweatherBlack)
     .moveDown(0.2)
     .text(
-      'Exonera de toda responsabilidad ética, civil, comercial y criminal a la Clínica Veterinaria, así como a su Personal Médico por la realización del procedimiento arriba mencionado',
+      'Exonera de toda responsabilidad ética, civil, comercial y criminal a la Clínica Veterinaria, así como a su Personal Médico por la realización del procedimiento arriba mencionado.',
     );
   doc.moveDown();
   doc

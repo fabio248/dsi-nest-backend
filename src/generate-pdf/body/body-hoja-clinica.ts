@@ -25,7 +25,7 @@ export async function addFieldsHojaClinica(
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
   doc.moveDown();
-  doc.font(MerriweatherBlack).text('DATOS DEL PACIENTE. ', {
+  doc.font(MerriweatherBlack).text('DATOS DEL PACIENTE ', {
     align: 'center',
   });
   // Añade espacio vertical entre el texto anterior y la tabla
@@ -82,23 +82,6 @@ export async function addFieldsHojaClinica(
   });
   doc.moveDown(0.5);
 
-  // tatuajes
-  doc.font(MerriweatherBlack).text(`Tatuajes: `, {
-    continued: true,
-    align: 'left',
-  });
-  doc
-    .font(MerriweatherLight)
-    .text(
-      dataPet.isHaveTatto
-        ? 'La mascota si posee tatuajes'
-        : 'La mascota no posee tatuajes',
-      {
-        align: 'left',
-      },
-    );
-  doc.moveDown(0.5);
-
   // Edad
   doc.font(MerriweatherBlack).text(`Edad: `, {
     continued: true,
@@ -128,17 +111,33 @@ export async function addFieldsHojaClinica(
     align: 'left',
   });
   doc.moveDown(0.5);
+  // tatuajes
+  doc.font(MerriweatherBlack).text(`Tatuajes: `, {
+    continued: true,
+    align: 'left',
+  });
+  doc
+    .font(MerriweatherLight)
+    .text(
+      dataPet.isHaveTatto
+        ? 'La mascota si posee tatuajes'
+        : 'La mascota no posee tatuajes',
+      {
+        align: 'left',
+      },
+    );
+  doc.moveDown(0.5);
 
   // Añade espacio vertical entre los campos anteriores y el siguiente bloque
   doc.moveDown(1);
 
-  doc.font(MerriweatherBlack).text('DATOS DEL PROPIETARIO. ', {
+  doc.font(MerriweatherBlack).text('DATOS DEL PROPIETARIO ', {
     align: 'center',
   });
 
   doc.moveDown(1);
   // Propiedad de Sr. (Sra.)
-  doc.font(MerriweatherBlack).text(`Propiedad de Sr. (Sra.): `, {
+  doc.font(MerriweatherBlack).text(`Nombre del propietario: `, {
     continued: true,
     align: 'left',
   });
@@ -198,9 +197,19 @@ export async function addFieldsHojaClinica(
       align: 'left',
     });
 
+  doc.moveDown(0.5);
+  doc
+    .font(MerriweatherBlack)
+    .text(`Dirección del propietario: `, {
+      continued: true,
+      align: 'left',
+    })
+    .font(MerriweatherLight)
+    .text(dataPet.user.direction, { align: 'left' });
+
   doc.moveDown(2);
 
-  doc.font(MerriweatherBlack).text('CONTROL PROFILÁCTICO.', {
+  doc.font(MerriweatherBlack).text('CONTROL PROFILÁCTICO', {
     align: 'center',
   });
 
@@ -318,7 +327,7 @@ export async function addFieldsHojaClinica(
   doc
     .font(MerriweatherBlack)
     .text(
-      'La mascota, dentro del contexto de la evaluación respecto a su salud denotamos que, ',
+      'La mascota, dentro del contexto de la evaluación respecto a su salud se denota que, ',
       {
         continued: true,
         align: 'left',
@@ -347,7 +356,7 @@ export async function addFieldsHojaClinica(
   doc
     .font(MerriweatherBlack)
     .text(
-      'Además, se investigó si la mascota se reprodujo, dando como resultado que, ',
+      'Además, se investigó acerca de la reproducción de la mascota, dando como resultado que, ',
       {
         align: 'left',
         continued: true,
@@ -366,7 +375,7 @@ export async function addFieldsHojaClinica(
     )
     .font(MerriweatherBlack)
     .text(
-      'Y ademas verificando la descendendia de la mascota, lo cual se concluye que: ',
+      'Y verificando sobre la descendencia de la mascota, lo cual se concluye que: ',
       {
         continued: true,
         align: 'left',
@@ -385,7 +394,7 @@ export async function addFieldsHojaClinica(
   doc
     .font(MerriweatherBlack)
     .text(
-      'Durante esta evaluación, prestamos especial atención en las condiciones donde recide el ejemplar, con la información brindada por el propietario se concluye que: ',
+      'Durante esta evaluación, se prestó especial atención a las condiciones donde reside el ejemplar, con la información brindada por el propietario se concluye que: ',
       {
         continued: true,
         align: 'left',
@@ -398,23 +407,23 @@ export async function addFieldsHojaClinica(
   doc.moveDown(0.7);
   doc
     .font(MerriweatherBlack)
-    .text(
-      'y evaluamos la cantidad de alimento que recibe la mascota y es de: ',
-      {
-        continued: true,
-        align: 'left',
-      },
-    )
+    .text('Evaluando  la cantidad de alimento de: ', {
+      continued: true,
+      align: 'left',
+    })
     .font(MerriweatherLight)
     .text(`${medicalHistoryResponseDto.food.quantity}`, {
       continued: true,
       align: 'left',
     })
     .font(MerriweatherBlack)
-    .text(' que consume, así como el tipo de alimento el cual es: ', {
-      continued: true,
-      align: 'left',
-    })
+    .text(
+      ' que consume la mascota diariamente, así como el tipo de alimento el cual prefiere la mascota es: ',
+      {
+        continued: true,
+        align: 'left',
+      },
+    )
     .font(MerriweatherLight)
     .text(medicalHistoryResponseDto.food.type, {
       continued: true,
@@ -422,7 +431,7 @@ export async function addFieldsHojaClinica(
     })
     .font(MerriweatherBlack)
     .text(
-      'que es el preferido por la mascota, para garantizar que todas sus necesidades básicas estén satisfechas y promover su salud y bienestar óptimos.',
+      ', para garantizar que todas sus necesidades básicas estén satisfechas y promover su salud y bienestar óptimos.',
     );
 
   doc.moveDown(2);
@@ -439,12 +448,14 @@ export async function addFieldsHojaClinica(
 
   doc
     .font(MerriweatherLight)
-    .text(medicalHistoryResponseDto.physicalExam.temperature, {
-      continued: true,
-      align: 'left',
-    })
-    .font(MerriweatherBlack)
-    .text('  Grados Celcius ( C° ) ');
+    .text(
+      medicalHistoryResponseDto.physicalExam.temperature +
+        '  Grados Celsius ( C° )',
+      {
+        align: 'left',
+      },
+    );
+
   doc.moveDown(0.5);
 
   // frecuencia cardiaca
@@ -454,12 +465,13 @@ export async function addFieldsHojaClinica(
   });
   doc
     .font(MerriweatherLight)
-    .text(medicalHistoryResponseDto.physicalExam.cardiacRate, {
-      continued: true,
-      align: 'left',
-    })
-    .font(MerriweatherBlack)
-    .text('  Latidos por minuto ( lpm ).');
+    .text(
+      medicalHistoryResponseDto.physicalExam.cardiacRate +
+        '  Latidos por minuto ( LPM ).',
+      {
+        align: 'left',
+      },
+    );
   doc.moveDown(0.5);
 
   // frecuencia respiratoria
@@ -469,12 +481,14 @@ export async function addFieldsHojaClinica(
   });
   doc
     .font(MerriweatherLight)
-    .text(medicalHistoryResponseDto.physicalExam.respiratoryRate, {
-      continued: true,
-      align: 'left',
-    })
-    .font(MerriweatherBlack)
-    .text('  Respiraciones por minuto ( RPM )');
+    .text(
+      medicalHistoryResponseDto.physicalExam.respiratoryRate +
+        '  Respiraciones por minuto ( RPM ).',
+      {
+        align: 'left',
+      },
+    );
+
   doc.moveDown(0.5);
 
   // pulso
@@ -500,21 +514,6 @@ export async function addFieldsHojaClinica(
     });
   doc.moveDown(0.5);
 
-  // convivencia
-  doc.font(MerriweatherBlack).text(`Convive con otros mascotas:  `, {
-    continued: true,
-    align: 'left',
-  });
-  doc
-    .font(MerriweatherLight)
-    .text(
-      medicalHistoryResponseDto.otherPet?.isLiveOtherPets
-        ? 'Si convive con otras mascotas'
-        : 'No convive con otras mascotas',
-      {
-        align: 'left',
-      },
-    );
   doc.moveDown(0.5);
 
   doc.addPage({
@@ -522,7 +521,7 @@ export async function addFieldsHojaClinica(
     margin: 50,
   });
 
-  doc.font(MerriweatherBlack).text('TRATAMIENTOS BRINDADOS.', {
+  doc.font(MerriweatherBlack).text('TRATAMIENTOS BRINDADOS', {
     align: 'center',
   });
 
@@ -578,15 +577,12 @@ export async function addFieldsHojaClinica(
       align: 'left',
     })
     .font(MerriweatherLight)
-    .text(dataTreatments[3], {
-      continued: true,
+    .text(dataTreatments[3] + '  Día(s)', {
       align: 'left',
-    })
-    .font(MerriweatherBlack)
-    .text('  Día(s)');
+    });
 
   doc.moveDown(2);
-  doc.font(MerriweatherBlack).text('INTERVENCIONES QUIRÚRGICAS.', {
+  doc.font(MerriweatherBlack).text('INTERVENCIONES QUIRÚRGICAS', {
     align: 'center',
   });
 
@@ -634,7 +630,7 @@ export async function addFieldsHojaClinica(
     });
 
   doc.moveDown(2);
-  doc.font(MerriweatherBlack).text('OTROS DATOS IMPORTANTES.', {
+  doc.font(MerriweatherBlack).text('OTROS DATOS IMPORTANTES', {
     align: 'center',
   });
 

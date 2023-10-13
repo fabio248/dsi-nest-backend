@@ -52,7 +52,7 @@ export function addFieldsConsentimiento(
   doc.moveDown(1);
 
   //Propietario
-  doc.font(MerriweatherBlack).text('Propietario: ', {
+  doc.font(MerriweatherBlack).text('Propietario o Representante legal: ', {
     continued: true,
     align: 'left',
   });
@@ -60,17 +60,7 @@ export function addFieldsConsentimiento(
     .font(MerriweatherLight)
     .text(`${dataPet.user.firstName} ${dataPet.user.lastName}`);
 
-  //Representante legal
-  doc.moveDown(1);
-  doc.font(MerriweatherBlack).text('Representante legal: ', {
-    continued: true,
-    align: 'left',
-  });
-  doc
-    .font(MerriweatherLight)
-    .text(`${createConsentimientoInput.responsibleLegal}`);
-  doc.moveDown(2);
-
+  doc.moveDown(3);
   doc
     .font(MerriweatherBlack)
     .text('Doy mi consentimiento para que mi mascota: ');
@@ -138,10 +128,10 @@ export function addFieldsConsentimiento(
     .moveDown(0.2)
     .text(
       'bajo anestesia en las condiciones, que me han sido propuestas, ' +
-        'sobre riegos y beneficios de esta intervención. También he realizado las preguntas' +
+        'sobre riegos y beneficios de esta intervención. También he realizado las preguntas ' +
         'oportunas en su debido momento por lo que, entendido, Liberando de cualquier responsabilidad' +
         'a los médicos de esta veterinaria en caso de muerte del paciente, por causas orgánicas, propias ' +
-        'de este, además de lesiones o infecciones, producto de un inadecuado postoperatorio que se convierte' +
+        'de este, además de lesiones o infecciones, producto de un inadecuado postoperatorio que se convierte ' +
         'en mi responsabilidad desde el momento en que se devuelve el paciente.',
     );
   doc.moveDown(2);
@@ -150,8 +140,8 @@ export function addFieldsConsentimiento(
     .moveDown(0.2)
     .text(
       'Acepto las modificaciones de los métodos que se puedan producir en el transcurso ' +
-        'de dichos procedimientos y que se justifiquen por una mejora de la calidad del mismo' +
-        'y en beneficio del paciente y me comprometo a cancelar los honorarios profesionales' +
+        'de dichos procedimientos y que se justifiquen por una mejora de la calidad del mismo ' +
+        'y en beneficio del paciente y me comprometo a cancelar los honorarios profesionales ' +
         'generados por el procedimiento a realizar ',
     );
 }

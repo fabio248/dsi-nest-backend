@@ -19,7 +19,6 @@ import { CreateHojaClinicaInput } from './dto/input/create-hoja-clinica.input';
 // Proteccion de controllador
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
-import { Public } from 'src/auth/decorators/public-route.decorator';
 
 @ApiTags('Generate-PDF')
 @Controller('generate-pdf')
