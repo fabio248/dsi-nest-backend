@@ -1,9 +1,10 @@
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { FoodResponseDto } from './food.response';
 import { PhysicalExamResponseDto } from './physical-exam.response';
 import { OtherPetResponseDto } from './other-pet.response';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { FileResponseDto } from '../../../files/dto/response';
+import { DiagnosticResponseDto } from './diagnostic.response';
 
 export class MedicalHistoryResponseDto {
   @Expose()
@@ -27,8 +28,11 @@ export class MedicalHistoryResponseDto {
   @Expose()
   observation: string;
 
-  @ApiHideProperty()
-  @Exclude()
+  @Expose()
+  diagnosticId: string;
+
+  @Expose()
+  @Transform(({ value }) => value.toLocaleDateString('es-SV'))
   createdAt: Date;
 
   @ApiHideProperty()
@@ -59,4 +63,8 @@ export class MedicalHistoryResponseDto {
   @Expose()
   @Type(() => FileResponseDto)
   files: FileResponseDto[];
+
+  @Expose()
+  @Type(() => DiagnosticResponseDto)
+  diagnostic: DiagnosticResponseDto;
 }

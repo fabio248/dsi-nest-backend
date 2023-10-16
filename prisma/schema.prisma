@@ -26,7 +26,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   pets         Pet[]
   appointments Appointment[]
 
@@ -40,7 +40,7 @@ model Specie {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   pets Pet[]
 
   @@map("specie")
@@ -59,12 +59,11 @@ model Pet {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relation
+  // relation
   user   User @relation(fields: [userId], references: [id])
   userId Int  @map("user_id")
 
-  medicalHistory   MedicalHistory? @relation(fields: [medicalHistoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  medicalHistoryId Int?            @map("medical_history_id")
+  medicalHistories MedicalHistory[]
 
   specie   Specie @relation(fields: [specieId], references: [id])
   specieId Int    @map("specie_id")
@@ -81,7 +80,7 @@ model Folder {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   pets    Pet[]
   folders File[]
 
@@ -100,8 +99,9 @@ model MedicalHistory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
-  pet Pet[]
+  // relations
+  pet   Pet? @relation(fields: [petId], references: [id])
+  petId Int? @map("pet_id")
 
   food   Food @relation(fields: [foodId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   foodId Int  @map("food_id")
@@ -111,6 +111,9 @@ model MedicalHistory {
 
   otherPet   OtherPet @relation(fields: [otherPetId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   otherPetId Int      @map("other_pet_id")
+
+  diagnostic   Diagnostic? @relation(fields: [diagnosticId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  diagnosticId Int?        @unique @map("diagnostic_id")
 
   files File[]
 
@@ -125,21 +128,26 @@ model Food {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relation
+  // relation
   medicalHistories MedicalHistory[]
 
   @@map("food")
 }
 
 model PhysicalExam {
-  id           Int    @unique() @default(autoincrement())
-  weight       Float
-  palpitations String
+  id              Int      @unique() @default(autoincrement())
+  weight          Float
+  palpitations    String
+  temperature     Float?
+  cardiacRate     Float?   @map("cardiac_rate")
+  respiratoryRate Float?   @map("respiratory_rate")
+  pulse           String?
+  mucous          String?
+  laboratoryExam  String?  @map("laboratory_exam")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt() @map("updated_at")
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt() @map("updated_at")
-
-  //relations
+  // relations
   medicalHistories MedicalHistory[]
 
   @@map("physical_exam")
@@ -153,7 +161,7 @@ model OtherPet {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   medicalHistories MedicalHistory[]
 
   @@map("other_pet")
@@ -166,7 +174,7 @@ model File {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   medicalHistory   MedicalHistory @relation(fields: [medicalHistoryId], references: [id])
   medicalHistoryId Int            @map("medical_history_id")
 
@@ -186,14 +194,13 @@ model Appointment {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
 
-  //relations
+  // relations
   client   User @relation(fields: [clientId], references: [id])
   clientId Int  @map("client_id")
 
   @@map("appointment")
 }
 
-//Schema de productos
 model Product {
   id                 Int      @unique() @default(autoincrement())
   nameProduct        String
@@ -204,6 +211,55 @@ model Product {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt() @map("updated_at")
+
+  @@map("product")
+}
+
+model Diagnostic {
+  id          Int    @unique() @default(autoincrement())
+  description String
+
+  // relations
+  medicalHistory       MedicalHistory[]
+  surgicalIntervations SugicalIntervention[]
+  treatments           Treatment[]
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt() @map("updated_at")
+
+  @@map("diagnostic")
+}
+
+model SugicalIntervention {
+  id              Int      @unique() @default(autoincrement())
+  name            String
+  description     String?
+  intervationDate DateTime @map("intervation_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
+
+  // relations
+  diagnostic   Diagnostic? @relation(fields: [diagnosticId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  diagnosticId Int?        @map("diagnostic_id")
+
+  @@map("sugical_intervention")
+}
+
+model Treatment {
+  id        Int     @unique() @default(autoincrement())
+  name      String
+  quantity  String?
+  frequency String
+  days      Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
+
+  // relations
+  diagnostic   Diagnostic? @relation(fields: [diagnosticId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  diagnosticId Int?        @map("diagnostic_id")
+
+  @@map("treatment")
 }
 
 enum Category {
@@ -216,6 +272,7 @@ enum Category {
   reproduccion
   terrario_acuario
   transporte
+  medicamento
 }
 
 enum UserRole {

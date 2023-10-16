@@ -11,8 +11,8 @@ import {
   Patch,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateProductInput } from './dto/input/create-products-input';
-import { UpdateProductDto } from './dto/input/update-product-inputs';
+import { CreateProductInput } from './dto/input/create-product.input';
+import { UpdateProductDto } from './dto/input/update-product.input';
 import { ProductResponseDto } from './dto/response/product.response';
 import { ProductsService } from './products.service';
 import { FindAllProductsArgs } from './dto/args/find-all-products_args';

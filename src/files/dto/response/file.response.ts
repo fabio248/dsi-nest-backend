@@ -17,8 +17,7 @@ export class FileResponseDto {
   @Expose()
   readonly petId?: number;
 
-  @ApiHideProperty()
-  @Exclude()
+  @Expose()
   readonly medicalHistoryId: number;
 
   @ApiHideProperty()
