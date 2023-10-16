@@ -7,10 +7,11 @@ import {
   Max,
   Matches,
   IsArray,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateConstanciaSaludInput {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   microChip: string;
 
