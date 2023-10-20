@@ -127,17 +127,16 @@ export class UsersService {
       ];
     }
 
-    const [totalItems, data] = await Promise.all([
-      this.prisma.user.count({
-        where,
-      }),
-      this.prisma.user.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        where,
-      }),
-    ]);
+    const totalItems = await this.prisma.user.count({
+      where,
+    });
     const paginationParams = getPaginationParams(totalItems, page, limit);
+
+    const data = await this.prisma.user.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      where,
+    });
 
     return plainToInstance(FindAllUsersResponseDto, {
       data,
@@ -322,8 +321,13 @@ export class UsersService {
     recoveryToken: string,
   ): Promise<boolean> {
     const user = await this.findOneById(userId);
+    console.log({ recoveryToken: user.recoveryToken });
 
-    return user.recoveryToken === recoveryToken;
+    if (user.recoveryToken !== recoveryToken) {
+      return false;
+    }
+
+    return true;
   }
 
   async sendWelcomeMail(user: User): Promise<void> {

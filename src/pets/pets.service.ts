@@ -111,16 +111,16 @@ export class PetsService {
       ];
     }
 
-    const [data, totalItems] = await Promise.all([
-      this.prisma.pet.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        where,
-        include: this.includeRelation,
-      }),
-      this.prisma.pet.count({ where }),
-    ]);
-    const paginationParams = getPaginationParams(totalItems, page, limit);
+    const data = await this.prisma.pet.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      where,
+      include: this.includeRelation,
+    });
+
+    const totalItem = await this.prisma.pet.count({ where });
+
+    const paginationParams = getPaginationParams(totalItem, page, limit);
 
     return plainToInstance(FindAllPetsResponseDto, {
       data,
