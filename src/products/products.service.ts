@@ -42,8 +42,6 @@ export class ProductsService {
       where: { id },
     });
 
-    console.log(product);
-
     if (!product) {
       throw new ProductNotFoundException(id);
     }
@@ -57,17 +55,16 @@ export class ProductsService {
     const { page, limit } = args;
     const where: Prisma.ProductWhereInput = {};
 
-    const data = await this.prisma.product.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      where,
-      //solo se agrega el include si tiene otra asociacion con otra tabla
-      // include: {
-      //   ...this.includeRelation,
-      // },
-    });
-    const totalItem = await this.prisma.product.count({ where });
-    const paginationParams = getPaginationParams(totalItem, page, limit);
+    const [data, totalItems] = await Promise.all([
+      this.prisma.product.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        where,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    const paginationParams = getPaginationParams(totalItems, page, limit);
     return plainToInstance(FindAllProductsResponseDto, {
       data,
       ...paginationParams,

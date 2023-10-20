@@ -12,6 +12,7 @@ import { MailerModule } from './mailer/mailer.module';
 import { FilesModule } from './files/files.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ProductsModule } from './products/products.module';
+import { BillsModule } from './bills/bills.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,6 +33,7 @@ import { ProductsModule } from './products/products.module';
     FilesModule,
     AppointmentsModule,
     ProductsModule,
+    BillsModule,
   ],
   controllers: [],
   providers: [],
