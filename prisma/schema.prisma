@@ -210,9 +210,9 @@ model Product {
   sizeProduct        String
   sellingProduct     Float
 
-  createdAt  DateTime     @default(now()) @map("created_at")
-  updatedAt  DateTime     @updatedAt() @map("updated_at")
-  BillDetail BillDetail[]
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt() @map("updated_at")
+  billsDetails BillDetail[]
 
   @@map("product")
 }
@@ -272,9 +272,9 @@ model Bill {
   updatedAt DateTime @updatedAt() @map("updated_at")
 
   // relations
-  client     User         @relation(fields: [clientId], references: [id])
-  clientId   Int          @map("client_id")
-  BillDetail BillDetail[]
+  client       User         @relation(fields: [clientId], references: [id])
+  clientId     Int          @map("client_id")
+  billsDetails BillDetail[]
 
   @@map("bill")
 }
