@@ -1,14 +1,27 @@
 import { join } from 'path';
+import { CreateHojaClinicaInput } from '../dto/input/create-hoja-clinica.input';
 
 //fonts
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
 
-export function addHeaderConstanciaSalud(doc: any) {
+export function addHeaderHojaClinica(
+  doc: any,
+  createHojaClinicaInput: CreateHojaClinicaInput,
+) {
+  const DateNow = Date.now();
+  const fecha = new Date(DateNow);
+
+  const dia = fecha.getDate();
+  const mes = fecha.getMonth() + 1; // Los meses se cuentan desde 0, por lo que sumamos 1
+  const anio = fecha.getFullYear();
+
+  const fechaFormateada = `${dia}/${mes}/${anio}`;
   // Agrega el texto del encabezado agrupado
   doc.font(MerriweatherBlack).text(`Clínica Veterinaria Mistun.`, 50, 40, {
     width: doc.page.width - 100,
     align: `center`,
   });
+  doc.moveDown(0.1);
   doc
     .font(MerriweatherBlack)
     .text(
@@ -21,14 +34,22 @@ export function addHeaderConstanciaSalud(doc: any) {
       },
     );
 
-  doc.font(MerriweatherBlack).text(`Saulvet99@gmail.com`, 50, doc.y, {
+  doc.moveDown(1);
+
+  doc.font(MerriweatherBlack).text(`Hoja Clínica N°: `, 50, doc.y, {
+    continued: true,
+    width: doc.page.width - 100,
+    align: `left`,
+  });
+
+  doc.font(MerriweatherBlack).text(`${createHojaClinicaInput.clinicalNumber}`, {
     width: doc.page.width - 100,
     align: `left`,
   });
 
   doc
     .font(MerriweatherBlack)
-    .text(`Teléfono 6136-6565; 2200-3554.`, 50, doc.y, {
+    .text(`Documento Expedido: ${fechaFormateada}`, 50, doc.y, {
       width: doc.page.width - 100,
       align: `left`,
     });
@@ -44,8 +65,8 @@ export function addHeaderConstanciaSalud(doc: any) {
 
   // Línea horizontal debajo del encabezado
   doc
-    .moveTo(50, 108) // Ajusta la posición vertical
-    .lineTo(doc.page.width - 50, 108) // Ajusta la posición vertical
+    .moveTo(50, 120) // Ajusta la posición vertical
+    .lineTo(doc.page.width - 50, 120) // Ajusta la posición vertical
     .stroke();
 
   // Espacio vertical entre elementos

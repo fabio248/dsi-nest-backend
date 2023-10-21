@@ -365,7 +365,7 @@ export class PetsService {
     });
 
     if (!diagnostic) {
-      throw new DiagnosticNotFoundException({ medicalHistoryId });
+      throw new DiagnosticNotFoundException(medicalHistoryId);
     }
 
     const updatedDiagnostic = await this.prisma.diagnostic.update({
@@ -376,6 +376,29 @@ export class PetsService {
     });
 
     return plainToInstance(DiagnosticResponseDto, updatedDiagnostic);
+  }
+
+  async getLastWeightPet(id: number): Promise<number> {
+    const { medicalHistories } = await this.prisma.pet.findUnique({
+      where: { id },
+
+      include: {
+        medicalHistories: {
+          include: {
+            physicalExam: {
+              select: {
+                weight: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
+    const weight = medicalHistories[0]?.physicalExam.weight;
+    return weight;
   }
 
   async findOneDiagnosticById(

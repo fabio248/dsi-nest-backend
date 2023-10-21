@@ -14,6 +14,9 @@ export class TreatmentResponseDto {
   @Expose()
   frequency: string;
 
+  @Expose()
+  quantity: string;
+
   @ApiHideProperty()
   @Exclude()
   createdAt: Date;

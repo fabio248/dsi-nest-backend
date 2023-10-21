@@ -1,13 +1,13 @@
-import { CreateDocumentInput } from '../dto/input/create-constancia.input';
+import { CreateConstanciaSaludInput } from '../dto/input/create-constancia.input';
 //fonts
 import {
   MerriweatherBlack,
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
 
-export async function finalText(
+export async function finalTextConstanciaDeSalud(
   doc: any,
-  createDocumentInput: CreateDocumentInput,
+  createDocumentInput: CreateConstanciaSaludInput,
 ) {
   // Establece el formato de fuente igual al de addFields
   doc.font(MerriweatherBlack);
@@ -17,7 +17,7 @@ export async function finalText(
   doc
     .font(MerriweatherBlack)
     .text(
-      'Estando así sus vacunas vigentes, y para los usos que el interesado estime conveniente ejemplar se encuentra apto para su traslado' +
+      'Estando así sus vacunas vigentes, y para los usos que el interesado estime conveniente ejemplar se encuentra apto para su traslado ' +
         `por vía aérea, marítima o terrestre. Por lo que se extiende la presente constancia en Zacatecoluca, La Paz, el día: `,
       {
         continued: true,

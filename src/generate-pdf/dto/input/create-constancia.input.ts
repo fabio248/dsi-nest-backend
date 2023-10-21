@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   IsNotEmpty,
   IsString,
@@ -7,10 +6,12 @@ import {
   Min,
   Max,
   Matches,
+  IsArray,
+  IsOptional,
 } from 'class-validator';
 
-export class CreateDocumentInput {
-  @IsNotEmpty()
+export class CreateConstanciaSaludInput {
+  @IsOptional()
   @IsString()
   microChip: string;
 
@@ -30,18 +31,8 @@ export class CreateDocumentInput {
   codePostal: number;
 
   @IsNotEmpty()
-  @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {
-    message: 'The valid format is dd/mm/yyyy',
-  })
-  vaccinesDate: string | Date;
-
-  @IsNotEmpty()
-  @IsString()
-  vaccine: string;
-
-  @IsNotEmpty()
-  @IsString()
-  vaccinesBrandAndLot: string;
+  @IsArray()
+  vaccines: string[];
 
   @IsNotEmpty()
   @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {

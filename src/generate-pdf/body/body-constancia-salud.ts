@@ -1,6 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
-import { CreateDocumentInput } from '../dto/input/create-constancia.input';
+import { CreateConstanciaSaludInput } from '../dto/input/create-constancia.input';
+
+//formato para la tabla
+import { formatTable } from '../utils/calc/utils-calc-tableFormat';
+import { PDFDocument } from 'pdf-lib';
+type TableFunction = (doc: PDFDocument) => void;
 
 //fonts
 import {
@@ -8,16 +13,18 @@ import {
   MerriweatherBlack,
 } from '../utils/fonts/fonts.style';
 
-export function addFields(
+export function addFieldsConstanciaSalud(
   dataPet: PetResponseDto,
-  createDocumentInput: CreateDocumentInput,
+  createDocumentInput: CreateConstanciaSaludInput,
   doc: any,
+  LastWeightPet: number,
+  age: number,
 ) {
   doc.fontSize(11); // Tamaño de fuente más pequeño
 
   const fieldGroups = [
     `Nombre: ${dataPet.name}    |    Especie: ${dataPet.specie.name}    |    Raza: ${dataPet.raza}`,
-    `Sexo: ${dataPet.gender}    |    Edad: ${dataPet.birthday}    |    Peso: ${dataPet.medicalHistory.physicalExam.weight} Kg`,
+    `Sexo: ${dataPet.gender}    |    Edad: ${age} Años    |    Peso: ${LastWeightPet} Kg`,
     `Identificación del microchip: ${createDocumentInput.microChip}`,
   ];
 
@@ -127,6 +134,36 @@ export function addFields(
       },
     );
 
+  const tableVaccines = {
+    title: `VACUNAS:`,
+    subtitle: `Registro de Vacunación de la mascota`,
+    subtitleFontSize: 50,
+    headers: [`Fecha de aplicación`, `Vacuna`, 'Marca y lote'],
+    rows: [] as Array<Array<string>>,
+    widths: [150, 300],
+    layout: 'lightHorizontalLines',
+    fontSize: 52, // Aumentamos el tamaño de fuente a 16 aquí
+    rowHeight: 40, // Ajusta la altura de la fila si es necesario
+    font: MerriweatherLight, // Ruta a la fuente que deseas usar
+  };
+
+  //asignacion dinámica
+  for (let i = 0; i < createDocumentInput.vaccines.length; i += 3) {
+    const row = [
+      createDocumentInput.vaccines[i],
+      createDocumentInput.vaccines[i + 1],
+      createDocumentInput.vaccines[i + 2],
+    ];
+    tableVaccines.rows.push(row);
+  }
+
+  const tableConstanciaSaludFormat = formatTable(
+    doc,
+    tableVaccines as unknown as TableFunction,
+  );
+
+  tableConstanciaSaludFormat;
+
   // Añade espacio vertical entre el texto anterior y la tabla
-  doc.moveDown(3);
+  doc.moveDown(2);
 }
