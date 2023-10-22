@@ -1,39 +1,41 @@
 /* eslint-disable prettier/prettier */
 import {
   Controller,
-  Get,
   Res,
   UseGuards,
   Body,
   Param,
   Query,
+  Post,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Response } from 'express';
 import { GeneratePdfService } from './generate-pdf.service';
 //schemas de entrada validadas
-import { CreateConstanciaSaludInput } from './dto/input/create-constancia.input';
-import { CreateEutanasiaInput } from './dto/input/create-eutanasia.input';
-import { CreateConsentimientoInput } from './dto/input/create-consentimiento.input';
-import { CreateHojaClinicaInput } from './dto/input/create-hoja-clinica.input';
+import {
+  CreateHealthCertificateInput,
+  CreateEuthanasiaInput,
+  CreateConsentSurgeryInput,
+  CreateClinicalSheetInput,
+} from './dto/input';
 // Proteccion de controllador
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
 
-@ApiTags('Generate-PDF')
+@ApiTags('Generate PDF')
 @Controller('generate-pdf')
 @UseGuards(RoleGuard(UserRole.ADMIN))
 export class GeneratePdfController {
   constructor(private readonly generatePdfService: GeneratePdfService) {}
 
   @ApiBearerAuth()
-  @Get('/constancia-salud/:idPet')
-  async createPDF_constancia_salud(
+  @Post('/health-certificate/:idPet')
+  async createPDFHealthCertificate(
     @Param('idPet') idPet: number,
-    @Body() createDocumentInput: CreateConstanciaSaludInput,
+    @Body() createDocumentInput: CreateHealthCertificateInput,
     @Res() res: Response,
   ) {
-    return this.generatePdfService.generaPDFContanciaSalud(
+    return this.generatePdfService.generatePDFHealthCertificate(
       idPet,
       createDocumentInput,
       res,
@@ -41,13 +43,13 @@ export class GeneratePdfController {
   }
 
   @ApiBearerAuth()
-  @Get('/eutanasia/:idPet')
-  async createPDF_eutanasia(
+  @Post('/euthanasia/:idPet')
+  async createPDFEuthanasia(
     @Param('idPet') idPet: number,
-    @Body() createEutanasiaInput: CreateEutanasiaInput,
+    @Body() createEutanasiaInput: CreateEuthanasiaInput,
     @Res() res: Response,
   ) {
-    return this.generatePdfService.generatePDFEutanasia(
+    return this.generatePdfService.generatePDFEuthanasia(
       idPet,
       createEutanasiaInput,
       res,
@@ -55,28 +57,28 @@ export class GeneratePdfController {
   }
 
   @ApiBearerAuth()
-  @Get('/consentimiento-cirugia/:idPet')
-  async createPDF_Consentimiento(
+  @Post('/consent-surgery/:idPet')
+  async createPDFConsentSurgery(
     @Param('idPet') idPet: number,
-    @Body() createConsentimientoInput: CreateConsentimientoInput,
+    @Body() createConsentSurgeryInput: CreateConsentSurgeryInput,
     @Res() res: Response,
   ) {
-    return this.generatePdfService.generatePDFConsentimiento(
+    return this.generatePdfService.generatePDFConsentSurgery(
       idPet,
-      createConsentimientoInput,
+      createConsentSurgeryInput,
       res,
     );
   }
 
   @ApiBearerAuth()
-  @Get('/hoja-clinica/:idPet')
-  async createPDF_Hoja_Clinica(
+  @Post('/clinical-sheet/:idPet')
+  async createPDFClinicalSheet(
     @Param('idPet') idPet: number,
     @Query('medicalHistoryId') medicalHistoryId: number,
-    @Body() createHojaClinicaInput: CreateHojaClinicaInput,
+    @Body() createHojaClinicaInput: CreateClinicalSheetInput,
     @Res() res: Response,
   ) {
-    return this.generatePdfService.generatePDFHojaClinica(
+    return this.generatePdfService.generatePDFClinicalSheet(
       idPet,
       createHojaClinicaInput,
       res,

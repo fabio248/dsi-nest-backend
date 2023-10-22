@@ -365,7 +365,7 @@ export class PetsService {
     });
 
     if (!diagnostic) {
-      throw new DiagnosticNotFoundException(medicalHistoryId);
+      throw new DiagnosticNotFoundException({ medicalHistoryId });
     }
 
     const updatedDiagnostic = await this.prisma.diagnostic.update({
