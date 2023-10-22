@@ -16,7 +16,7 @@ import { Type } from 'class-transformer';
 export class CreateHealthCertificateInput {
   @IsOptional()
   @IsString()
-  microChip: string;
+  microChip?: string;
 
   @IsNotEmpty()
   @IsString()

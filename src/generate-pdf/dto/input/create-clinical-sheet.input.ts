@@ -42,11 +42,11 @@ export class CreateClinicalSheetInput {
   @Matches(/^[0-9]{4}-[0-9]{4}$/, {
     message: 'The valid format is 0000-0000',
   })
-  phoneOffice: number;
+  phoneOffice?: number;
 
   @IsOptional()
   @Matches(/^[0-9]{4}-[0-9]{4}$/, {
     message: 'The valid format is 0000-0000',
   })
-  phoneFijo: string;
+  phoneFijo?: string;
 }

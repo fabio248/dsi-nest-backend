@@ -4,7 +4,7 @@ import { CreateBillTableInput } from './create-bill-table.input';
 export class CreateBillInput {
   @IsOptional()
   @IsString()
-  accountToSale: string;
+  accountToSale?: string;
 
   @IsNotEmpty()
   @IsArray()
