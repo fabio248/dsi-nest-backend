@@ -1,12 +1,17 @@
 import {
   IsString,
-  IsArray,
   IsNotEmpty,
   IsNumber,
   IsPositive,
   Matches,
   IsOptional,
+  ValidateNested,
 } from 'class-validator';
+
+import { CreateVaccineHojaClinicaPetInput } from './create-vaccine-hoja-clinica.input';
+import { CreateDewormingHojaClinicaInput } from './create-deworming.input';
+import { CreateCelosHojaClinicaInput } from './create-celos.input';
+import { Type } from 'class-transformer';
 
 export class CreateHojaClinicaInput {
   @IsNotEmpty()
@@ -14,17 +19,20 @@ export class CreateHojaClinicaInput {
   @IsNumber()
   clinicalNumber: number;
 
+  @Type(() => CreateDewormingHojaClinicaInput)
+  @ValidateNested({ each: true })
   @IsNotEmpty()
-  @IsArray()
-  deworming: string[];
+  deworming: CreateDewormingHojaClinicaInput[];
 
+  @Type(() => CreateVaccineHojaClinicaPetInput)
+  @ValidateNested({ each: true })
   @IsNotEmpty()
-  @IsArray()
-  vaccines: string[];
+  vaccines: CreateVaccineHojaClinicaPetInput[];
 
+  @Type(() => CreateCelosHojaClinicaInput)
+  @ValidateNested({ each: true })
   @IsNotEmpty()
-  @IsArray()
-  celos: string[];
+  celos: CreateCelosHojaClinicaInput[];
 
   @IsNotEmpty()
   @IsString()

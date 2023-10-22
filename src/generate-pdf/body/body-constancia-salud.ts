@@ -12,6 +12,7 @@ import {
   MerriweatherLight,
   MerriweatherBlack,
 } from '../utils/fonts/fonts.style';
+import { CreateVaccinePetInput } from '../dto/input/create-vaccines.input';
 
 export function addFieldsConstanciaSalud(
   dataPet: PetResponseDto,
@@ -25,7 +26,11 @@ export function addFieldsConstanciaSalud(
   const fieldGroups = [
     `Nombre: ${dataPet.name}    |    Especie: ${dataPet.specie.name}    |    Raza: ${dataPet.raza}`,
     `Sexo: ${dataPet.gender}    |    Edad: ${age} Años    |    Peso: ${LastWeightPet} Kg`,
-    `Identificación del microchip: ${createDocumentInput.microChip}`,
+    `Identificación del microchip: ${
+      createDocumentInput?.microChip
+        ? `${createDocumentInput.microChip}`
+        : 'No posee MicroChip'
+    }`,
   ];
 
   fieldGroups.forEach((group) => {
@@ -139,7 +144,7 @@ export function addFieldsConstanciaSalud(
     subtitle: `Registro de Vacunación de la mascota`,
     subtitleFontSize: 50,
     headers: [`Fecha de aplicación`, `Vacuna`, 'Marca y lote'],
-    rows: [] as Array<Array<string>>,
+    rows: [] as CreateVaccinePetInput[],
     widths: [150, 300],
     layout: 'lightHorizontalLines',
     fontSize: 52, // Aumentamos el tamaño de fuente a 16 aquí
@@ -148,13 +153,15 @@ export function addFieldsConstanciaSalud(
   };
 
   //asignacion dinámica
-  for (let i = 0; i < createDocumentInput.vaccines.length; i += 3) {
+  for (let i = 0; i < createDocumentInput.vaccines.length; i++) {
     const row = [
-      createDocumentInput.vaccines[i],
-      createDocumentInput.vaccines[i + 1],
-      createDocumentInput.vaccines[i + 2],
+      createDocumentInput.vaccines[i].dayAplication,
+      createDocumentInput.vaccines[i].vaccineName,
+      createDocumentInput.vaccines[i].BrandAndLot,
     ];
-    tableVaccines.rows.push(row);
+    console.log(createDocumentInput.vaccines[i + 1]);
+
+    tableVaccines.rows.push(row as unknown as CreateVaccinePetInput);
   }
 
   const tableConstanciaSaludFormat = formatTable(
