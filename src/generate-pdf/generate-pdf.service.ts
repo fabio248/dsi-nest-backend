@@ -1,6 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, Logger } from '@nestjs/common';
-import { formatDocument } from './conditions-format/conditions-format-constancia-salud';
+import {
+  formatDocument,
+  formatDocumentFactura,
+} from './conditions-format/conditions-format-constancia-salud';
 import { PetsService } from 'src/pets/pets.service';
 import {
   CreateHealthCertificateInput,
@@ -19,11 +22,13 @@ import { addHeaderConstanciaSalud } from './headers/header-constancia-salud';
 import { addHeaderEutanasia } from './headers/header-eutanasia';
 import { addHeaderConsentimiento } from './headers/header-consentimiento';
 import { addHeaderHojaClinica } from './headers/header-hoja-clinica';
+import { addHeaderFactura } from './headers/headers-factura';
 //cuerpo del documento
 import { addFieldsConstanciaSalud } from './body/body-constancia-salud';
 import { addFieldsEutanasia } from './body/body-eutanasia';
 import { addFieldsConsentimiento } from './body/body-consentimiento';
 import { addFieldsHojaClinica } from './body/body-hoja-clinica';
+import { addFieldsFactura } from './body/body-factura';
 //pie de pagina
 import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
 import { finalTextEutanasia } from './footer/footer-eutanasia';
@@ -33,7 +38,11 @@ import { finalTextConsentimiento } from './footer/footer-consentimiento';
 export class GeneratePdfService {
   private readonly logger = new Logger(GeneratePdfService.name);
 
-  constructor(private readonly petsService: PetsService) {}
+  constructor(
+    private readonly petsService: PetsService,
+    // @Inject(forwardRef(() => UsersService))
+    private readonly userService: UsersService,
+  ) {}
 
   async generatePDFHealthCertificate(
     id: number,
@@ -89,7 +98,7 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res, dataPet, 0);
 
     // Envía el PDF como respuesta
     res.end();
@@ -139,7 +148,7 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res, dataPet, 1);
 
     // Envía el PDF como respuesta
     res.end();
@@ -182,7 +191,7 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res, dataPet, 2);
 
     // Envía el PDF como respuesta
     res.end();
@@ -196,7 +205,7 @@ export class GeneratePdfService {
   ) {
     this.logger.log(`Create PDF Hoja Clinica`);
 
-    const dataPet = await this.petsService.findOnePetById(1);
+    const dataPet = await this.petsService.findOnePetById(idPet);
 
     const dataMedicalHistory = await this.petsService.findOneMedicalHistoryById(
       medicalHistoryId,
@@ -234,7 +243,43 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res, dataPet, 3);
+
+    // Envía el PDF como respuesta
+    res.end();
+  }
+
+  async generatePDFFacturaCliente(idClient: number, res: Response) {
+    this.logger.log(`Create PDF Factura Cliente`);
+
+    const dataUser = await this.userService.findOneById(idClient);
+
+    const pdfBuffer: Buffer = await new Promise((resolve) => {
+      const doc = new PDFDocument1({
+        size: [612, 792],
+        bufferPages: true,
+        autoFirstPage: true,
+        margin: { top: 50, right: 50, bottom: 50, left: 50 },
+      });
+      const buffer = [] as Buffer[];
+
+      const headersFactura = addHeaderFactura(doc);
+
+      const bodyFactura = addFieldsFactura(dataUser, doc);
+
+      doc.on(`data`, buffer.push.bind(buffer));
+      doc.on(`end`, () => {
+        const pdfData = Buffer.concat(buffer);
+        resolve(pdfData);
+      });
+
+      headersFactura;
+
+      bodyFactura;
+
+      doc.end();
+    });
+    formatDocumentFactura(pdfBuffer, res);
 
     // Envía el PDF como respuesta
     res.end();

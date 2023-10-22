@@ -6,9 +6,12 @@ import {
   Min,
   Max,
   Matches,
-  IsArray,
+  ValidateNested,
   IsOptional,
 } from 'class-validator';
+
+import { CreateVaccinePetInput } from './create-vaccines.input';
+import { Type } from 'class-transformer';
 
 export class CreateHealthCertificateInput {
   @IsOptional()
@@ -30,9 +33,10 @@ export class CreateHealthCertificateInput {
   @Max(999)
   codePostal: number;
 
+  @Type(() => CreateVaccinePetInput)
+  @ValidateNested({ each: true })
   @IsNotEmpty()
-  @IsArray()
-  vaccines: string[];
+  vaccines: CreateVaccinePetInput[];
 
   @IsNotEmpty()
   @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {

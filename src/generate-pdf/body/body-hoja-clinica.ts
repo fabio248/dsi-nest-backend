@@ -4,6 +4,9 @@ import { CreateClinicalSheetInput } from '../dto/input/create-clinical-sheet.inp
 import { formatTable } from '../utils/calc/utils-calc-tableFormat';
 import { MedicalHistoryResponseDto } from 'src/pets/dto/response';
 
+import { CreateVaccineHojaClinicaPetInput } from '../dto/input/create-vaccine-hoja-clinica.input';
+import { CreateDewormingHojaClinicaInput } from '../dto/input/create-deworming.input';
+import { CreateCelosHojaClinicaInput } from '../dto/input/create-celos.input';
 //format to table
 import { PDFDocument } from 'pdf-lib';
 type TableFunction = (doc: PDFDocument) => void;
@@ -227,17 +230,17 @@ export async function addFieldsHojaClinica(
       'Dosis utilizada',
       'Fecha de refuerzo',
     ],
-    rows: [] as Array<Array<string>>,
+    rows: [] as CreateDewormingHojaClinicaInput[],
   };
   //asignacion dinámica
-  for (let i = 0; i < createHojaClinicaInput.deworming.length; i += 4) {
+  for (let i = 0; i < createHojaClinicaInput.deworming.length; i++) {
     const row = [
-      createHojaClinicaInput.deworming[i],
-      createHojaClinicaInput.deworming[i + 1],
-      createHojaClinicaInput.deworming[i + 2],
-      createHojaClinicaInput.deworming[i + 3],
+      createHojaClinicaInput.deworming[i].dayAplicationInitDeworming,
+      createHojaClinicaInput.deworming[i].dewormingName,
+      createHojaClinicaInput.deworming[i].dose,
+      createHojaClinicaInput.deworming[i].dayAplicationFinalDeworming,
     ];
-    tableDeworming.rows.push(row);
+    tableDeworming.rows.push(row as unknown as CreateDewormingHojaClinicaInput);
   }
 
   //enviamos la carga de codigo junto a la funcion a los formatos de tabla
@@ -262,16 +265,18 @@ export async function addFieldsHojaClinica(
     subtitle: `Registro de vacunación de la mascota`,
 
     headers: [`Fecha`, `Vacuna Utilizada`, `Fecha de refuerzo`],
-    rows: [] as Array<Array<string>>,
+    rows: [] as CreateVaccineHojaClinicaPetInput[],
   };
   //asignacion dinámica
-  for (let i = 0; i < createHojaClinicaInput.vaccines.length; i += 3) {
+  for (let i = 0; i < createHojaClinicaInput.vaccines.length; i++) {
     const row2 = [
-      createHojaClinicaInput.vaccines[i],
-      createHojaClinicaInput.vaccines[i + 1],
-      createHojaClinicaInput.vaccines[i + 2],
+      createHojaClinicaInput.vaccines[i].dayAplicationInit,
+      createHojaClinicaInput.vaccines[i].vaccineName,
+      createHojaClinicaInput.vaccines[i].dayAplicationfinal,
     ];
-    tableVaccines.rows.push(row2);
+    tableVaccines.rows.push(
+      row2 as unknown as CreateVaccineHojaClinicaPetInput,
+    );
   }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat
@@ -293,17 +298,17 @@ export async function addFieldsHojaClinica(
       `Fecha de Inicio`,
       `Fecha Finalización`,
     ],
-    rows: [] as Array<Array<string>>,
+    rows: [] as CreateCelosHojaClinicaInput[],
   };
   //asignacion dinámica
-  for (let i = 0; i < createHojaClinicaInput.celos.length; i += 4) {
+  for (let i = 0; i < createHojaClinicaInput.celos.length; i++) {
     const row2 = [
-      createHojaClinicaInput.celos[i],
-      createHojaClinicaInput.celos[i + 1],
-      createHojaClinicaInput.celos[i + 2],
-      createHojaClinicaInput.celos[i + 3],
+      createHojaClinicaInput.celos[i].dayAplicationInitCelos1,
+      createHojaClinicaInput.celos[i].dayAplicationFinalCelos1,
+      createHojaClinicaInput.celos[i].dayAplicationInitCelos2,
+      createHojaClinicaInput.celos[i].dayAplicationFinalCelos2,
     ];
-    tableCelos.rows.push(row2);
+    tableCelos.rows.push(row2 as unknown as CreateCelosHojaClinicaInput);
   }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat

@@ -21,6 +21,7 @@ import {
 // Proteccion de controllador
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
+import { Public } from 'src/auth/decorators/public-route.decorator';
 
 @ApiTags('Generate PDF')
 @Controller('generate-pdf')
@@ -84,5 +85,15 @@ export class GeneratePdfController {
       res,
       medicalHistoryId,
     );
+  }
+
+  @ApiBearerAuth()
+  @Public()
+  @Get('/facturaCliente/:idClient')
+  async createPDF_FacturaCliente(
+    @Param('idClient') idClient: number,
+    @Res() res: Response,
+  ) {
+    return this.generatePdfService.generatePDFFacturaCliente(idClient, res);
   }
 }
