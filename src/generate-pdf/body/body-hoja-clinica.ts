@@ -4,9 +4,9 @@ import { CreateClinicalSheetInput } from '../dto/input/create-clinical-sheet.inp
 import { formatTable } from '../utils/calc/utils-calc-tableFormat';
 import { MedicalHistoryResponseDto } from 'src/pets/dto/response';
 
-import { CreateVaccineHojaClinicaPetInput } from '../dto/input/create-vaccine-hoja-clinica.input';
-import { CreateDewormingHojaClinicaInput } from '../dto/input/create-deworming.input';
-import { CreateCelosHojaClinicaInput } from '../dto/input/create-celos.input';
+import { CreateVaccineHojaClinicaPetInput } from '../dto/input/create-vaccine-clinical-sheet.input';
+import { CreateDewormingClinicalSheetInput } from '../dto/input/create-deworming.input';
+import { CreateHeatClinicalSheetInput } from '../dto/input/create-heat.input';
 //format to table
 import { PDFDocument } from 'pdf-lib';
 type TableFunction = (doc: PDFDocument) => void;
@@ -230,7 +230,7 @@ export async function addFieldsHojaClinica(
       'Dosis utilizada',
       'Fecha de refuerzo',
     ],
-    rows: [] as CreateDewormingHojaClinicaInput[],
+    rows: [] as CreateDewormingClinicalSheetInput[],
   };
   //asignacion dinámica
   for (let i = 0; i < createHojaClinicaInput.deworming.length; i++) {
@@ -240,7 +240,9 @@ export async function addFieldsHojaClinica(
       createHojaClinicaInput.deworming[i].dose,
       createHojaClinicaInput.deworming[i].dayAplicationFinalDeworming,
     ];
-    tableDeworming.rows.push(row as unknown as CreateDewormingHojaClinicaInput);
+    tableDeworming.rows.push(
+      row as unknown as CreateDewormingClinicalSheetInput,
+    );
   }
 
   //enviamos la carga de codigo junto a la funcion a los formatos de tabla
@@ -298,7 +300,7 @@ export async function addFieldsHojaClinica(
       `Fecha de Inicio`,
       `Fecha Finalización`,
     ],
-    rows: [] as CreateCelosHojaClinicaInput[],
+    rows: [] as CreateHeatClinicalSheetInput[],
   };
   //asignacion dinámica
   for (let i = 0; i < createHojaClinicaInput.celos.length; i++) {
@@ -308,7 +310,7 @@ export async function addFieldsHojaClinica(
       createHojaClinicaInput.celos[i].dayAplicationInitCelos2,
       createHojaClinicaInput.celos[i].dayAplicationFinalCelos2,
     ];
-    tableCelos.rows.push(row2 as unknown as CreateCelosHojaClinicaInput);
+    tableCelos.rows.push(row2 as unknown as CreateHeatClinicalSheetInput);
   }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat

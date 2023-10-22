@@ -1,12 +1,12 @@
 import { IsString, IsArray, IsNotEmpty, IsOptional } from 'class-validator';
-import { CreateTableFacturaInput } from './create-table-factura.input';
+import { CreateBillTableInput } from './create-bill-table.input';
 
-export class CreateFacture {
+export class CreateBillInput {
   @IsOptional()
   @IsString()
   accountToSale: string;
 
   @IsNotEmpty()
   @IsArray()
-  tableFacture: CreateTableFacturaInput[];
+  tableFacture: CreateBillTableInput[];
 }

@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class CreateTableFacturaInput {
+export class CreateBillTableInput {
   @IsNotEmpty()
   @IsNumber()
   quantity: number;

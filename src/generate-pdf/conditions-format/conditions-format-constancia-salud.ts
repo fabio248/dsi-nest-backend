@@ -12,7 +12,7 @@ export function formatDocument(
     `ConstanciaDeSalud-Mascota_${dataPet.name}.pdf`,
     `Eutanasia_${dataPet.name}-Propietario_${dataPet.user.firstName}.pdf`,
     `ConsentimientoDeCirugiaYAnestecia_${dataPet.name}.pdf`,
-    `HojaClinica-Mascota_ ${dataPet.name}.pdf`,
+    `HojaClinica-Mascota_${dataPet.name}.pdf`,
     ``,
   ];
 
@@ -25,7 +25,7 @@ export function formatDocument(
   res.send(pdfBuffer);
 }
 
-export function formatDocumentFactura(pdfBuffer: Buffer, res: Response) {
+export function formatDocumentBill(pdfBuffer: Buffer, res: Response) {
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader(
     'Content-Disposition',
@@ -35,3 +35,10 @@ export function formatDocumentFactura(pdfBuffer: Buffer, res: Response) {
 
   res.send(pdfBuffer);
 }
+
+export const identifierFileName = {
+  healthCertification: 0,
+  euthanasia: 1,
+  consentSurgery: 2,
+  clinicalSheet: 3,
+} as const;

@@ -2,7 +2,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   formatDocument,
-  formatDocumentFactura,
+  formatDocumentBill,
+  identifierFileName,
 } from './conditions-format/conditions-format-constancia-salud';
 import { PetsService } from 'src/pets/pets.service';
 import {
@@ -33,6 +34,7 @@ import { addFieldsFactura } from './body/body-factura';
 import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
 import { finalTextEutanasia } from './footer/footer-eutanasia';
 import { finalTextConsentimiento } from './footer/footer-consentimiento';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GeneratePdfService {
@@ -98,7 +100,12 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res, dataPet, 0);
+    formatDocument(
+      pdfBuffer,
+      res,
+      dataPet,
+      identifierFileName.healthCertification,
+    );
 
     // Envía el PDF como respuesta
     res.end();
@@ -148,7 +155,7 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res, dataPet, 1);
+    formatDocument(pdfBuffer, res, dataPet, identifierFileName.euthanasia);
 
     // Envía el PDF como respuesta
     res.end();
@@ -191,7 +198,7 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res, dataPet, 2);
+    formatDocument(pdfBuffer, res, dataPet, identifierFileName.consentSurgery);
 
     // Envía el PDF como respuesta
     res.end();
@@ -243,7 +250,7 @@ export class GeneratePdfService {
       doc.end();
     });
 
-    formatDocument(pdfBuffer, res, dataPet, 3);
+    formatDocument(pdfBuffer, res, dataPet, identifierFileName.clinicalSheet);
 
     // Envía el PDF como respuesta
     res.end();
@@ -263,9 +270,9 @@ export class GeneratePdfService {
       });
       const buffer = [] as Buffer[];
 
-      const headersFactura = addHeaderFactura(doc);
+      addHeaderFactura(doc);
 
-      const bodyFactura = addFieldsFactura(dataUser, doc);
+      addFieldsFactura(dataUser, doc);
 
       doc.on(`data`, buffer.push.bind(buffer));
       doc.on(`end`, () => {
@@ -273,13 +280,9 @@ export class GeneratePdfService {
         resolve(pdfData);
       });
 
-      headersFactura;
-
-      bodyFactura;
-
       doc.end();
     });
-    formatDocumentFactura(pdfBuffer, res);
+    formatDocumentBill(pdfBuffer, res);
 
     // Envía el PDF como respuesta
     res.end();

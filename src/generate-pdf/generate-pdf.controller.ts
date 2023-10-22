@@ -30,7 +30,7 @@ export class GeneratePdfController {
   constructor(private readonly generatePdfService: GeneratePdfService) {}
 
   @ApiBearerAuth()
-  @Post('/health-certificate/:idPet')
+  @Post('/health-certificates/:idPet')
   async createPDFHealthCertificate(
     @Param('idPet') idPet: number,
     @Body() createDocumentInput: CreateHealthCertificateInput,
@@ -44,7 +44,7 @@ export class GeneratePdfController {
   }
 
   @ApiBearerAuth()
-  @Post('/euthanasia/:idPet')
+  @Post('/euthanasias/:idPet')
   async createPDFEuthanasia(
     @Param('idPet') idPet: number,
     @Body() createEutanasiaInput: CreateEuthanasiaInput,
@@ -58,7 +58,7 @@ export class GeneratePdfController {
   }
 
   @ApiBearerAuth()
-  @Post('/consent-surgery/:idPet')
+  @Post('/consent-surgeries/:idPet')
   async createPDFConsentSurgery(
     @Param('idPet') idPet: number,
     @Body() createConsentSurgeryInput: CreateConsentSurgeryInput,
@@ -72,7 +72,7 @@ export class GeneratePdfController {
   }
 
   @ApiBearerAuth()
-  @Post('/clinical-sheet/:idPet')
+  @Post('/clinical-sheets/:idPet')
   async createPDFClinicalSheet(
     @Param('idPet') idPet: number,
     @Query('medicalHistoryId') medicalHistoryId: number,
@@ -89,7 +89,7 @@ export class GeneratePdfController {
 
   @ApiBearerAuth()
   @Public()
-  @Get('/facturaCliente/:idClient')
+  @Post('/bills/:idClient')
   async createPDF_FacturaCliente(
     @Param('idClient') idClient: number,
     @Res() res: Response,

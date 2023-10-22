@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsString, Matches } from 'class-validator';
 
-export class CreateDewormingHojaClinicaInput {
+export class CreateDewormingClinicalSheetInput {
   @IsNotEmpty()
   @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {
     message: 'The valid format is dd/mm/yyyy',
   })
-  dayAplicationInitDeworming: string | Date;
+  dayAplicationInitDeworming: Date;
 
   @IsNotEmpty()
   @IsString()
@@ -19,5 +19,5 @@ export class CreateDewormingHojaClinicaInput {
   @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {
     message: 'The valid format is dd/mm/yyyy',
   })
-  dayAplicationFinalDeworming: string | Date;
+  dayAplicationFinalDeworming: Date;
 }
