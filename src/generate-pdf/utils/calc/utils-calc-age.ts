@@ -1,26 +1,26 @@
 export function calcAgePet(birthday: string): number {
-  const partesFecha = birthday.split('/');
+  const slippletDate = birthday.split('/');
 
-  const dia = parseInt(partesFecha[0]);
-  const mes = parseInt(partesFecha[1]) - 1;
-  const año = parseInt(partesFecha[2]);
+  const day = parseInt(slippletDate[0]);
+  const month = parseInt(slippletDate[1]) - 1;
+  const year = parseInt(slippletDate[2]);
 
   // Crear una fecha de nacimiento a partir de las partes
-  const fechaNacimiento = new Date(año, mes, dia);
+  const fechaNacimiento = new Date(year, month, day);
 
   // Obtener la fecha actual
   const hoy = new Date();
 
-  // Calcular la edad
-  const edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
-  const mesActual = hoy.getMonth();
-  const mesNac = fechaNacimiento.getMonth();
+  // Calcular la age
+  const age = hoy.getFullYear() - fechaNacimiento.getFullYear();
+  const currentMonth = hoy.getMonth();
+  const bithdayMonth = fechaNacimiento.getMonth();
   if (
-    mesActual < mesNac ||
-    (mesActual === mesNac && hoy.getDate() < fechaNacimiento.getDate())
+    currentMonth < bithdayMonth ||
+    (currentMonth === bithdayMonth && hoy.getDate() < fechaNacimiento.getDate())
   ) {
-    return edad - 1;
+    return age - 1;
   } else {
-    return edad;
+    return age;
   }
 }

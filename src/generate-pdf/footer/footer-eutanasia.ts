@@ -1,6 +1,6 @@
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
 
-export async function finalTextEutanasia(doc: any) {
+export function finalTextEutanasia(doc: any) {
   // Establece el formato de fuente igual al de addFields
   doc.font(MerriweatherBlack);
   doc.fontSize(11); // Tamaño de fuente más pequeño

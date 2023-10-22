@@ -60,7 +60,7 @@ export class GeneratePdfService {
       const buffer: Buffer[] = [];
 
       // Función para agregar encabezado en la primera página
-      const headers = addHeaderConstanciaSalud(doc);
+      addHeaderConstanciaSalud(doc);
 
       doc.moveDown();
       doc.text(`CONSTANCIA DE SALUD MÉDICA DE LA MASCOTA`, {
@@ -68,7 +68,7 @@ export class GeneratePdfService {
       });
       doc.moveDown(2);
 
-      const body = addFieldsConstanciaSalud(
+      addFieldsConstanciaSalud(
         dataPet,
         createHealthCertificateInput,
         doc,
@@ -83,25 +83,16 @@ export class GeneratePdfService {
         resolve(pdfData);
       });
 
-      // Contenido del PDF, como logo y texto
-      headers;
-
-      //contenido del PDF, cuerpo renderizado del documento
-      body;
-
       // Pie de pagina
-      const footer = finalTextConstanciaDeSalud(
-        doc,
-        createHealthCertificateInput,
-      );
-      footer;
+      finalTextConstanciaDeSalud(doc, createHealthCertificateInput);
+
       doc.end();
     });
 
-    const responsePDF = formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res);
 
     // Envía el PDF como respuesta
-    res.end(responsePDF);
+    res.end();
   }
 
   async generatePDFEuthanasia(
@@ -125,12 +116,12 @@ export class GeneratePdfService {
       });
 
       // Contiene el contenido final del documento PDF
-      const buffer = [] as Buffer[];
+      const buffer: Buffer[] = [];
 
       // Función para agregar encabezado en la primera página
-      const headersEutanasia = addHeaderEutanasia(doc);
+      addHeaderEutanasia(doc);
 
-      const bodyEutanasia = addFieldsEutanasia(
+      addFieldsEutanasia(
         dataPet,
         createEuthanasiaInput,
         doc,
@@ -144,24 +135,19 @@ export class GeneratePdfService {
         resolve(pdfData);
       });
 
-      headersEutanasia;
-
-      bodyEutanasia;
-
-      const footerEutanasia = finalTextEutanasia(doc);
-      footerEutanasia;
+      finalTextEutanasia(doc);
       doc.end();
     });
 
-    const responsePDF = formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res);
 
     // Envía el PDF como respuesta
-    res.end(responsePDF);
+    res.end();
   }
 
   async generatePDFConsentSurgery(
     idPet: number,
-    createConsentimientoInput: CreateConsentSurgeryInput,
+    createConsentSurgeryInput: CreateConsentSurgeryInput,
     res: Response,
   ) {
     this.logger.log(`Create PDF Consentimiento de anestecia y cirugia `);
@@ -178,17 +164,12 @@ export class GeneratePdfService {
         margin: { top: 50, right: 50, bottom: 50, left: 50 },
       });
       // Contiene el contenido final del documento PDF en formato buffer
-      const buffer = [] as Buffer[];
+      const buffer: Buffer[] = [];
 
       // Función para agregar encabezado en la primera página
-      const headersEutanasia = addHeaderConsentimiento(doc);
+      addHeaderConsentimiento(doc);
 
-      const bodyEutanasia = addFieldsConsentimiento(
-        dataPet,
-        createConsentimientoInput,
-        doc,
-        edadPet,
-      );
+      addFieldsConsentimiento(dataPet, createConsentSurgeryInput, doc, edadPet);
 
       doc.on(`data`, buffer.push.bind(buffer));
       doc.on(`end`, () => {
@@ -196,19 +177,15 @@ export class GeneratePdfService {
         resolve(pdfData);
       });
 
-      headersEutanasia;
+      finalTextConsentimiento(doc);
 
-      bodyEutanasia;
-
-      const footerConsentimiento = finalTextConsentimiento(doc);
-      footerConsentimiento;
       doc.end();
     });
 
-    const responsePDF = formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res);
 
     // Envía el PDF como respuesta
-    res.end(responsePDF);
+    res.end();
   }
 
   async generatePDFClinicalSheet(
