@@ -1,12 +1,12 @@
 import { join } from 'path';
-import { CreateHojaClinicaInput } from '../dto/input/create-hoja-clinica.input';
+import { CreateClinicalSheetInput } from '../dto/input/create-clinical-sheet.input';
 
 //fonts
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
 
 export function addHeaderHojaClinica(
   doc: any,
-  createHojaClinicaInput: CreateHojaClinicaInput,
+  createHojaClinicaInput: CreateClinicalSheetInput,
 ) {
   const DateNow = Date.now();
   const fecha = new Date(DateNow);

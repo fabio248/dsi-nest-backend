@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
-import { CreateConsentimientoInput } from '../dto/input/create-consentimiento.input';
+import { CreateConsentSurgeryInput } from '../dto/input/create-consent-surgery.input';
 
 //fonts
 import {
@@ -11,7 +11,7 @@ import {
 
 export function addFieldsConsentimiento(
   dataPet: PetResponseDto,
-  createConsentimientoInput: CreateConsentimientoInput,
+  createConsentimientoInput: CreateConsentSurgeryInput,
   doc: any,
   age: number,
 ) {

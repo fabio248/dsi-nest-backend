@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
-import { CreateHojaClinicaInput } from '../dto/input/create-hoja-clinica.input';
+import { CreateClinicalSheetInput } from '../dto/input/create-clinical-sheet.input';
 import { formatTable } from '../utils/calc/utils-calc-tableFormat';
 import { MedicalHistoryResponseDto } from 'src/pets/dto/response';
 
@@ -17,7 +17,7 @@ import {
 
 export async function addFieldsHojaClinica(
   dataPet: PetResponseDto,
-  createHojaClinicaInput: CreateHojaClinicaInput,
+  createHojaClinicaInput: CreateClinicalSheetInput,
   doc: any,
   lastWeightPet: number,
   age: number,

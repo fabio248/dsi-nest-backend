@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
-import { CreateConstanciaSaludInput } from '../dto/input/create-constancia.input';
+import { CreateHealthCertificateInput } from '../dto/input/create-health-certificate.input';
 
 //formato para la tabla
 import { formatTable } from '../utils/calc/utils-calc-tableFormat';
@@ -15,7 +15,7 @@ import {
 
 export function addFieldsConstanciaSalud(
   dataPet: PetResponseDto,
-  createDocumentInput: CreateConstanciaSaludInput,
+  createDocumentInput: CreateHealthCertificateInput,
   doc: any,
   LastWeightPet: number,
   age: number,

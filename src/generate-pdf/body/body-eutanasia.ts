@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
-import { CreateEutanasiaInput } from '../dto/input/create-eutanasia.input';
+import { CreateEuthanasiaInput } from '../dto/input/create-euthanasia.input';
 
 //fonts
 import {
@@ -11,7 +11,7 @@ import {
 
 export function addFieldsEutanasia(
   dataPet: PetResponseDto,
-  createEutanasiaInput: CreateEutanasiaInput,
+  createEutanasiaInput: CreateEuthanasiaInput,
   doc: any,
   lastWeightPet: number,
   age: number,

@@ -8,7 +8,7 @@ import {
   IsOptional,
 } from 'class-validator';
 
-export class CreateHojaClinicaInput {
+export class CreateClinicalSheetInput {
   @IsNotEmpty()
   @IsPositive()
   @IsNumber()

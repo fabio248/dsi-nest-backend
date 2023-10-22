@@ -10,7 +10,7 @@ import {
   IsOptional,
 } from 'class-validator';
 
-export class CreateConstanciaSaludInput {
+export class CreateHealthCertificateInput {
   @IsOptional()
   @IsString()
   microChip: string;

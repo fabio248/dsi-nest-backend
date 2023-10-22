@@ -1,4 +1,4 @@
-export function CalcAgePet(birthday: string): number {
+export function calcAgePet(birthday: string): number {
   const partesFecha = birthday.split('/');
 
   const dia = parseInt(partesFecha[0]);

@@ -1,4 +1,4 @@
-import { CreateConstanciaSaludInput } from '../dto/input/create-constancia.input';
+import { CreateHealthCertificateInput } from '../dto/input/create-health-certificate.input';
 //fonts
 import {
   MerriweatherBlack,
@@ -7,7 +7,7 @@ import {
 
 export async function finalTextConstanciaDeSalud(
   doc: any,
-  createDocumentInput: CreateConstanciaSaludInput,
+  createDocumentInput: CreateHealthCertificateInput,
 ) {
   // Establece el formato de fuente igual al de addFields
   doc.font(MerriweatherBlack);

@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateConsentimientoInput {
+export class CreateEuthanasiaInput {
   @IsNotEmpty()
   @IsString()
-  intervention: string;
+  responsible: string;
 }

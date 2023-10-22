@@ -2,12 +2,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { formatDocument } from './conditions-format/conditions-format-constancia-salud';
 import { PetsService } from 'src/pets/pets.service';
-import { CreateConstanciaSaludInput } from './dto/input/create-constancia.input';
-import { CreateEutanasiaInput } from './dto/input/create-eutanasia.input';
-import { CreateConsentimientoInput } from './dto/input/create-consentimiento.input';
-import { CreateHojaClinicaInput } from './dto/input/create-hoja-clinica.input';
+import {
+  CreateHealthCertificateInput,
+  CreateEuthanasiaInput,
+  CreateConsentSurgeryInput,
+  CreateClinicalSheetInput,
+} from './dto/input';
 import { Response } from 'express';
-import { CalcAgePet } from './utils/calc/utils-calc-age';
+import { calcAgePet } from './utils/calc/utils-calc-age';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument1 = require(`pdfkit-table`);
@@ -33,18 +35,18 @@ export class GeneratePdfService {
 
   constructor(private readonly petsService: PetsService) {}
 
-  async generaPDFContanciaSalud(
+  async generatePDFHealthCertificate(
     id: number,
-    createDocumentInput: CreateConstanciaSaludInput,
+    createHealthCertificateInput: CreateHealthCertificateInput,
     res: Response,
   ): Promise<void> {
     this.logger.log(`Create PDF - Constancia de Salud`);
 
     const dataPet = await this.petsService.findOnePetById(id);
 
-    const LastWeightPet = await this.petsService.getLastWeightPet(id);
+    const lastWeightPet = await this.petsService.getLastWeightPet(id);
 
-    const agePet = CalcAgePet(dataPet.birthday.toString());
+    const agePet = calcAgePet(dataPet.birthday.toString());
     //genera la estructura base del pdf, formato y demas
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       const doc = new PDFDocument1({
@@ -55,23 +57,22 @@ export class GeneratePdfService {
       });
 
       // Contiene el contenido final del documento PDF
-      const buffer = [] as Buffer[];
+      const buffer: Buffer[] = [];
 
       // Función para agregar encabezado en la primera página
       const headers = addHeaderConstanciaSalud(doc);
 
       doc.moveDown();
       doc.text(`CONSTANCIA DE SALUD MÉDICA DE LA MASCOTA`, {
-        // width: doc.page.width - 100,
         align: `center`,
       });
       doc.moveDown(2);
 
       const body = addFieldsConstanciaSalud(
         dataPet,
-        createDocumentInput,
+        createHealthCertificateInput,
         doc,
-        LastWeightPet,
+        lastWeightPet,
         agePet,
       );
       // Crear la tabla con filas dinámicas
@@ -89,7 +90,10 @@ export class GeneratePdfService {
       body;
 
       // Pie de pagina
-      const footer = finalTextConstanciaDeSalud(doc, createDocumentInput);
+      const footer = finalTextConstanciaDeSalud(
+        doc,
+        createHealthCertificateInput,
+      );
       footer;
       doc.end();
     });
@@ -100,16 +104,16 @@ export class GeneratePdfService {
     res.end(responsePDF);
   }
 
-  async generatePDFEutanasia(
+  async generatePDFEuthanasia(
     idPet: number,
-    createEutanasiaInput: CreateEutanasiaInput,
+    createEuthanasiaInput: CreateEuthanasiaInput,
     res: Response,
   ): Promise<void> {
     this.logger.log(`Create PDF Eutanasia`);
 
     const dataPet = await this.petsService.findOnePetById(idPet);
 
-    const edadPet = CalcAgePet(dataPet.birthday.toString());
+    const edadPet = calcAgePet(dataPet.birthday.toString());
 
     const lastWeightPet = await this.petsService.getLastWeightPet(idPet);
     const pdfBuffer: Buffer = await new Promise((resolve) => {
@@ -128,7 +132,7 @@ export class GeneratePdfService {
 
       const bodyEutanasia = addFieldsEutanasia(
         dataPet,
-        createEutanasiaInput,
+        createEuthanasiaInput,
         doc,
         lastWeightPet,
         edadPet,
@@ -155,16 +159,16 @@ export class GeneratePdfService {
     res.end(responsePDF);
   }
 
-  async generatePDFConsentimiento(
+  async generatePDFConsentSurgery(
     idPet: number,
-    createConsentimientoInput: CreateConsentimientoInput,
+    createConsentimientoInput: CreateConsentSurgeryInput,
     res: Response,
   ) {
     this.logger.log(`Create PDF Consentimiento de anestecia y cirugia `);
 
     const dataPet = await this.petsService.findOnePetById(idPet);
 
-    const edadPet = CalcAgePet(dataPet.birthday.toString());
+    const edadPet = calcAgePet(dataPet.birthday.toString());
 
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       const doc = new PDFDocument1({
@@ -207,9 +211,9 @@ export class GeneratePdfService {
     res.end(responsePDF);
   }
 
-  async generatePDFHojaClinica(
+  async generatePDFClinicalSheet(
     idPet: number,
-    createHojaClinicaInput: CreateHojaClinicaInput,
+    createClinicalSheetInput: CreateClinicalSheetInput,
     res: Response,
     medicalHistoryId: number,
   ) {
@@ -221,7 +225,7 @@ export class GeneratePdfService {
       medicalHistoryId,
     );
 
-    const edadPet = CalcAgePet(dataPet.birthday.toString());
+    const edadPet = calcAgePet(dataPet.birthday.toString());
 
     const lastWeightPet = await this.petsService.getLastWeightPet(idPet);
 
@@ -234,13 +238,10 @@ export class GeneratePdfService {
       });
       const buffer = [] as Buffer[];
 
-      const headersEutanasia = addHeaderHojaClinica(
-        doc,
-        createHojaClinicaInput,
-      );
-      const bodyHojaClinica = addFieldsHojaClinica(
+      addHeaderHojaClinica(doc, createClinicalSheetInput);
+      addFieldsHojaClinica(
         dataPet,
-        createHojaClinicaInput,
+        createClinicalSheetInput,
         doc,
         lastWeightPet,
         edadPet,
@@ -253,16 +254,12 @@ export class GeneratePdfService {
         resolve(pdfData);
       });
 
-      headersEutanasia;
-
-      bodyHojaClinica;
-
       doc.end();
     });
 
-    const responsePDF = formatDocument(pdfBuffer, res);
+    formatDocument(pdfBuffer, res);
 
     // Envía el PDF como respuesta
-    res.end(responsePDF);
+    res.end();
   }
 }
