@@ -13,6 +13,7 @@ import { FilesModule } from './files/files.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ProductsModule } from './products/products.module';
 import { GeneratePdfModule } from './generate-pdf/generate-pdf.module';
+import { BillsModule } from './bills/bills.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,6 +34,7 @@ import { GeneratePdfModule } from './generate-pdf/generate-pdf.module';
     FilesModule,
     AppointmentsModule,
     ProductsModule,
+    BillsModule,
     GeneratePdfModule,
   ],
   controllers: [],

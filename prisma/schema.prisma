@@ -29,6 +29,7 @@ model User {
   // relations
   pets         Pet[]
   appointments Appointment[]
+  Bill         Bill[]
 
   @@map("user")
 }
@@ -209,8 +210,9 @@ model Product {
   sizeProduct        String
   sellingProduct     Float
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt() @map("updated_at")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt() @map("updated_at")
+  billsDetails BillDetail[]
 
   @@map("product")
 }
@@ -260,6 +262,42 @@ model Treatment {
   diagnosticId Int?        @map("diagnostic_id")
 
   @@map("treatment")
+}
+
+model Bill {
+  id         Int   @unique() @default(autoincrement())
+  totalSales Float
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt() @map("updated_at")
+
+  // relations
+  client       User         @relation(fields: [clientId], references: [id])
+  clientId     Int          @map("client_id")
+  billsDetails BillDetail[]
+
+  @@map("bill")
+}
+
+model BillDetail {
+  quantity        Int
+  description     String
+  unitPrice       Float    @map("unit_price")
+  exemptSales     Float    @default(0) @map("exempt_sales")
+  nonTaxableSales Float    @default(0) @map("non_taxable_sales")
+  taxableSales    Float    @map("sub_total")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt() @map("updated_at")
+
+  // relations
+  bill   Bill @relation(fields: [billId], references: [id])
+  billId Int  @map("bill_id")
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @map("product_id")
+
+  @@id([billId, productId])
+  @@map("bill_detail")
 }
 
 enum Category {
