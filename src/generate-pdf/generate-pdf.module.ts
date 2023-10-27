@@ -4,8 +4,10 @@ import { GeneratePdfService } from './generate-pdf.service';
 import { PetsModule } from 'src/pets/pets.module';
 import { SpeciesModule } from 'src/species/species.module';
 import { UsersModule } from 'src/users/users.module';
+import { BillsModule } from 'src/bills/bills.module';
+
 @Module({
-  imports: [PetsModule, SpeciesModule, UsersModule],
+  imports: [PetsModule, SpeciesModule, UsersModule, BillsModule],
   controllers: [GeneratePdfController],
   providers: [GeneratePdfService],
 })

@@ -17,6 +17,7 @@ import {
   CreateEuthanasiaInput,
   CreateConsentSurgeryInput,
   CreateClinicalSheetInput,
+  CreateBillInput,
 } from './dto/input';
 // Proteccion de controllador
 import RoleGuard from '../auth/guards/role.guard';
@@ -89,11 +90,16 @@ export class GeneratePdfController {
 
   @ApiBearerAuth()
   @Public()
-  @Post('/bills/:idClient')
+  @Post('/bills/:billsId')
   async createPDF_FacturaCliente(
-    @Param('idClient') idClient: number,
+    @Param('billsId') billsId: number,
     @Res() res: Response,
+    @Body() createBillInput: CreateBillInput,
   ) {
-    return this.generatePdfService.generatePDFFacturaCliente(idClient, res);
+    return this.generatePdfService.generatePDFFacturaCliente(
+      billsId,
+      res,
+      createBillInput,
+    );
   }
 }

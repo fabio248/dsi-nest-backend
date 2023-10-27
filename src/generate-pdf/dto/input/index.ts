@@ -6,5 +6,4 @@ export * from './create-vaccines.input';
 export * from './create-vaccine-clinical-sheet.input';
 export * from './create-deworming.input';
 export * from './create-heat.input';
-export * from './create-bill-table.input';
 export * from './create-bill.input';

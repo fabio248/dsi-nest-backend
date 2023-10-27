@@ -1,6 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { UserResponseDto } from '../../users/dto/response/user.response';
+import { BillResponse } from 'src/bills/dto/response/bill.response';
+import { BillDetailsResponse } from 'src/bills/dto/response/bills-details.response';
+import { CreateBillInput } from '../dto/input';
 import { formatTable } from '../utils/calc/utils-calc-tableFormat';
+import { FactureFormat } from '../utils/calc/utils-calc-factureFormat';
 //format to table
 import { PDFDocument } from 'pdf-lib';
 type TableFunction = (doc: PDFDocument) => void;
@@ -11,7 +14,11 @@ import {
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
 
-export function addFieldsFactura(dataUser: UserResponseDto, doc: any) {
+export function addFieldsFactura(
+  billsResponse: BillResponse,
+  doc: any,
+  createBillInput: CreateBillInput,
+) {
   doc.fontSize(12); // Tamaño de fuente más pequeño
   doc.moveDown();
   doc.font(MerriweatherBlack).text('DATOS DEL CLIENTE ', {
@@ -28,9 +35,14 @@ export function addFieldsFactura(dataUser: UserResponseDto, doc: any) {
 
   doc
     .font(MerriweatherLight)
-    .text(`${dataUser.firstName}` + ' ' + `${dataUser.lastName}`, {
-      align: 'left',
-    });
+    .text(
+      `${billsResponse.client.firstName}` +
+        ' ' +
+        `${billsResponse.client.lastName}`,
+      {
+        align: 'left',
+      },
+    );
   doc.moveDown(1);
 
   // Direccion
@@ -41,8 +53,8 @@ export function addFieldsFactura(dataUser: UserResponseDto, doc: any) {
   doc
     .font(MerriweatherLight)
     .text(
-      dataUser.direction
-        ? `${dataUser.direction}`
+      billsResponse.client.direction
+        ? `${billsResponse.client.direction}`
         : 'No se proporcionó una dirección',
       {
         align: 'left',
@@ -58,10 +70,15 @@ export function addFieldsFactura(dataUser: UserResponseDto, doc: any) {
 
   doc
     .font(MerriweatherLight)
-    .text('Inserte numero de cuenta', {
-      continued: true,
-      align: 'left',
-    })
+    .text(
+      createBillInput.accountToSale
+        ? `${createBillInput.accountToSale}`
+        : 'No se proporcionó una cuenta',
+      {
+        continued: true,
+        align: 'left',
+      },
+    )
     .text('       ', {
       continued: true,
     })
@@ -71,7 +88,7 @@ export function addFieldsFactura(dataUser: UserResponseDto, doc: any) {
       align: 'left',
     })
     .font(MerriweatherLight)
-    .text(dataUser.dui)
+    .text(billsResponse.client.dui)
     .moveDown(2);
 
   const talbleFacture = {
@@ -84,20 +101,25 @@ export function addFieldsFactura(dataUser: UserResponseDto, doc: any) {
       `VENTAS NO SUJETAS`,
       `VENTAS GRAVADAS`,
     ],
-    rows: [] as string[] /*as CreateVaccineHojaClinicaPetInput[]*/,
+    rows: [] as BillDetailsResponse[],
   };
 
-  //asignacion dinámica
-  // for (let i = 0; i < createHojaClinicaInput.vaccines.length; i++) {
-  //   const row2 = [
-  //     createHojaClinicaInput.vaccines[i].dayAplicationInit,
-  //     createHojaClinicaInput.vaccines[i].vaccineName,
-  //     createHojaClinicaInput.vaccines[i].dayAplicationfinal,
-  //   ];
-  //   tableVaccines.rows.push(
-  //     row2 as unknown as CreateVaccineHojaClinicaPetInput,
-  //   );
-  // }
+  // asignacion dinámica
+  for (let i = 0; i < billsResponse.billsDetails.length; i++) {
+    const row2 = [
+      billsResponse.billsDetails[i].quantity,
+      billsResponse.billsDetails[i].description,
+      '$' + billsResponse.billsDetails[i].unitPrice,
+      billsResponse.billsDetails[i].exemptSales
+        ? `${billsResponse.billsDetails[i].exemptSales}`
+        : '       --',
+      billsResponse.billsDetails[i].nonTaxableSales
+        ? `${billsResponse.billsDetails[i].nonTaxableSales}`
+        : '       --',
+      '$' + billsResponse.billsDetails[i].taxableSales,
+    ];
+    talbleFacture.rows.push(row2 as unknown as BillDetailsResponse);
+  }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat
   const tableVaccinesFormat = formatTable(
@@ -106,5 +128,47 @@ export function addFieldsFactura(dataUser: UserResponseDto, doc: any) {
   );
   //renderizamos el contenido de la funcion
   tableVaccinesFormat;
-  doc.moveDown(0.5);
+
+  doc.moveDown(1);
+
+  const additionalTableFacture = {
+    headers: ['', ''],
+    widths: [100, 100],
+    rows: [
+      ['VENTAS EXENTAS', ''],
+      ['VENTAS NO SUJETAS', ''],
+      ['SUB-TOTAL', ''],
+      ['(-) IVA RETENIDO', '  --'],
+      ['TOTAL', ''],
+    ],
+    align: 'right',
+  };
+
+  // Llenar la tabla con los valores correspondientes
+  additionalTableFacture.rows[0][1] = billsResponse.billsDetails
+    .reduce((total, item) => {
+      return item?.exemptSales || '  --';
+    }, 0)
+    .toString();
+  additionalTableFacture.rows[1][1] = billsResponse.billsDetails
+    .reduce((total, item) => {
+      return item?.nonTaxableSales || '  --';
+    }, 0)
+    .toString();
+  additionalTableFacture.rows[2][1] = billsResponse.billsDetails
+    .reduce((total, item) => {
+      return total + (item.taxableSales || 0);
+    }, 0)
+    .toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  additionalTableFacture.rows[4][1] = billsResponse.totalSales.toLocaleString(
+    'en-US',
+    { style: 'currency', currency: 'USD' },
+  );
+
+  const additionalTableFactureFormat = FactureFormat(
+    doc,
+    additionalTableFacture as unknown as TableFunction,
+  );
+
+  additionalTableFactureFormat;
 }
