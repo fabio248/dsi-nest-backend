@@ -42,7 +42,6 @@ export class GeneratePdfService {
 
   constructor(
     private readonly petsService: PetsService,
-    // @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
   ) {}
 
@@ -113,8 +112,8 @@ export class GeneratePdfService {
 
   async generatePDFEuthanasia(
     idPet: number,
-    createEuthanasiaInput: CreateEuthanasiaInput,
     res: Response,
+    createEuthanasiaInput?: CreateEuthanasiaInput,
   ): Promise<void> {
     this.logger.log(`Create PDF Eutanasia`);
 
@@ -167,7 +166,7 @@ export class GeneratePdfService {
     res: Response,
   ) {
     this.logger.log(`Create PDF Consentimiento de anestecia y cirugia `);
-
+    console.log({ createConsentSurgeryInput });
     const dataPet = await this.petsService.findOnePetById(idPet);
 
     const edadPet = calcAgePet(dataPet.birthday.toString());

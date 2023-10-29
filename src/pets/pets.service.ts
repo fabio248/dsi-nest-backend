@@ -155,7 +155,9 @@ export class PetsService {
     return plainToInstance(PetResponseDto, pet);
   }
 
-  async findOneMedicalHistoryById(medicalHistoryId: number) {
+  async findOneMedicalHistoryById(
+    medicalHistoryId: number,
+  ): Promise<MedicalHistoryResponseDto> {
     const medicalHistory = await this.prisma.medicalHistory.findUnique({
       where: { id: medicalHistoryId },
       include: {

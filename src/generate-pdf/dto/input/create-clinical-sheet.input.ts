@@ -1,8 +1,6 @@
 import {
   IsString,
   IsNotEmpty,
-  IsNumber,
-  IsPositive,
   Matches,
   IsOptional,
   ValidateNested,
@@ -15,9 +13,8 @@ import { Type } from 'class-transformer';
 
 export class CreateClinicalSheetInput {
   @IsNotEmpty()
-  @IsPositive()
-  @IsNumber()
-  clinicalNumber: number;
+  @IsString()
+  clinicalNumber: string;
 
   @Type(() => CreateDewormingClinicalSheetInput)
   @ValidateNested({ each: true })
@@ -31,12 +28,12 @@ export class CreateClinicalSheetInput {
 
   @Type(() => CreateHeatClinicalSheetInput)
   @ValidateNested({ each: true })
-  @IsNotEmpty()
-  celos: CreateHeatClinicalSheetInput[];
+  @IsOptional()
+  celos?: CreateHeatClinicalSheetInput[];
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  moreImportsData: string;
+  moreImportsData?: string;
 
   @IsOptional()
   @Matches(/^[0-9]{4}-[0-9]{4}$/, {

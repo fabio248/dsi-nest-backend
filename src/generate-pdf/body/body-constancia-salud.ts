@@ -21,6 +21,10 @@ export function addFieldsConstanciaSalud(
   LastWeightPet: number,
   age: number,
 ) {
+  const responsible =
+    createDocumentInput?.responsible ??
+    `${dataPet.user.firstName} ${dataPet.user.lastName}`;
+
   doc.fontSize(11); // Tamaño de fuente más pequeño
 
   const fieldGroups = [
@@ -96,7 +100,7 @@ export function addFieldsConstanciaSalud(
   });
 
   // Texto después de "Viajará con el encargado responsable:"
-  const responsibleText = `${createDocumentInput.responsible} (Propietario),`;
+  const responsibleText = `${responsible} (Propietario),`;
 
   // Cambia la fuente para el texto después de "Viajará con el encargado responsable:"
   doc.font(MerriweatherLight).text(responsibleText, {
