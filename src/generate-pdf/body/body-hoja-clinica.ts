@@ -294,23 +294,18 @@ export async function addFieldsHojaClinica(
   const tableCelos = {
     title: `CONTROL DE CELOS :`,
     subtitle: `Registro del control de celos de la mascota`,
-    headers: [
-      `Fecha de Inicio `,
-      `Fecha Finalización`,
-      `Fecha de Inicio`,
-      `Fecha Finalización`,
-    ],
+    headers: [`Fecha de Inicio `, `Fecha Finalización`],
     rows: [] as CreateHeatClinicalSheetInput[],
   };
   //asignacion dinámica
-  for (let i = 0; i < createHojaClinicaInput.celos.length; i++) {
-    const row2 = [
-      createHojaClinicaInput.celos[i].dayAplicationInitCelos1,
-      createHojaClinicaInput.celos[i].dayAplicationFinalCelos1,
-      createHojaClinicaInput.celos[i].dayAplicationInitCelos2,
-      createHojaClinicaInput.celos[i].dayAplicationFinalCelos2,
-    ];
-    tableCelos.rows.push(row2 as unknown as CreateHeatClinicalSheetInput);
+  if (createHojaClinicaInput.celos) {
+    for (let i = 0; i < createHojaClinicaInput.celos.length; i++) {
+      const row2 = [
+        createHojaClinicaInput.celos[i].dayAplicationInitCelos,
+        createHojaClinicaInput.celos[i].dayAplicationFinalCelos,
+      ];
+      tableCelos.rows.push(row2 as unknown as CreateHeatClinicalSheetInput);
+    }
   }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat

@@ -47,13 +47,13 @@ export class GeneratePdfController {
   @Post('/euthanasias/:idPet')
   async createPDFEuthanasia(
     @Param('idPet') idPet: number,
-    @Body() createEutanasiaInput: CreateEuthanasiaInput,
     @Res() res: Response,
+    @Body() createEutanasiaInput?: CreateEuthanasiaInput,
   ) {
     return this.generatePdfService.generatePDFEuthanasia(
       idPet,
-      createEutanasiaInput,
       res,
+      createEutanasiaInput,
     );
   }
 

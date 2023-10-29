@@ -16,6 +16,10 @@ export function addFieldsEutanasia(
   lastWeightPet: number,
   age: number,
 ) {
+  const responsible =
+    createEutanasiaInput?.responsible ??
+    `${dataPet.user.firstName} ${dataPet.user.lastName}`;
+
   doc.fontSize(11); // Tamaño de fuente más pequeño
   doc.moveDown();
   doc.font(MerriweatherBlack).text('AUTORIZACIÓN PARA EUTANASIA ', {
@@ -148,7 +152,7 @@ export function addFieldsEutanasia(
       align: 'left',
     });
 
-  doc.font(MerriweatherLight).text(createEutanasiaInput.responsible);
+  doc.font(MerriweatherLight).text(responsible);
   // Añade espacio vertical entre el último campo y la tabla
   doc.moveDown();
   doc

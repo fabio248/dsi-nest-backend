@@ -10,12 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PetsService } from './pets.service';
-import { UpdatePetDto } from './dto/input/update-pet.input';
+import { UpdatePetDto, UpdateMedicalHistoryDto } from './dto/input';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
-import { UpdateMedicalHistoryDto } from './dto/input/update-medical-history.input';
 import {
   CreateMedicalHistoryInput,
   CreateSurgicalInterventionInput,
@@ -24,6 +23,7 @@ import {
   UpdateTreatmentDto,
 } from './dto/input';
 import {
+  MedicalHistoryResponseDto,
   SurgicalInterventionResponseDto,
   TreatmentResponseDto,
 } from './dto/response';
@@ -151,5 +151,13 @@ export class PetsController {
     @Param('surgicalInterventionId') surgicalInterventionId: number,
   ) {
     return this.petsService.deleteSurgicalIntervention(surgicalInterventionId);
+  }
+
+  @Get('/medical-histories/:medicalHistoryId')
+  @ApiBearerAuth()
+  findOneMedicalHistory(
+    @Param('medicalHistoryId') medicalHistoryId: number,
+  ): Promise<MedicalHistoryResponseDto> {
+    return this.petsService.findOneMedicalHistoryById(medicalHistoryId);
   }
 }

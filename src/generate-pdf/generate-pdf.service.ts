@@ -113,8 +113,8 @@ export class GeneratePdfService {
 
   async generatePDFEuthanasia(
     idPet: number,
-    createEuthanasiaInput: CreateEuthanasiaInput,
     res: Response,
+    createEuthanasiaInput?: CreateEuthanasiaInput,
   ): Promise<void> {
     this.logger.log(`Create PDF Eutanasia`);
 
@@ -290,6 +290,7 @@ export class GeneratePdfService {
     });
     formatDocumentBill(pdfBuffer, res);
 
+    // Envía el PDF como respuesta
     res.end();
   }
 }
