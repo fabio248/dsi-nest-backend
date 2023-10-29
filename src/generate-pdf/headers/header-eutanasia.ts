@@ -41,7 +41,7 @@ export function addHeaderEutanasia(doc: any) {
 
   // Imagen en el lado derecho del encabezado
   doc.image(
-    join(process.cwd(), `Public/logo.png`),
+    join(process.cwd(), `src/Public/logo.png`),
     doc.page.width - 100,
     35, // Ajusta la posición vertical para que esté al mismo nivel que el texto
     { fit: [80, 65], align: `left` },
