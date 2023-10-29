@@ -9,16 +9,7 @@ import {
 
 let numeroFactura = 1; // Inicializa el contador
 
-export function addHeaderFactura(doc: any) {
-  const DateNow = Date.now();
-  const fecha = new Date(DateNow);
-
-  const dia = fecha.getDate();
-  const mes = fecha.getMonth() + 1; // Los meses se cuentan desde 0, por lo que sumamos 1
-  const anio = fecha.getFullYear();
-
-  const fechaFormateada = `${dia}/${mes}/${anio}`;
-
+export function addHeaderFactura(doc: any, createdAt: Date) {
   const informacionFactura = [
     { label: 'SERIE', value: '23DS000F' },
     { label: 'REGISTRO N°', value: '270351-2' },
@@ -78,7 +69,7 @@ export function addHeaderFactura(doc: any) {
       continued: true,
     })
     .font(MerriweatherBlack)
-    .text(`Fecha: ${fechaFormateada}`, {
+    .text(`Fecha: ${createdAt}`, {
       align: 'right',
     });
 

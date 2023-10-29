@@ -6,11 +6,13 @@ import {
   identifierFileName,
 } from './conditions-format/conditions-format-constancia-salud';
 import { PetsService } from 'src/pets/pets.service';
+import { BillsService } from 'src/bills/services/bills.service';
 import {
   CreateHealthCertificateInput,
   CreateEuthanasiaInput,
   CreateConsentSurgeryInput,
   CreateClinicalSheetInput,
+  CreateBillInput,
 } from './dto/input';
 import { Response } from 'express';
 import { calcAgePet } from './utils/calc/utils-calc-age';
@@ -34,7 +36,6 @@ import { addFieldsFactura } from './body/body-factura';
 import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
 import { finalTextEutanasia } from './footer/footer-eutanasia';
 import { finalTextConsentimiento } from './footer/footer-consentimiento';
-import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GeneratePdfService {
@@ -42,7 +43,7 @@ export class GeneratePdfService {
 
   constructor(
     private readonly petsService: PetsService,
-    private readonly userService: UsersService,
+    private readonly billsService: BillsService,
   ) {}
 
   async generatePDFHealthCertificate(
@@ -166,7 +167,7 @@ export class GeneratePdfService {
     res: Response,
   ) {
     this.logger.log(`Create PDF Consentimiento de anestecia y cirugia `);
-    console.log({ createConsentSurgeryInput });
+
     const dataPet = await this.petsService.findOnePetById(idPet);
 
     const edadPet = calcAgePet(dataPet.birthday.toString());
@@ -255,10 +256,16 @@ export class GeneratePdfService {
     res.end();
   }
 
-  async generatePDFFacturaCliente(idClient: number, res: Response) {
+  async generatePDFFacturaCliente(
+    billsId: number,
+    res: Response,
+    createBillInput: CreateBillInput,
+  ) {
     this.logger.log(`Create PDF Factura Cliente`);
 
-    const dataUser = await this.userService.findOneById(idClient);
+    const dataBills = await this.billsService.findOne(billsId);
+
+    const { createdAt } = dataBills;
 
     const pdfBuffer: Buffer = await new Promise((resolve) => {
       const doc = new PDFDocument1({
@@ -269,9 +276,9 @@ export class GeneratePdfService {
       });
       const buffer = [] as Buffer[];
 
-      addHeaderFactura(doc);
+      addHeaderFactura(doc, createdAt);
 
-      addFieldsFactura(dataUser, doc);
+      addFieldsFactura(dataBills, doc, createBillInput);
 
       doc.on(`data`, buffer.push.bind(buffer));
       doc.on(`end`, () => {
