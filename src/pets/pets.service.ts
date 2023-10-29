@@ -48,6 +48,9 @@ export class PetsService {
           include: { treatments: true, surgicalIntervations: true },
         },
       },
+      orderBy: {
+        id: 'asc',
+      },
     },
   };
 
