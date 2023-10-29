@@ -35,7 +35,7 @@ export async function addHeaderEutanasia(doc: any, urlImageLogo: string) {
       width: doc.page.width - 100,
       align: `left`,
     });
-  const imageBuffer = getBufferImage(urlImageLogo);
+  const imageBuffer = await getBufferImage(urlImageLogo);
   // Imagen en el lado derecho del encabezado
   doc.image(
     imageBuffer,
