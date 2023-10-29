@@ -3,7 +3,7 @@ import { PetResponseDto } from '../../pets/dto/response/pet.response';
 import { CreateHealthCertificateInput } from '../dto/input/create-health-certificate.input';
 
 //formato para la tabla
-import { formatTable } from '../utils/calc/utils-calc-tableFormat';
+import { formatTable } from '../utils/calc/calc-table-format.utils';
 import { PDFDocument } from 'pdf-lib';
 type TableFunction = (doc: PDFDocument) => void;
 

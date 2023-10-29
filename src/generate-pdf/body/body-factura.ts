@@ -2,8 +2,8 @@
 import { BillResponse } from 'src/bills/dto/response/bill.response';
 import { BillDetailsResponse } from 'src/bills/dto/response/bills-details.response';
 import { CreateBillInput } from '../dto/input';
-import { formatTable } from '../utils/calc/utils-calc-tableFormat';
-import { FactureFormat } from '../utils/calc/utils-calc-factureFormat';
+import { formatTable } from '../utils/calc/calc-table-format.utils';
+import { FactureFormat } from '../utils/calc/calc-facture-format.utils';
 //format to table
 import { PDFDocument } from 'pdf-lib';
 type TableFunction = (doc: PDFDocument) => void;

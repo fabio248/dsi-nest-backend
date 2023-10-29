@@ -5,9 +5,10 @@ import { PetsModule } from 'src/pets/pets.module';
 import { SpeciesModule } from 'src/species/species.module';
 import { UsersModule } from 'src/users/users.module';
 import { BillsModule } from 'src/bills/bills.module';
+import { FilesModule } from '../files/files.module';
 
 @Module({
-  imports: [PetsModule, SpeciesModule, UsersModule, BillsModule],
+  imports: [PetsModule, SpeciesModule, UsersModule, BillsModule, FilesModule],
   controllers: [GeneratePdfController],
   providers: [GeneratePdfService],
 })

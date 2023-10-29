@@ -1,12 +1,11 @@
-import { join } from 'path';
-import { CreateClinicalSheetInput } from '../dto/input/create-clinical-sheet.input';
-
-//fonts
+import { CreateClinicalSheetInput } from '../dto/input';
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
+import { getBufferImage } from '../utils/get-file-logo.utils';
 
-export function addHeaderHojaClinica(
+export async function addHeaderHojaClinica(
   doc: any,
   createHojaClinicaInput: CreateClinicalSheetInput,
+  urlImageLogo: string,
 ) {
   const DateNow = Date.now();
   const fecha = new Date(DateNow);
@@ -54,9 +53,11 @@ export function addHeaderHojaClinica(
       align: `left`,
     });
 
+  const logoBuffer = await getBufferImage(urlImageLogo);
+
   // Imagen en el lado derecho del encabezado
   doc.image(
-    join(process.cwd(), `Public/logo.png`),
+    logoBuffer,
     doc.page.width - 100,
     35, // Ajusta la posición vertical para que esté al mismo nivel que el texto
     { fit: [80, 65], align: `left` },

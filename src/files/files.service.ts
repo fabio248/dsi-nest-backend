@@ -44,6 +44,17 @@ export class FilesService {
     });
   }
 
+  async getLogosFiles(imageName: string): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: `${imageName}`,
+    });
+
+    return getSignedUrl(this.s3Cliente, command, {
+      expiresIn: this.EXPIRE_5MIN,
+    });
+  }
+
   async getUrlToGetFile(key: string, folderId: number): Promise<string> {
     const folder = await this.prisma.folder.findUnique({
       where: { id: folderId },

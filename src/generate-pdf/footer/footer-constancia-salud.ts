@@ -5,7 +5,7 @@ import {
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
 
-export async function finalTextConstanciaDeSalud(
+export function finalTextConstanciaDeSalud(
   doc: any,
   createDocumentInput: CreateHealthCertificateInput,
 ) {

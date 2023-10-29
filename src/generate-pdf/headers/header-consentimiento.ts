@@ -1,9 +1,7 @@
-import { join } from 'path';
-
-//fonts
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
+import { getBufferImage } from '../utils/get-file-logo.utils';
 
-export function addHeaderConsentimiento(doc: any) {
+export async function addHeaderConsentimiento(doc: any, urlImageLogo: string) {
   const DateNow = Date.now();
   const fecha = new Date(DateNow);
 
@@ -38,9 +36,11 @@ export function addHeaderConsentimiento(doc: any) {
       align: `left`,
     });
 
+  const imageLogoBuffer = await getBufferImage(urlImageLogo);
+
   // Imagen en el lado derecho del encabezado
   doc.image(
-    join(process.cwd(), `Public/logo.png`),
+    imageLogoBuffer,
     doc.page.width - 100,
     35, // Ajusta la posición vertical para que esté al mismo nivel que el texto
     { fit: [80, 65], align: `left` },

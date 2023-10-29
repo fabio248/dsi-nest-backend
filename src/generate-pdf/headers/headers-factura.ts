@@ -1,24 +1,24 @@
-import { join } from 'path';
-
-//fonts
 import {
   MerriweatherBlack,
   Times_New_Roman_Bold_Italic,
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
+import { getBufferImage } from '../utils/get-file-logo.utils';
 
-let numeroFactura = 1; // Inicializa el contador
-
-export function addHeaderFactura(doc: any, createdAt: Date) {
+export async function addHeaderFactura(
+  doc: any,
+  createdAt: Date,
+  billNumber: number,
+  urlImageLogo: string,
+) {
   const informacionFactura = [
     { label: 'SERIE', value: '23DS000F' },
     { label: 'REGISTRO N°', value: '270351-2' },
     { label: 'NIT', value: '0614-171184-102-9' },
     { label: 'DUI', value: '02524874-6' },
-    { label: 'N°', value: `${String(numeroFactura).padStart(6, '0')}` },
+    { label: 'N°', value: `${String(billNumber).padStart(6, '0')}` },
   ];
 
-  numeroFactura++;
   // Posición de la imagen y el cuadro
   const imagenX = 50; // Posición X de la imagen
   const imagenY = 50; // Posición Y de la imagen
@@ -28,17 +28,14 @@ export function addHeaderFactura(doc: any, createdAt: Date) {
   const cuadroX = doc.page.width - cuadroAncho - 50; // Posición X del cuadro
   const cuadroY = imagenY; // Posición Y del cuadro (alineado con la imagen)
 
+  const bufferLogo = await getBufferImage(urlImageLogo);
+
   // Imagen en el lado izquierdo del encabezado
-  doc.image(
-    join(process.cwd(), `Public/logoAndName.png`),
-    imagenX,
-    imagenY - 75,
-    {
-      fit: [230, 350],
-      align: 'left',
-      continued: true,
-    },
-  );
+  doc.image(bufferLogo, imagenX, imagenY - 75, {
+    fit: [230, 350],
+    align: 'left',
+    continued: true,
+  });
 
   // Dibujar el cuadro
   doc.rect(cuadroX, cuadroY, cuadroAncho, cuadroAlto).stroke();

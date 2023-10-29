@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { PetResponseDto } from '../../pets/dto/response/pet.response';
 import { CreateClinicalSheetInput } from '../dto/input/create-clinical-sheet.input';
-import { formatTable } from '../utils/calc/utils-calc-tableFormat';
+import { formatTable } from '../utils/calc/calc-table-format.utils';
 import { MedicalHistoryResponseDto } from 'src/pets/dto/response';
 
 import { CreateVaccineHojaClinicaPetInput } from '../dto/input/create-vaccine-clinical-sheet.input';
@@ -18,7 +18,7 @@ import {
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
 
-export async function addFieldsHojaClinica(
+export function addFieldsHojaClinica(
   dataPet: PetResponseDto,
   createHojaClinicaInput: CreateClinicalSheetInput,
   doc: any,

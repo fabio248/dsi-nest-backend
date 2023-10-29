@@ -1,9 +1,7 @@
-import { join } from 'path';
-
-//fonts
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
+import { getBufferImage } from '../utils/get-file-logo.utils';
 
-export function addHeaderConstanciaSalud(doc: any) {
+export async function addHeaderConstanciaSalud(doc: any, urlImageLogo: string) {
   // Agrega el texto del encabezado agrupado
   doc.font(MerriweatherBlack).text(`Clínica Veterinaria Mistun.`, 50, 40, {
     width: doc.page.width - 100,
@@ -33,9 +31,10 @@ export function addHeaderConstanciaSalud(doc: any) {
       align: `left`,
     });
 
+  const logoBuffer = await getBufferImage(urlImageLogo);
   // Imagen en el lado derecho del encabezado
   doc.image(
-    join(process.cwd(), `Public/logo.png`),
+    logoBuffer,
     doc.page.width - 100,
     35, // Ajusta la posición vertical para que esté al mismo nivel que el texto
     { fit: [80, 65], align: `left` },

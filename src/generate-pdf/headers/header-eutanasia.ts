@@ -1,10 +1,7 @@
-/* eslint-disable prettier/prettier */
-import { join } from 'path';
-
-//fonts
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
+import { getBufferImage } from '../utils/get-file-logo.utils';
 
-export function addHeaderEutanasia(doc: any) {
+export async function addHeaderEutanasia(doc: any, urlImageLogo: string) {
   const DateNow = Date.now();
   const fecha = new Date(DateNow);
 
@@ -38,10 +35,10 @@ export function addHeaderEutanasia(doc: any) {
       width: doc.page.width - 100,
       align: `left`,
     });
-
+  const imageBuffer = getBufferImage(urlImageLogo);
   // Imagen en el lado derecho del encabezado
   doc.image(
-    join(process.cwd(), `src/Public/logo.png`),
+    imageBuffer,
     doc.page.width - 100,
     35, // Ajusta la posición vertical para que esté al mismo nivel que el texto
     { fit: [80, 65], align: `left` },

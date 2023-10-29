@@ -15,7 +15,7 @@ import {
   CreateBillInput,
 } from './dto/input';
 import { Response } from 'express';
-import { calcAgePet } from './utils/calc/utils-calc-age';
+import { calcAgePet } from './utils/calc/calc-age.utils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument1 = require(`pdfkit-table`);
@@ -36,6 +36,8 @@ import { addFieldsFactura } from './body/body-factura';
 import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
 import { finalTextEutanasia } from './footer/footer-eutanasia';
 import { finalTextConsentimiento } from './footer/footer-consentimiento';
+import { LogoImageName } from './utils/fonts/fonts.style';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class GeneratePdfService {
@@ -44,6 +46,7 @@ export class GeneratePdfService {
   constructor(
     private readonly petsService: PetsService,
     private readonly billsService: BillsService,
+    private readonly filesService: FilesService,
   ) {}
 
   async generatePDFHealthCertificate(
@@ -53,13 +56,15 @@ export class GeneratePdfService {
   ): Promise<void> {
     this.logger.log(`Create PDF - Constancia de Salud`);
 
-    const dataPet = await this.petsService.findOnePetById(id);
-
-    const lastWeightPet = await this.petsService.getLastWeightPet(id);
+    const [dataPet, lastWeightPet, urlImageLogo] = await Promise.all([
+      this.petsService.findOnePetById(id),
+      this.petsService.getLastWeightPet(id),
+      this.filesService.getLogosFiles(LogoImageName.logo),
+    ]);
 
     const agePet = calcAgePet(dataPet.birthday.toString());
     //genera la estructura base del pdf, formato y demas
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
+    const pdfBuffer: Buffer = await new Promise(async (resolve) => {
       const doc = new PDFDocument1({
         size: [612, 792], // Tamaño de página carta (8.5 x 11 pulgadas)
         bufferPages: true,
@@ -71,7 +76,7 @@ export class GeneratePdfService {
       const buffer: Buffer[] = [];
 
       // Función para agregar encabezado en la primera página
-      addHeaderConstanciaSalud(doc);
+      await addHeaderConstanciaSalud(doc, urlImageLogo);
 
       doc.moveDown();
       doc.text(`CONSTANCIA DE SALUD MÉDICA DE LA MASCOTA`, {
@@ -118,12 +123,15 @@ export class GeneratePdfService {
   ): Promise<void> {
     this.logger.log(`Create PDF Eutanasia`);
 
-    const dataPet = await this.petsService.findOnePetById(idPet);
+    const [dataPet, lastWeightPet, urlLogoImage] = await Promise.all([
+      this.petsService.findOnePetById(idPet),
+      this.petsService.getLastWeightPet(idPet),
+      this.filesService.getLogosFiles(LogoImageName.logo),
+    ]);
 
     const edadPet = calcAgePet(dataPet.birthday.toString());
 
-    const lastWeightPet = await this.petsService.getLastWeightPet(idPet);
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
+    const pdfBuffer: Buffer = await new Promise(async (resolve) => {
       const doc = new PDFDocument1({
         size: [612, 792],
         bufferPages: true,
@@ -135,7 +143,7 @@ export class GeneratePdfService {
       const buffer: Buffer[] = [];
 
       // Función para agregar encabezado en la primera página
-      addHeaderEutanasia(doc);
+      await addHeaderEutanasia(doc, urlLogoImage);
 
       addFieldsEutanasia(
         dataPet,
@@ -168,11 +176,13 @@ export class GeneratePdfService {
   ) {
     this.logger.log(`Create PDF Consentimiento de anestecia y cirugia `);
 
-    const dataPet = await this.petsService.findOnePetById(idPet);
-
+    const [dataPet, urlLogoImage] = await Promise.all([
+      this.petsService.findOnePetById(idPet),
+      this.filesService.getLogosFiles(LogoImageName.logo),
+    ]);
     const edadPet = calcAgePet(dataPet.birthday.toString());
 
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
+    const pdfBuffer: Buffer = await new Promise(async (resolve) => {
       const doc = new PDFDocument1({
         size: [612, 792],
         bufferPages: true,
@@ -183,7 +193,7 @@ export class GeneratePdfService {
       const buffer: Buffer[] = [];
 
       // Función para agregar encabezado en la primera página
-      addHeaderConsentimiento(doc);
+      await addHeaderConsentimiento(doc, urlLogoImage);
 
       addFieldsConsentimiento(dataPet, createConsentSurgeryInput, doc, edadPet);
 
@@ -212,17 +222,17 @@ export class GeneratePdfService {
   ) {
     this.logger.log(`Create PDF Hoja Clinica`);
 
-    const dataPet = await this.petsService.findOnePetById(idPet);
-
-    const dataMedicalHistory = await this.petsService.findOneMedicalHistoryById(
-      medicalHistoryId,
-    );
+    const [dataPet, dataMedicalHistory, lastWeightPet, urlLogoImage] =
+      await Promise.all([
+        this.petsService.findOnePetById(idPet),
+        this.petsService.findOneMedicalHistoryById(medicalHistoryId),
+        this.petsService.getLastWeightPet(idPet),
+        this.filesService.getLogosFiles(LogoImageName.logo),
+      ]);
 
     const edadPet = calcAgePet(dataPet.birthday.toString());
 
-    const lastWeightPet = await this.petsService.getLastWeightPet(idPet);
-
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
+    const pdfBuffer: Buffer = await new Promise(async (resolve) => {
       const doc = new PDFDocument1({
         size: [612, 792],
         bufferPages: true,
@@ -231,7 +241,7 @@ export class GeneratePdfService {
       });
       const buffer = [] as Buffer[];
 
-      addHeaderHojaClinica(doc, createClinicalSheetInput);
+      await addHeaderHojaClinica(doc, createClinicalSheetInput, urlLogoImage);
       addFieldsHojaClinica(
         dataPet,
         createClinicalSheetInput,
@@ -263,11 +273,14 @@ export class GeneratePdfService {
   ) {
     this.logger.log(`Create PDF Factura Cliente`);
 
-    const dataBills = await this.billsService.findOne(billsId);
+    const [dataBill, urlImageLogo] = await Promise.all([
+      this.billsService.findOne(billsId),
+      this.filesService.getLogosFiles(LogoImageName.logoWithName),
+    ]);
 
-    const { createdAt } = dataBills;
+    const { createdAt, id } = dataBill;
 
-    const pdfBuffer: Buffer = await new Promise((resolve) => {
+    const pdfBuffer: Buffer = await new Promise(async (resolve) => {
       const doc = new PDFDocument1({
         size: [612, 792],
         bufferPages: true,
@@ -276,9 +289,9 @@ export class GeneratePdfService {
       });
       const buffer = [] as Buffer[];
 
-      addHeaderFactura(doc, createdAt);
+      await addHeaderFactura(doc, createdAt, id, urlImageLogo);
 
-      addFieldsFactura(dataBills, doc, createBillInput);
+      addFieldsFactura(dataBill, doc, createBillInput);
 
       doc.on(`data`, buffer.push.bind(buffer));
       doc.on(`end`, () => {
