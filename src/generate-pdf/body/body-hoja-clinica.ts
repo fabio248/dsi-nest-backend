@@ -13,7 +13,6 @@ type TableFunction = (doc: PDFDocument) => void;
 
 //fonts
 import {
-  //   MerriweatherLight,
   MerriweatherBlack,
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
@@ -31,6 +30,11 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherBlack).text('DATOS DEL PACIENTE ', {
     align: 'center',
   });
+  function checkAndAddNewPage(minHeightNeeded: number) {
+    if (doc.y + minHeightNeeded > doc.page.height) {
+      doc.addPage({ size: [612, 841.89], margin: 50 });
+    }
+  }
   // Añade espacio vertical entre el texto anterior y la tabla
   doc.moveDown(1);
 
@@ -254,12 +258,14 @@ export function addFieldsHojaClinica(
   formatDeworming;
 
   doc.moveDown(1);
-
+  const minHeightNeededForNextContent = 100; // Ajusta esto según tus necesidades
+  checkAndAddNewPage(minHeightNeededForNextContent);
   //añadimos otra pagina para poder agregar la tabla de vacunacion
-  doc.addPage({
-    size: [612, 841.89],
-    margin: 50,
-  });
+  // doc.addPage({
+  //   size: [612, 841.89],
+  //   margin: 50,
+  //   separation: true,
+  // });
 
   //segunda tabla de vacunacion
   const tableVaccines = {
@@ -290,7 +296,8 @@ export function addFieldsHojaClinica(
   tableVaccinesFormat;
 
   doc.moveDown(1);
-  //tercera tabla de control de celos
+  //tercera tabla de control de
+  checkAndAddNewPage(minHeightNeededForNextContent);
   const tableCelos = {
     title: `CONTROL DE CELOS :`,
     subtitle: `Registro del control de celos de la mascota`,
@@ -316,10 +323,17 @@ export function addFieldsHojaClinica(
   //renderizamos el contenido de la funcion
   tableCelosFormat;
 
+  checkAndAddNewPage(minHeightNeededForNextContent);
+  doc.addPage({
+    size: [612, 841.89],
+    margin: 50,
+  });
+
   doc.moveDown(2);
   doc.font(MerriweatherBlack).text('DATOS CLÍNICOS ', {
     align: 'center',
   });
+
   doc.moveDown(1);
   doc.font(MerriweatherBlack).text('DATOS DE LA ANAMNESIS ', {
     align: 'center',
@@ -382,7 +396,8 @@ export function addFieldsHojaClinica(
         continued: true,
         align: 'left',
       },
-    )
+    );
+  doc
     .font(MerriweatherLight)
     .text(medicalHistoryResponseDto.descendants, {
       continued: true,
@@ -516,13 +531,6 @@ export function addFieldsHojaClinica(
     });
   doc.moveDown(0.5);
 
-  doc.moveDown(0.5);
-
-  doc.addPage({
-    size: [612, 841.89],
-    margin: 50,
-  });
-
   doc.font(MerriweatherBlack).text('TRATAMIENTOS BRINDADOS', {
     align: 'center',
   });
@@ -631,7 +639,9 @@ export function addFieldsHojaClinica(
       align: 'left',
     });
 
-  doc.moveDown(2);
+  checkAndAddNewPage(minHeightNeededForNextContent);
+
+  doc.moveDown(3);
   doc.font(MerriweatherBlack).text('OTROS DATOS IMPORTANTES', {
     align: 'center',
   });

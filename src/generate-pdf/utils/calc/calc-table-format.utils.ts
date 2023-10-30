@@ -18,9 +18,9 @@ export async function formatTable(
       header: { disabled: false, width: 2, opacity: 1.5 },
       horizontal: { disabled: false, width: 0.5, opacity: 0.5 },
     },
-    // padding: 5,
-    columnSpacing: 3,
-    hideHeader: 0,
+    padding: 3,
+    columnSpacing: 4,
+    hideHeader: false,
     headerRows: 0, // Set the number of header rows to 0 to hide the header
     minRowHeight: 0,
   });
