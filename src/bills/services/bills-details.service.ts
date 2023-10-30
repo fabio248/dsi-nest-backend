@@ -27,31 +27,40 @@ export class BillsDetailsService {
       },
     });
 
-    const input = createBillsDetailsInput.map(
-      (item): Prisma.BillDetailUncheckedCreateInput => {
-        const product = products.find(
-          (product) => product.id === item.productId,
-        );
+    const inputMap = new Map<number, Prisma.BillDetailUncheckedCreateInput>();
 
-        if (!product) {
-          throw new ProductNotFoundException(item.productId);
+    createBillsDetailsInput.forEach((item) => {
+      const product = products.find((p) => p.id === item.productId);
+
+      if (!product) {
+        throw new ProductNotFoundException(item.productId);
+      }
+
+      const price = dineroUSD(product.sellingProduct * 100);
+      const taxableSales = multiply(price, item.quantity);
+      subTotals.push(taxableSales);
+
+      if (inputMap.has(item.productId)) {
+        // Product already exists in the input map, update the quantity
+        const existingItem = inputMap.get(item.productId);
+        if (existingItem) {
+          existingItem.quantity += item.quantity;
         }
-
-        console.log({ product });
-        const price = dineroUSD(product.sellingProduct * 100);
-        const taxablesales = multiply(price, item.quantity);
-        subTotals.push(taxablesales);
-
-        return {
+      } else {
+        // Product doesn't exist in the input map, add it
+        inputMap.set(item.productId, {
           quantity: item.quantity,
           description: product.nameProduct,
           billId,
           productId: item.productId,
           unitPrice: product.sellingProduct,
-          taxableSales: +toDecimal(taxablesales),
-        };
-      },
-    );
+          taxableSales: +toDecimal(taxableSales),
+        });
+      }
+    });
+
+    // Convert the map values to an array
+    const input = Array.from(inputMap.values());
 
     const totalSales = addMany(subTotals);
 

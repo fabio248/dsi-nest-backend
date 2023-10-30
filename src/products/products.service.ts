@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ProductResponseDto } from './dto/response/product.response';
 import { CreateProductInput } from './dto/input/create-product.input';
 import { PrismaService } from '../database/database.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, Category } from '@prisma/client';
 
 import { plainToInstance } from 'class-transformer';
 import { ProductNotFoundException } from './exception/product-not-found.exception';
@@ -11,6 +11,7 @@ import { FindAllProductsResponseDto } from './dto/response/find-all-products.res
 
 import { getPaginationParams } from 'src/shared/helper/pagination-params.helper';
 import { UpdateProductDto } from './dto/input/update-product.input';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class ProductsService {
@@ -51,9 +52,18 @@ export class ProductsService {
   async findAll(
     args: FindAllProductsArgs,
   ): Promise<FindAllProductsResponseDto> {
-    this.logger.log('Retrieve all users');
-    const { page, limit } = args;
+    this.logger.log('Retrieve all products');
+    const { page, limit, search } = args;
     const where: Prisma.ProductWhereInput = {};
+
+    if (search) {
+      console.log({ search });
+      where.OR = [
+        { descriptionProduct: { contains: search, mode: 'insensitive' } },
+        { nameProduct: { contains: search, mode: 'insensitive' } },
+        { sizeProduct: { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
     const [data, totalItems] = await Promise.all([
       this.prisma.product.findMany({
@@ -72,7 +82,7 @@ export class ProductsService {
   }
 
   async delete(id: number) {
-    this.logger.log('Delete one user');
+    this.logger.log('Delete one product');
 
     const product = await this.findOneById(id);
     const deletProduct = this.prisma.product.delete({
@@ -106,5 +116,17 @@ export class ProductsService {
     }
 
     return plainToInstance(ProductResponseDto, product);
+  }
+
+  async createFakeProducts() {
+    await this.prisma.product.create({
+      data: {
+        nameProduct: faker.commerce.productName(),
+        descriptionProduct: faker.commerce.productDescription(),
+        category: Category.medicamento,
+        sizeProduct: faker.commerce.productAdjective(),
+        sellingProduct: +faker.commerce.price({ min: 10, max: 200, dec: 2 }),
+      },
+    });
   }
 }

@@ -69,6 +69,9 @@ export class BillsService {
           client: true,
           billsDetails: true,
         },
+        orderBy: {
+          createdAt: 'asc',
+        },
       }),
       this.prisma.bill.count(),
     ]);

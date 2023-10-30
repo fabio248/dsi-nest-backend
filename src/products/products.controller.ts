@@ -63,4 +63,10 @@ export class ProductsController {
   ): Promise<UpdateProductDto> {
     return this.productsService.updateProduct(productId, updateProductDto);
   }
+
+  @ApiBearerAuth()
+  @Get('faker')
+  async createFakeData() {
+    await this.productsService.createFakeProducts();
+  }
 }
