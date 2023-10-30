@@ -70,7 +70,7 @@ export class BillsService {
           billsDetails: true,
         },
         orderBy: {
-          createdAt: 'asc',
+          createdAt: 'desc',
         },
       }),
       this.prisma.bill.count(),
