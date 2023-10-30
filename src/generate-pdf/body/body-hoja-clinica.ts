@@ -25,13 +25,14 @@ export function addFieldsHojaClinica(
   age: number,
   medicalHistoryResponseDto: MedicalHistoryResponseDto,
 ) {
+  let minHeightNeededForNextContent = 100;
   doc.fontSize(11); // Tamaño de fuente más pequeño
   doc.moveDown();
   doc.font(MerriweatherBlack).text('DATOS DEL PACIENTE ', {
     align: 'center',
   });
-  function checkAndAddNewPage(minHeightNeeded: number) {
-    if (doc.y + minHeightNeeded > doc.page.height) {
+  function addPageIfNecessary() {
+    if (doc.y + minHeightNeededForNextContent > doc.page.height) {
       doc.addPage({ size: [612, 841.89], margin: 50 });
     }
   }
@@ -257,16 +258,17 @@ export function addFieldsHojaClinica(
   );
   formatDeworming;
 
-  doc.moveDown(1);
-  const minHeightNeededForNextContent = 100; // Ajusta esto según tus necesidades
-  checkAndAddNewPage(minHeightNeededForNextContent);
+  doc.moveDown(2);
+
   //añadimos otra pagina para poder agregar la tabla de vacunacion
   // doc.addPage({
   //   size: [612, 841.89],
   //   margin: 50,
   //   separation: true,
   // });
-
+  if (doc.y + minHeightNeededForNextContent > doc.page.height) {
+    doc.addPage({ size: [612, 841.89], margin: 50 });
+  }
   //segunda tabla de vacunacion
   const tableVaccines = {
     title: `VACUNACIONES :`,
@@ -297,7 +299,7 @@ export function addFieldsHojaClinica(
 
   doc.moveDown(1);
   //tercera tabla de control de
-  checkAndAddNewPage(minHeightNeededForNextContent);
+  // addPageIfNecessary();
   const tableCelos = {
     title: `CONTROL DE CELOS :`,
     subtitle: `Registro del control de celos de la mascota`,
@@ -323,13 +325,9 @@ export function addFieldsHojaClinica(
   //renderizamos el contenido de la funcion
   tableCelosFormat;
 
-  checkAndAddNewPage(minHeightNeededForNextContent);
-  doc.addPage({
-    size: [612, 841.89],
-    margin: 50,
-  });
-
+  addPageIfNecessary();
   doc.moveDown(2);
+  doc.addPage({ size: [612, 841.89], margin: 50 });
   doc.font(MerriweatherBlack).text('DATOS CLÍNICOS ', {
     align: 'center',
   });
@@ -591,7 +589,11 @@ export function addFieldsHojaClinica(
       align: 'left',
     });
 
-  doc.moveDown(2);
+  doc.addPage({
+    size: [612, 841.89],
+    margin: 50,
+    separation: true,
+  });
   doc.font(MerriweatherBlack).text('INTERVENCIONES QUIRÚRGICAS', {
     align: 'center',
   });
@@ -639,7 +641,7 @@ export function addFieldsHojaClinica(
       align: 'left',
     });
 
-  checkAndAddNewPage(minHeightNeededForNextContent);
+  addPageIfNecessary();
 
   doc.moveDown(3);
   doc.font(MerriweatherBlack).text('OTROS DATOS IMPORTANTES', {
