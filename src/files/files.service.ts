@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uudi } from 'uuid';
 import { plainToInstance } from 'class-transformer';
@@ -9,6 +14,7 @@ import { PrismaService } from '../database/database.service';
 import { FolderResponseDto, FileResponseDto } from './dto/response';
 import { PetsService } from '../pets/pets.service';
 import { GenericArgs } from '../shared/args/generic.args';
+import { FileNotFoundException } from './exceptions/file-not-found.exception';
 
 @Injectable()
 export class FilesService {
@@ -17,7 +23,7 @@ export class FilesService {
   private readonly accessKeyId = this.configService.get<string>('aws.key');
   private readonly secretKey = this.configService.get('aws.secret');
   private readonly bucketName = this.configService.get('aws.bucket');
-  private readonly EXPIRE_5MIN = 300;
+  private readonly EXPIRE_15MIN = 900;
 
   constructor(
     private readonly configService: ConfigService,
@@ -40,7 +46,7 @@ export class FilesService {
     });
 
     return getSignedUrl(this.s3Cliente, command, {
-      expiresIn: this.EXPIRE_5MIN,
+      expiresIn: this.EXPIRE_15MIN,
     });
   }
 
@@ -51,7 +57,7 @@ export class FilesService {
     });
 
     return getSignedUrl(this.s3Cliente, command, {
-      expiresIn: this.EXPIRE_5MIN,
+      expiresIn: this.EXPIRE_15MIN,
     });
   }
 
@@ -66,7 +72,7 @@ export class FilesService {
     });
 
     return getSignedUrl(this.s3Cliente, command, {
-      expiresIn: this.EXPIRE_5MIN,
+      expiresIn: this.EXPIRE_15MIN,
     });
   }
 
@@ -145,5 +151,29 @@ export class FilesService {
     const pet = await this.petService.findOnePetById(petId);
 
     return `${uudi()}-${pet.name}.${mimetype.split('/')[1]}`;
+  }
+
+  async delete(id: number): Promise<FileResponseDto> {
+    const file = await this.prisma.file.findUnique({
+      where: { id },
+      include: { folder: true },
+    });
+
+    if (!file) {
+      throw new FileNotFoundException(id);
+    }
+
+    await this.prisma.file.delete({ where: { id } });
+
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      Key: `${file.folder.name}/${file.name}`,
+    });
+
+    const urlToDeleteFile = await getSignedUrl(this.s3Cliente, command, {
+      expiresIn: this.EXPIRE_15MIN,
+    });
+
+    return plainToInstance(FileResponseDto, { ...file, url: urlToDeleteFile });
   }
 }

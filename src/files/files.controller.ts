@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/input/create-file.input';
@@ -36,5 +37,11 @@ export class FilesController {
   @ApiBearerAuth()
   findOne(@Param('fileId') fileId: number) {
     return this.filesService.findOne(fileId);
+  }
+
+  @Delete(':fileId')
+  @ApiBearerAuth()
+  delete(@Param('fileId') fileId: number) {
+    return this.filesService.delete(fileId);
   }
 }
