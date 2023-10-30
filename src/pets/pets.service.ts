@@ -29,14 +29,15 @@ import {
   SurgicalInterventionNotFoundException,
   TreatmentNotFoundException,
 } from './exception';
-import { Gender, Prisma } from '@prisma/client';
+import { Gender, Prisma, File } from '@prisma/client';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
 import { UpdateDiagnosticDto } from './dto/input/update-diagnostic.input';
 import { DiagnosticNotFoundException } from './exception/diagnostic-not-found.exception';
+import { FilesService } from '../files/files.service';
 
 @Injectable()
 export class PetsService {
-  private readonly includeRelation: Prisma.PetInclude = {
+  private readonly includeRelationPet: Prisma.PetInclude = {
     user: true,
     specie: true,
     medicalHistories: {
@@ -44,6 +45,7 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
+        files: true,
         diagnostic: {
           include: { treatments: true, surgicalIntervations: true },
         },
@@ -54,11 +56,24 @@ export class PetsService {
     },
   };
 
+  private readonly includeRelationMedicalHistory: Prisma.MedicalHistoryInclude =
+    {
+      food: true,
+      otherPet: true,
+      physicalExam: true,
+      files: true,
+      diagnostic: {
+        include: { treatments: true, surgicalIntervations: true },
+      },
+    };
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly specieService: SpeciesService,
     @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
+    @Inject(forwardRef(() => FilesService))
+    private readonly filesServices: FilesService,
   ) {}
 
   async create(
@@ -119,7 +134,7 @@ export class PetsService {
         skip: (page - 1) * limit,
         take: limit,
         where,
-        include: this.includeRelation,
+        include: this.includeRelationPet,
       }),
       this.prisma.pet.count({ where }),
     ]);
@@ -148,14 +163,21 @@ export class PetsService {
   async findOnePetById(id: number): Promise<PetResponseDto> {
     const pet = await this.prisma.pet.findUnique({
       where: { id },
-      include: this.includeRelation,
+      include: this.includeRelationPet,
     });
 
     if (!pet) {
       throw new PetNotFoundException(id);
     }
 
-    return plainToInstance(PetResponseDto, pet);
+    const transformedPet = plainToInstance(PetResponseDto, pet);
+    const { medicalHistories } = transformedPet;
+
+    for (const medicalHistory of medicalHistories) {
+      medicalHistory.files = await this.generateUrlFiles(medicalHistory.files);
+    }
+
+    return transformedPet;
   }
 
   async findOneMedicalHistoryById(
@@ -167,6 +189,7 @@ export class PetsService {
         food: true,
         otherPet: true,
         physicalExam: true,
+        files: true,
         diagnostic: {
           include: { treatments: true, surgicalIntervations: true },
         },
@@ -177,7 +200,15 @@ export class PetsService {
       throw new MedicalHistoryNotFoundException(medicalHistoryId);
     }
 
-    return plainToInstance(MedicalHistoryResponseDto, medicalHistory);
+    const medicalHistoryTransformer = plainToInstance(
+      MedicalHistoryResponseDto,
+      medicalHistory,
+    );
+    medicalHistoryTransformer.files = await this.generateUrlFiles(
+      medicalHistoryTransformer.files,
+    );
+
+    return medicalHistoryTransformer;
   }
 
   async findOneTreatmentById(
@@ -227,7 +258,7 @@ export class PetsService {
     const updatedPet = await this.prisma.pet.update({
       where: { id },
       data: updatePetDto,
-      include: { ...this.includeRelation, user: false },
+      include: { ...this.includeRelationPet, user: false },
     });
 
     return plainToInstance(PetResponseDto, updatedPet);
@@ -343,17 +374,19 @@ export class PetsService {
           },
         },
       },
-      include: {
-        food: true,
-        otherPet: true,
-        physicalExam: true,
-        diagnostic: {
-          include: { treatments: true, surgicalIntervations: true },
-        },
-      },
+      include: this.includeRelationMedicalHistory,
     });
 
-    return plainToInstance(MedicalHistoryResponseDto, medicalHistory);
+    const medicalHistoryTransformer = plainToInstance(
+      MedicalHistoryResponseDto,
+      medicalHistory,
+    );
+
+    medicalHistoryTransformer.files = await this.generateUrlFiles(
+      medicalHistoryTransformer.files,
+    );
+
+    return medicalHistoryTransformer;
   }
 
   async updateDiagnostic(
@@ -476,5 +509,50 @@ export class PetsService {
     await this.prisma.sugicalIntervention.delete({
       where: { id: surgicalInterventionId },
     });
+  }
+
+  async generateUrlFiles(files: File[]) {
+    if (!files || files.length === 0) {
+      return [];
+    }
+
+    return Promise.all(
+      files.map(async (file) => {
+        const signedUrl = await this.filesServices.getUrlToGetFile(
+          file.name,
+          file.folderId,
+        );
+
+        return {
+          ...file,
+          url: signedUrl,
+        };
+      }),
+    );
+  }
+
+  async findAllMedicalHistoriesByPet(
+    petId: number,
+  ): Promise<MedicalHistoryResponseDto[]> {
+    const medicalHistories = await this.prisma.medicalHistory.findMany({
+      where: {
+        petId,
+      },
+      include: this.includeRelationMedicalHistory,
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
+    const medicalHistoriesTransformer = plainToInstance(
+      MedicalHistoryResponseDto,
+      medicalHistories,
+    );
+
+    for (const medicalHistory of medicalHistoriesTransformer) {
+      medicalHistory.files = await this.generateUrlFiles(medicalHistory.files);
+    }
+
+    return medicalHistoriesTransformer;
   }
 }

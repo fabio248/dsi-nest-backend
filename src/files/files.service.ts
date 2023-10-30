@@ -1,4 +1,9 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -13,7 +18,7 @@ import { FileNotFoundException } from './exceptions/file-not-found.exception';
 
 @Injectable()
 export class FilesService {
-  private readonly s3Cliente: S3;
+  private readonly s3Client: S3;
   private readonly region = this.configService.get('aws.region');
   private readonly accessKeyId = this.configService.get<string>('aws.key');
   private readonly secretKey = this.configService.get('aws.secret');
@@ -23,9 +28,10 @@ export class FilesService {
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => PetsService))
     private readonly petService: PetsService,
   ) {
-    this.s3Cliente = new S3({
+    this.s3Client = new S3({
       credentials: {
         accessKeyId: this.accessKeyId,
         secretAccessKey: this.secretKey,
@@ -40,7 +46,7 @@ export class FilesService {
       Key: `${folderName}/${key}`,
     });
 
-    return getSignedUrl(this.s3Cliente, command, {
+    return getSignedUrl(this.s3Client, command, {
       expiresIn: this.EXPIRE_15MIN,
     });
   }
@@ -51,7 +57,7 @@ export class FilesService {
       Key: `${imageName}`,
     });
 
-    return getSignedUrl(this.s3Cliente, command, {
+    return getSignedUrl(this.s3Client, command, {
       expiresIn: this.EXPIRE_15MIN,
     });
   }
@@ -66,7 +72,7 @@ export class FilesService {
       Key: `${folder.name}/${key}`,
     });
 
-    return getSignedUrl(this.s3Cliente, command, {
+    return getSignedUrl(this.s3Client, command, {
       expiresIn: this.EXPIRE_15MIN,
     });
   }
@@ -98,6 +104,21 @@ export class FilesService {
     petId: number,
   ): Promise<FileResponseDto> {
     const { mimetype, medicalHistoryId } = createFileDto;
+
+    const [pet] = await Promise.all([
+      this.petService.findOnePetById(petId),
+      this.petService.findOneMedicalHistoryById(medicalHistoryId),
+    ]);
+
+    const medicalHistoryBelongsPet = pet.medicalHistories.filter(
+      (medicalHistory) => medicalHistory.id === medicalHistoryId,
+    );
+
+    if (medicalHistoryBelongsPet.length <= 0) {
+      throw new UnprocessableEntityException(
+        `Medical history does not belong to pet with id ${petId}`,
+      );
+    }
     const folder = await this.findOrCreateFolderByPetId(petId);
     const fileName = await this.createKeyNameForFile(petId, mimetype);
 
@@ -161,7 +182,7 @@ export class FilesService {
     try {
       await this.prisma.$transaction(async (prisma: PrismaService) => {
         await prisma.file.delete({ where: { id } });
-        await this.s3Cliente.deleteObject({
+        await this.s3Client.deleteObject({
           Bucket: this.bucketName,
           Key: `${file.folder.name}/${file.name}`,
         });

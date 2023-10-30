@@ -160,4 +160,10 @@ export class PetsController {
   ): Promise<MedicalHistoryResponseDto> {
     return this.petsService.findOneMedicalHistoryById(medicalHistoryId);
   }
+
+  @Get('/:petId/medical-histories')
+  @ApiBearerAuth()
+  async findAllMedicalHistories(@Param('petId') petId: number) {
+    return this.petsService.findAllMedicalHistoriesByPet(petId);
+  }
 }
