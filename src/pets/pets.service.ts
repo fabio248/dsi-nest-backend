@@ -134,7 +134,10 @@ export class PetsService {
         skip: (page - 1) * limit,
         take: limit,
         where,
-        include: this.includeRelationPet,
+        include: {
+          user: true,
+          specie: true,
+        },
       }),
       this.prisma.pet.count({ where }),
     ]);
@@ -324,7 +327,7 @@ export class PetsService {
     );
   }
 
-  async remove(id: number): Promise<PetResponseDto> {
+  async deletePet(id: number): Promise<PetResponseDto> {
     await this.findOnePetById(id);
 
     const deletedPet = await this.prisma.pet.delete({

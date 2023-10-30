@@ -89,7 +89,7 @@ export class PetsController {
   @Delete(':petId')
   @ApiBearerAuth()
   remove(@Param('petId') petId: string) {
-    return this.petsService.remove(+petId);
+    return this.petsService.deletePet(+petId);
   }
 
   @Post(':petId/medical-histories')

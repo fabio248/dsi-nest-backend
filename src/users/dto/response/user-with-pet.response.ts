@@ -1,7 +1,7 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { UserRole } from '../enum/role.enum';
-import { PetResponseDto } from '../../../pets/dto/response/pet.response';
+import { PetResponseWitOutMedicalHistories } from '../../../pets/dto/response';
 
 export class UserWithPetResponseDto {
   @Expose()
@@ -29,8 +29,8 @@ export class UserWithPetResponseDto {
   dui?: string;
 
   @Expose()
-  @Type(() => PetResponseDto)
-  pets?: PetResponseDto[];
+  @Type(() => PetResponseWitOutMedicalHistories)
+  pets?: PetResponseWitOutMedicalHistories[];
 
   /**
    * La fecha es retornada en este formato: dd/mm/aaaa

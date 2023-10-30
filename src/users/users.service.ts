@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
@@ -20,7 +19,6 @@ import { UserWithPetResponseDto, UserResponseDto } from './dto/response';
 import { MailerService } from '../mailer/mailer.service';
 import { getWelcomeMail } from './utils/mails/welcome.mail';
 import { GenericArgs } from '../shared/args/generic.args';
-import { FilesService } from '../files/files.service';
 import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
 
@@ -31,7 +29,6 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
-    private readonly fileService: FilesService,
   ) {}
 
   async create(createUserDto: CreateUserInput): Promise<UserResponseDto> {
@@ -47,7 +44,7 @@ export class UsersService {
       data: createUserDto,
     });
 
-    this.sendWelcomeMail(user);
+    await this.sendWelcomeMail(user);
 
     return plainToInstance(UserResponseDto, user);
   }
@@ -77,22 +74,13 @@ export class UsersService {
       include: {
         pets: {
           include: {
-            medicalHistories: {
-              include: {
-                food: true,
-                otherPet: true,
-                physicalExam: true,
-                diagnostic: {
-                  include: { treatments: true, surgicalIntervations: true },
-                },
-              },
-            },
+            specie: true,
           },
         },
       },
     });
 
-    this.sendWelcomeMail(user);
+    await this.sendWelcomeMail(user);
 
     return plainToInstance(UserWithPetResponseDto, user);
   }
@@ -201,25 +189,7 @@ export class UsersService {
       },
     });
 
-    const response = plainToInstance(UserWithPetResponseDto, user);
-
-    //add url to each for get files
-
-    for (const pet of response.pets) {
-      if (pet.medicalHistories.length <= 0) {
-        continue;
-      }
-      for (const medicalHistory of pet.medicalHistories) {
-        for (const file of medicalHistory.files) {
-          file.url = await this.fileService.getUrlToGetFile(
-            file.name,
-            file.folderId,
-          );
-        }
-      }
-    }
-
-    return response;
+    return plainToInstance(UserWithPetResponseDto, user);
   }
 
   async findOneWithSensitiveInfo(
