@@ -7,6 +7,7 @@ import {
   Query,
   UseGuards,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/input/create-file.input';
@@ -40,6 +41,7 @@ export class FilesController {
   }
 
   @Delete(':fileId')
+  @HttpCode(204)
   @ApiBearerAuth()
   delete(@Param('fileId') fileId: number) {
     return this.filesService.delete(fileId);

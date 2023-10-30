@@ -1,11 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  DeleteObjectCommand,
-  GetObjectCommand,
-  PutObjectCommand,
-  S3,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uudi } from 'uuid';
 import { plainToInstance } from 'class-transformer';
@@ -153,7 +148,7 @@ export class FilesService {
     return `${uudi()}-${pet.name}.${mimetype.split('/')[1]}`;
   }
 
-  async delete(id: number): Promise<FileResponseDto> {
+  async delete(id: number): Promise<void> {
     const file = await this.prisma.file.findUnique({
       where: { id },
       include: { folder: true },
@@ -163,17 +158,16 @@ export class FilesService {
       throw new FileNotFoundException(id);
     }
 
-    await this.prisma.file.delete({ where: { id } });
-
-    const command = new DeleteObjectCommand({
-      Bucket: this.bucketName,
-      Key: `${file.folder.name}/${file.name}`,
-    });
-
-    const urlToDeleteFile = await getSignedUrl(this.s3Cliente, command, {
-      expiresIn: this.EXPIRE_15MIN,
-    });
-
-    return plainToInstance(FileResponseDto, { ...file, url: urlToDeleteFile });
+    try {
+      await this.prisma.$transaction(async (prisma: PrismaService) => {
+        await prisma.file.delete({ where: { id } });
+        await this.s3Cliente.deleteObject({
+          Bucket: this.bucketName,
+          Key: `${file.folder.name}/${file.name}`,
+        });
+      });
+    } catch (e) {
+      throw new UnprocessableEntityException(e.message);
+    }
   }
 }
