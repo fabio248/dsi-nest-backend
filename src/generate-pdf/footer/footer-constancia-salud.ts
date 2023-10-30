@@ -13,7 +13,7 @@ export function finalTextConstanciaDeSalud(
   doc.font(MerriweatherBlack);
   doc.fontSize(11); // Tamaño de fuente más pequeño
 
-  doc.moveDown();
+  // doc.moveDown();
   doc
     .font(MerriweatherBlack)
     .text(
@@ -31,6 +31,12 @@ export function finalTextConstanciaDeSalud(
     align: 'left',
   });
   doc.moveDown(1);
+  function checkAndAddNewPage() {
+    if (doc.y > doc.page.height) {
+      doc.addPage({ size: [612, 841.89], margin: 50 });
+    }
+  }
+  checkAndAddNewPage();
   // Agrega la línea y el texto adicional
   doc.text('F.___________________________', { align: 'center' });
   doc.text('MVZ. Saúl Antonio Medina Matus', { align: 'center' });

@@ -131,7 +131,7 @@ export function addFieldsConstanciaSalud(
   });
 
   // Elimina el espacio vertical innecesario antes de la tabla
-  doc.moveDown(2);
+  doc.moveDown(1);
 
   // Alinea "Dicho ejemplar se encuentra en buen estado..."
   doc
@@ -143,6 +143,7 @@ export function addFieldsConstanciaSalud(
       },
     );
 
+  doc.moveDown();
   const tableVaccines = {
     title: `VACUNAS:`,
     subtitle: `Registro de Vacunación de la mascota`,
@@ -175,6 +176,5 @@ export function addFieldsConstanciaSalud(
 
   tableConstanciaSaludFormat;
 
-  // Añade espacio vertical entre el texto anterior y la tabla
-  doc.moveDown(2);
+  // checkAndAddNewPage(minHeightNeededForNextContent);
 }
