@@ -259,9 +259,13 @@ export class UsersService {
 
     const deletePets = this.prisma.pet.deleteMany({ where: { userId: id } });
 
-    const deletUser = this.prisma.user.delete({ where: { id } });
+    const deletedUser = this.prisma.user.delete({ where: { id } });
 
-    await this.prisma.$transaction([deleteAppointments, deletePets, deletUser]);
+    await this.prisma.$transaction([
+      deleteAppointments,
+      deletePets,
+      deletedUser,
+    ]);
 
     return user;
   }
