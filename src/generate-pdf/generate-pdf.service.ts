@@ -68,7 +68,6 @@ export class GeneratePdfService {
       const doc = new PDFDocument1({
         size: [612, 792], // Tamaño de página carta (8.5 x 11 pulgadas)
         bufferPages: true,
-        autoFirstPage: true, // Hacer que la primera página se agregue automáticamente
         margin: { top: 50, right: 50, bottom: 50, left: 50 }, // Márgenes
       });
 

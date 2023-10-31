@@ -25,9 +25,9 @@ export function addFieldsHojaClinica(
   age: number,
   medicalHistoryResponseDto: MedicalHistoryResponseDto,
 ) {
-  let minHeightNeededForNextContent = 100;
-  doc.fontSize(11); // Tamaño de fuente más pequeño
-  doc.moveDown();
+  const minHeightNeededForNextContent = 100;
+  doc.fontSize(12); // Tamaño de fuente más pequeño
+  doc.moveDown(2);
   doc.font(MerriweatherBlack).text('DATOS DEL PACIENTE ', {
     align: 'center',
   });
@@ -37,7 +37,7 @@ export function addFieldsHojaClinica(
     }
   }
   // Añade espacio vertical entre el texto anterior y la tabla
-  doc.moveDown(1);
+  doc.moveDown(2);
 
   // Paciente
   doc.font(MerriweatherBlack).text(`Nombre del paciente: `, {
@@ -48,7 +48,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(dataPet.name, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Especie
   doc.font(MerriweatherBlack).text(`Especie: `, {
@@ -58,7 +58,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(dataPet.specie.name, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Raza
   doc.font(MerriweatherBlack).text(`Raza: `, {
@@ -68,7 +68,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(dataPet.raza, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Sexo
   doc.font(MerriweatherBlack).text(`Sexo: `, {
@@ -78,7 +78,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(dataPet.gender, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Fecha de nacimiento
   doc.font(MerriweatherBlack).text(`Fecha de nacimiento: `, {
@@ -88,7 +88,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(dataPet.birthday, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Edad
   doc.font(MerriweatherBlack).text(`Edad: `, {
@@ -98,7 +98,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(`${age} Años`, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Peso
   doc.font(MerriweatherBlack).text(`Peso:`, {
@@ -108,7 +108,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(` ${lastWeightPet} Kg`, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Color
   doc.font(MerriweatherBlack).text(`Color: `, {
@@ -118,7 +118,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(dataPet.color, {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
   // tatuajes
   doc.font(MerriweatherBlack).text(`Tatuajes: `, {
     continued: true,
@@ -134,16 +134,16 @@ export function addFieldsHojaClinica(
         align: 'left',
       },
     );
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Añade espacio vertical entre los campos anteriores y el siguiente bloque
-  doc.moveDown(1);
+  doc.moveDown(2);
 
   doc.font(MerriweatherBlack).text('DATOS DEL PROPIETARIO ', {
     align: 'center',
   });
 
-  doc.moveDown(1);
+  doc.moveDown(2);
   // Propiedad de Sr. (Sra.)
   doc.font(MerriweatherBlack).text(`Nombre del propietario: `, {
     continued: true,
@@ -154,7 +154,7 @@ export function addFieldsHojaClinica(
     .text(`${dataPet.user.firstName} ${dataPet.user.lastName}`, {
       align: 'left',
     });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // DUI
   doc.font(MerriweatherBlack).text(`DUI: `, {
@@ -166,7 +166,7 @@ export function addFieldsHojaClinica(
     .text(dataPet.user?.dui || 'No se ha proporcionado ningún DUI', {
       align: 'left',
     });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
 
   // Contactos
   doc.font(MerriweatherBlack).text(`TEL. fijo: `, {
@@ -193,7 +193,7 @@ export function addFieldsHojaClinica(
   doc.font(MerriweatherLight).text(dataPet.user?.phone || ' ', {
     align: 'left',
   });
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
   //Email
   doc.font(MerriweatherBlack).text(`Correo electrónico: `, {
     continued: true,
@@ -205,7 +205,7 @@ export function addFieldsHojaClinica(
       align: 'left',
     });
 
-  doc.moveDown(0.5);
+  doc.moveDown(0.7);
   doc
     .font(MerriweatherBlack)
     .text(`Dirección del propietario: `, {
@@ -217,11 +217,10 @@ export function addFieldsHojaClinica(
 
   doc.moveDown(2);
 
+  doc.addPage({ size: [612, 841.89], margin: 50 });
   doc.font(MerriweatherBlack).text('CONTROL PROFILÁCTICO', {
     align: 'center',
   });
-
-  doc.moveDown();
 
   // tabla inicial sobre desparacitacion
   const tableDeworming = {
@@ -238,15 +237,25 @@ export function addFieldsHojaClinica(
     rows: [] as CreateDewormingClinicalSheetInput[],
   };
   //asignacion dinámica
-  for (let i = 0; i < createHojaClinicaInput.deworming.length; i++) {
-    const row = [
-      createHojaClinicaInput.deworming[i].dayAplicationInitDeworming,
-      createHojaClinicaInput.deworming[i].dewormingName,
-      createHojaClinicaInput.deworming[i].dose,
-      createHojaClinicaInput.deworming[i].dayAplicationFinalDeworming,
-    ];
+  if (
+    createHojaClinicaInput.deworming &&
+    createHojaClinicaInput.deworming.length > 0
+  ) {
+    for (let i = 0; i < createHojaClinicaInput.deworming.length; i++) {
+      const row = [
+        createHojaClinicaInput.deworming[i].dayAplicationInitDeworming || '--',
+        createHojaClinicaInput.deworming[i].dewormingName || '--',
+        createHojaClinicaInput.deworming[i].dose || '--',
+        createHojaClinicaInput.deworming[i].dayAplicationFinalDeworming || '--',
+      ];
+      tableDeworming.rows.push(
+        row as unknown as CreateDewormingClinicalSheetInput,
+      );
+    }
+  } else {
+    const emptyRow = ['--', '--', '--', '--'];
     tableDeworming.rows.push(
-      row as unknown as CreateDewormingClinicalSheetInput,
+      emptyRow as unknown as CreateDewormingClinicalSheetInput,
     );
   }
 
@@ -260,15 +269,6 @@ export function addFieldsHojaClinica(
 
   doc.moveDown(2);
 
-  //añadimos otra pagina para poder agregar la tabla de vacunacion
-  // doc.addPage({
-  //   size: [612, 841.89],
-  //   margin: 50,
-  //   separation: true,
-  // });
-  if (doc.y + minHeightNeededForNextContent > doc.page.height) {
-    doc.addPage({ size: [612, 841.89], margin: 50 });
-  }
   //segunda tabla de vacunacion
   const tableVaccines = {
     title: `VACUNACIONES :`,
@@ -279,13 +279,32 @@ export function addFieldsHojaClinica(
   };
   //asignacion dinámica
   for (let i = 0; i < createHojaClinicaInput.vaccines.length; i++) {
+    const dayAplicationInit =
+      createHojaClinicaInput.vaccines[i].dayAplicationInit;
+    const vaccineName = createHojaClinicaInput.vaccines[i].vaccineName;
+    const dayAplicationfinal =
+      createHojaClinicaInput.vaccines[i].dayAplicationfinal;
+
     const row2 = [
-      createHojaClinicaInput.vaccines[i].dayAplicationInit,
-      createHojaClinicaInput.vaccines[i].vaccineName,
-      createHojaClinicaInput.vaccines[i].dayAplicationfinal,
+      dayAplicationInit !== null && dayAplicationInit !== undefined
+        ? `${dayAplicationInit}`
+        : '--',
+      vaccineName !== null && vaccineName !== undefined
+        ? `${vaccineName}`
+        : '--',
+      dayAplicationfinal !== null && dayAplicationfinal !== undefined
+        ? `${dayAplicationfinal}`
+        : '--',
     ];
+
     tableVaccines.rows.push(
       row2 as unknown as CreateVaccineHojaClinicaPetInput,
+    );
+  }
+  if (createHojaClinicaInput.vaccines.length === 0) {
+    const emptyRow = ['--', '--', '--'];
+    tableVaccines.rows.push(
+      emptyRow as unknown as CreateVaccineHojaClinicaPetInput,
     );
   }
 
@@ -298,23 +317,39 @@ export function addFieldsHojaClinica(
   tableVaccinesFormat;
 
   doc.moveDown(1);
-  //tercera tabla de control de
-  // addPageIfNecessary();
   const tableCelos = {
     title: `CONTROL DE CELOS :`,
     subtitle: `Registro del control de celos de la mascota`,
     headers: [`Fecha de Inicio `, `Fecha Finalización`],
     rows: [] as CreateHeatClinicalSheetInput[],
   };
-  //asignacion dinámica
   if (createHojaClinicaInput.celos) {
     for (let i = 0; i < createHojaClinicaInput.celos.length; i++) {
+      const dayAplicationInitCelos =
+        createHojaClinicaInput.celos[i].dayAplicationInitCelos;
+      const dayAplicationFinalCelos =
+        createHojaClinicaInput.celos[i].dayAplicationFinalCelos;
+
       const row2 = [
-        createHojaClinicaInput.celos[i].dayAplicationInitCelos,
-        createHojaClinicaInput.celos[i].dayAplicationFinalCelos,
+        dayAplicationInitCelos !== null && dayAplicationInitCelos !== undefined
+          ? `${dayAplicationInitCelos}`
+          : '--',
+        dayAplicationFinalCelos !== null &&
+        dayAplicationFinalCelos !== undefined
+          ? `${dayAplicationFinalCelos}`
+          : '--',
       ];
+
       tableCelos.rows.push(row2 as unknown as CreateHeatClinicalSheetInput);
     }
+  }
+
+  if (
+    !createHojaClinicaInput.celos ||
+    createHojaClinicaInput.celos.length === 0
+  ) {
+    const emptyRow = ['--', '--'];
+    tableCelos.rows.push(emptyRow as unknown as CreateHeatClinicalSheetInput);
   }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat
@@ -328,6 +363,7 @@ export function addFieldsHojaClinica(
   addPageIfNecessary();
   doc.moveDown(2);
   doc.addPage({ size: [612, 841.89], margin: 50 });
+  doc.fontSize(12);
   doc.font(MerriweatherBlack).text('DATOS CLÍNICOS ', {
     align: 'center',
   });
