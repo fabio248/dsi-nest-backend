@@ -1,11 +1,10 @@
-import { CreateClinicalSheetInput } from '../dto/input';
 import { MerriweatherBlack } from '../utils/fonts/fonts.style';
 import { getBufferImage } from '../utils/get-file-logo.utils';
 
 export async function addHeaderHojaClinica(
   doc: any,
-  createHojaClinicaInput: CreateClinicalSheetInput,
   urlImageLogo: string,
+  medicalHistoryId: number,
 ) {
   const DateNow = Date.now();
   const fecha = new Date(DateNow);
@@ -41,7 +40,7 @@ export async function addHeaderHojaClinica(
     align: `left`,
   });
 
-  doc.font(MerriweatherBlack).text(`${createHojaClinicaInput.clinicalNumber}`, {
+  doc.font(MerriweatherBlack).text(`${medicalHistoryId}`, {
     width: doc.page.width - 100,
     align: `left`,
   });

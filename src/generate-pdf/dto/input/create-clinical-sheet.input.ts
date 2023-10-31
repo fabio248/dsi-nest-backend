@@ -1,9 +1,9 @@
 import {
   IsString,
-  IsNotEmpty,
   Matches,
   IsOptional,
   ValidateNested,
+  IsNotEmpty,
 } from 'class-validator';
 
 import { CreateVaccineHojaClinicaPetInput } from './create-vaccine-clinical-sheet.input';
@@ -12,19 +12,15 @@ import { CreateHeatClinicalSheetInput } from './create-heat.input';
 import { Type } from 'class-transformer';
 
 export class CreateClinicalSheetInput {
-  @IsNotEmpty()
-  @IsString()
-  clinicalNumber: string;
-
   @Type(() => CreateDewormingClinicalSheetInput)
   @ValidateNested({ each: true })
   @IsNotEmpty()
-  deworming: CreateDewormingClinicalSheetInput[];
+  deworming?: CreateDewormingClinicalSheetInput[];
 
   @Type(() => CreateVaccineHojaClinicaPetInput)
   @ValidateNested({ each: true })
   @IsNotEmpty()
-  vaccines: CreateVaccineHojaClinicaPetInput[];
+  vaccines?: CreateVaccineHojaClinicaPetInput[];
 
   @Type(() => CreateHeatClinicalSheetInput)
   @ValidateNested({ each: true })

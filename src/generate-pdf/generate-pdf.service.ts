@@ -240,7 +240,7 @@ export class GeneratePdfService {
       });
       const buffer = [] as Buffer[];
 
-      await addHeaderHojaClinica(doc, createClinicalSheetInput, urlLogoImage);
+      await addHeaderHojaClinica(doc, urlLogoImage, medicalHistoryId);
       addFieldsHojaClinica(
         dataPet,
         createClinicalSheetInput,
