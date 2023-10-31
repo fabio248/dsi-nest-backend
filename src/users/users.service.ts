@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
 import { Prisma, User, UserRole } from '@prisma/client';
@@ -21,6 +21,12 @@ import { getWelcomeMail } from './utils/mails/welcome.mail';
 import { GenericArgs } from '../shared/args/generic.args';
 import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
+import { RequestDocumentInput } from './dto/input/request-document.input';
+import { JwtPayload } from '../auth/interfaces/jwt.interface';
+import { PetNotFoundException } from '../pets/exception';
+import { getRequestDocumentMail } from './utils/mails/request-document.mail';
+import { DocumentName } from './dto/enum/document-name';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +35,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserInput): Promise<UserResponseDto> {
@@ -304,10 +311,43 @@ export class UsersService {
     const { firstName, lastName, email } = user;
     const welcomeMail = getWelcomeMail(firstName, lastName);
 
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: email,
       subject: 'Bienvenido a Veterinaria Mitsum',
       html: welcomeMail,
+    });
+  }
+
+  async requestDocument(
+    user: JwtPayload,
+    petId: number,
+    { typeDocument }: RequestDocumentInput,
+  ): Promise<void> {
+    const pet = await this.prisma.pet.findUnique({
+      where: { id: petId },
+      include: { user: true },
+    });
+
+    if (!pet) {
+      throw new PetNotFoundException(petId);
+    }
+
+    if (pet.userId !== user.identify) {
+      throw new ConflictException('Pet does not belong to user');
+    }
+
+    const mailBody = getRequestDocumentMail(
+      pet.user.firstName,
+      pet.user.lastName,
+      pet.user.email,
+      DocumentName[typeDocument],
+      pet.name,
+    );
+
+    await this.mailerService.sendMail({
+      to: this.configService.get('emailsRequestDocument'),
+      subject: 'Solicitud de Documento',
+      html: mailBody,
     });
   }
 }

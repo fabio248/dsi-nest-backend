@@ -1,0 +1,3 @@
+export enum DocumentType {
+  HEALTH_CERTIFICATION = 'HEALTH_CERTIFICATION',
+}

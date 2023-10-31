@@ -27,6 +27,9 @@ import { CreatePetInput } from '../pets/dto/input';
 import { PetsService } from '../pets/pets.service';
 import { GenericArgs } from '../shared/args/generic.args';
 import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
+import { CurrentUser } from '../shared/decorator/current-user.decorator';
+import { RequestDocumentInput } from './dto/input/request-document.input';
+import { JwtPayload } from '../auth/interfaces/jwt.interface';
 
 @ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
@@ -90,5 +93,15 @@ export class UsersController {
   @Get(':userId/pets')
   getUserWithPet(@Param('userId') userId: number, @Query() args?: GenericArgs) {
     return this.usersService.findOneWithPet(userId, args);
+  }
+
+  @ApiBearerAuth()
+  @Post('request-document/:petId')
+  requestDocument(
+    @CurrentUser() user: JwtPayload,
+    @Body() requestDocumentInput: RequestDocumentInput,
+    @Param('petId') petId: number,
+  ) {
+    return this.usersService.requestDocument(user, petId, requestDocumentInput);
   }
 }
