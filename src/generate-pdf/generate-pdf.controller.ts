@@ -22,7 +22,6 @@ import {
 // Proteccion de controllador
 import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
-import { Public } from 'src/auth/decorators/public-route.decorator';
 
 @ApiTags('Generate PDF')
 @Controller('generate-pdf')
@@ -73,7 +72,6 @@ export class GeneratePdfController {
   }
 
   @ApiBearerAuth()
-  @Public()
   @Post('/clinical-sheets/:idPet')
   async createPDFClinicalSheet(
     @Param('idPet') idPet: number,
