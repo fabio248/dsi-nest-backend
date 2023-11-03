@@ -565,142 +565,95 @@ export function addFieldsHojaClinica(
     });
   doc.moveDown(0.5);
 
-  doc.font(MerriweatherBlack).text('TRATAMIENTOS BRINDADOS', {
-    align: 'center',
-  });
-
-  //recorremos los tratamientos para poder renderizar su informacion de manera independiente
-
-  const dataTreatments = [] as string[];
-  medicalHistoryResponseDto.diagnostic.treatments.forEach((treatment) => {
-    dataTreatments.push(treatment.name);
-    dataTreatments.push(treatment.quantity.toString());
-    dataTreatments.push(treatment.frequency);
-    dataTreatments.push(treatment.days.toString());
-
-    console.log(
-      'Al paciente se le suministró el medicamento: ' + treatment.name,
-    );
-    console.log(
-      'Con una cantidad determinada de: ' + treatment.quantity.toString(),
-    );
-    console.log('Suministrada a la mascota durante: ' + treatment.frequency);
-    console.log(
-      'Durante el tiempo determinado de: ' + treatment.days + ' Día(s)',
-    );
-  });
-
-  doc.moveDown(1);
-
-  for (let i = 0; i < dataTreatments.length; i += 4) {
-    doc
-      .font(MerriweatherBlack)
-      .text('Al paciente se le suministró el medicamento: ', {
-        continued: true,
-        align: 'left',
-      })
-      .font(MerriweatherLight)
-      .text(dataTreatments[i], {
-        align: 'left',
-      });
-    doc.moveDown(0.7);
-    doc
-      .font(MerriweatherBlack)
-      .text('Con una cantidad determinada de: ', {
-        continued: true,
-        align: 'left',
-      })
-      .font(MerriweatherLight)
-      .text(dataTreatments[i + 1], {
-        align: 'left',
-      });
-    doc.moveDown(0.7);
-    doc
-      .font(MerriweatherBlack)
-      .text('Suministrada a la mascota durante: ', {
-        continued: true,
-        align: 'left',
-      })
-      .font(MerriweatherLight)
-      .text(dataTreatments[i + 2], {
-        align: 'left',
-      });
-    doc.moveDown(0.7);
-    doc
-      .font(MerriweatherBlack)
-      .text('Durante el tiempo determinado de: ', {
-        continued: true,
-        align: 'left',
-      })
-      .font(MerriweatherLight)
-      .text(dataTreatments[i + 3] + ' Día(s)', {
-        align: 'left',
-      });
-  }
-
   doc.addPage({
     size: [612, 841.89],
     margin: 50,
     separation: true,
   });
+
+  doc.font(MerriweatherBlack).text('TRATAMIENTOS BRINDADOS', {
+    align: 'center',
+  });
+  const treatmentsTable = {
+    title: 'Tratamientos:',
+    headers: ['Medicamento', 'Cantidad', 'Frecuencia', 'Duración (días)'],
+    rows: [] as string[],
+  };
+
+  medicalHistoryResponseDto.diagnostic.treatments.forEach(
+    (treatment, index) => {
+      if (index % 4 === 0) {
+        const row = [
+          treatment.name ? treatment.name : '--',
+          treatment.quantity ? treatment.quantity.toString() : '--',
+          treatment.frequency ? treatment.frequency.toString() : '--',
+          treatment.days ? treatment.days.toString() + ' Día(s)' : '--', // Si 'treatment.days' es nulo o indefinido, establece '--'
+        ];
+        treatmentsTable.rows.push(row as unknown as string);
+      }
+    },
+  );
+  if (
+    !medicalHistoryResponseDto.diagnostic.treatments ||
+    medicalHistoryResponseDto.diagnostic.treatments.length === 0
+  ) {
+    const emptyRow = ['--', '--', '--', '--'];
+    treatmentsTable.rows.push(emptyRow as unknown as string);
+  }
+
+  const treatmentsTableFormat = formatTable(
+    doc,
+    treatmentsTable as unknown as TableFunction,
+  );
+  treatmentsTableFormat;
+
+  doc.moveDown(1);
+
   doc.font(MerriweatherBlack).text('INTERVENCIONES QUIRÚRGICAS', {
     align: 'center',
   });
 
-  const dataSurgicalIntervations = [] as string[];
+  const surgicalInterventionsTable = {
+    title: 'Intervenciones:',
+    headers: ['Tipo de Intervención', 'Fecha', 'Descripción'],
+    rows: [] as string[],
+  };
+
   medicalHistoryResponseDto.diagnostic.surgicalIntervations.forEach(
-    (treatment) => {
-      dataSurgicalIntervations.push(treatment.name);
-      dataSurgicalIntervations.push(treatment.intervationDate.toString());
-      dataSurgicalIntervations.push(treatment.description);
+    (treatment, index) => {
+      if (index % 3 === 0) {
+        const row = [
+          treatment.name ? treatment.name : '--',
+          treatment.intervationDate
+            ? treatment.intervationDate.toString()
+            : '--',
+          treatment.description ? treatment.description : '--',
+        ];
+        surgicalInterventionsTable.rows.push(row as unknown as string);
+      }
     },
   );
 
-  doc.moveDown(1);
-
-  for (let i = 0; i < dataSurgicalIntervations.length; i += 3) {
-    doc
-      .font(MerriweatherBlack)
-      .text('Tipo de intervención quirúrgica realizada: ', {
-        continued: true,
-        align: 'left',
-      })
-      .font(MerriweatherLight)
-      .text(dataSurgicalIntervations[i], {
-        align: 'left',
-      });
-    doc.moveDown(0.7);
-    doc
-      .font(MerriweatherBlack)
-      .text('Día de la intervención quirúrgica realizada: ', {
-        continued: true,
-        align: 'left',
-      })
-      .font(MerriweatherLight)
-      .text(dataSurgicalIntervations[i + 1], {
-        align: 'left',
-      });
-    doc.moveDown(0.7);
-    doc
-      .font(MerriweatherBlack)
-      .text('Descripción de la intervención realizada: ', {
-        continued: true,
-        align: 'left',
-      })
-      .font(MerriweatherLight)
-      .text(dataSurgicalIntervations[i + 2], {
-        align: 'left',
-      });
+  if (
+    !medicalHistoryResponseDto.diagnostic.surgicalIntervations ||
+    medicalHistoryResponseDto.diagnostic.surgicalIntervations.length === 0
+  ) {
+    const emptyRow = ['--', '--', '--'];
+    surgicalInterventionsTable.rows.push(emptyRow as unknown as string);
   }
 
-  addPageIfNecessary();
+  const surgicalInterventionsTableFormat = formatTable(
+    doc,
+    surgicalInterventionsTable as unknown as TableFunction,
+  );
+  surgicalInterventionsTableFormat;
 
-  doc.moveDown(3);
+  doc.moveDown(2);
   doc.font(MerriweatherBlack).text('OTROS DATOS IMPORTANTES', {
     align: 'center',
   });
 
-  doc.moveDown(2);
+  doc.moveDown(1);
 
   doc.font(MerriweatherLight).text(createHojaClinicaInput.moreImportsData, {
     align: 'left',
