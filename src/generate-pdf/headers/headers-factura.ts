@@ -4,6 +4,7 @@ import {
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
 import { getBufferImage } from '../utils/get-file-logo.utils';
+import { format } from 'date-fns';
 
 export async function addHeaderFactura(
   doc: any,
@@ -66,7 +67,7 @@ export async function addHeaderFactura(
       continued: true,
     })
     .font(MerriweatherBlack)
-    .text(`Fecha: ${createdAt}`, {
+    .text(`Fecha: ${format(createdAt, 'dd/MM/yyyy')}`, {
       align: 'right',
     });
 

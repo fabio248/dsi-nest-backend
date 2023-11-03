@@ -1,4 +1,4 @@
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { UserResponseDto } from '../../../users/dto/response';
 import { ApiHideProperty, OmitType } from '@nestjs/swagger';
 import { BillDetailsResponse } from './bills-details.response';
@@ -30,7 +30,6 @@ export class BillResponse {
    * La fecha es retornada en este formato: dd/mm/aaaa
    */
   @Expose()
-  @Transform(({ value }) => value.toLocaleDateString('es-SV'))
   readonly createdAt: Date;
 
   @ApiHideProperty()
