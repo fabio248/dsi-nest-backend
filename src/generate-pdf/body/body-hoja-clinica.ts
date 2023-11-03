@@ -583,7 +583,7 @@ export function addFieldsHojaClinica(
     for (
       let i = 0;
       i < medicalHistoryResponseDto.diagnostic.treatments.length;
-      i += 4
+      i++
     ) {
       const treatment = medicalHistoryResponseDto.diagnostic.treatments[i];
       const name = treatment.name ? treatment.name : '--';
@@ -633,13 +633,15 @@ export function addFieldsHojaClinica(
       i < medicalHistoryResponseDto.diagnostic.surgicalIntervations.length;
       i++
     ) {
-      const treatment =
+      const surgicalIntervation =
         medicalHistoryResponseDto.diagnostic.surgicalIntervations[i];
-      const name = treatment.name ? treatment.name : '--';
-      const intervationDate = treatment.intervationDate
-        ? treatment.intervationDate.toString()
+      const name = surgicalIntervation.name ? surgicalIntervation.name : '--';
+      const intervationDate = surgicalIntervation.intervationDate
+        ? surgicalIntervation.intervationDate.toString()
         : '--';
-      const description = treatment.description ? treatment.description : '--';
+      const description = surgicalIntervation.description
+        ? surgicalIntervation.description
+        : '--';
 
       const row = [name, intervationDate, description];
       surgicalInterventionsTable.rows.push(row as unknown as string);
