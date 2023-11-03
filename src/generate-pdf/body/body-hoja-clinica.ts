@@ -579,20 +579,28 @@ export function addFieldsHojaClinica(
     headers: ['Medicamento', 'Cantidad', 'Frecuencia', 'Duración (días)'],
     rows: [] as string[],
   };
+  if (medicalHistoryResponseDto.diagnostic.treatments) {
+    for (
+      let i = 0;
+      i < medicalHistoryResponseDto.diagnostic.treatments.length;
+      i += 4
+    ) {
+      const treatment = medicalHistoryResponseDto.diagnostic.treatments[i];
+      const name = treatment.name ? treatment.name : '--';
+      const quantity = treatment.quantity
+        ? treatment.quantity.toString()
+        : '--';
+      const frequency = treatment.frequency
+        ? treatment.frequency.toString()
+        : '--';
+      const days = treatment.days
+        ? treatment.days.toString() + ' Día(s)'
+        : '--';
 
-  medicalHistoryResponseDto.diagnostic.treatments.forEach(
-    (treatment, index) => {
-      if (index % 4 === 0) {
-        const row = [
-          treatment.name ? treatment.name : '--',
-          treatment.quantity ? treatment.quantity.toString() : '--',
-          treatment.frequency ? treatment.frequency.toString() : '--',
-          treatment.days ? treatment.days.toString() + ' Día(s)' : '--', // Si 'treatment.days' es nulo o indefinido, establece '--'
-        ];
-        treatmentsTable.rows.push(row as unknown as string);
-      }
-    },
-  );
+      const row = [name, quantity, frequency, days];
+      treatmentsTable.rows.push(row as unknown as string);
+    }
+  }
   if (
     !medicalHistoryResponseDto.diagnostic.treatments ||
     medicalHistoryResponseDto.diagnostic.treatments.length === 0
@@ -619,20 +627,24 @@ export function addFieldsHojaClinica(
     rows: [] as string[],
   };
 
-  medicalHistoryResponseDto.diagnostic.surgicalIntervations.forEach(
-    (treatment, index) => {
-      if (index % 3 === 0) {
-        const row = [
-          treatment.name ? treatment.name : '--',
-          treatment.intervationDate
-            ? treatment.intervationDate.toString()
-            : '--',
-          treatment.description ? treatment.description : '--',
-        ];
-        surgicalInterventionsTable.rows.push(row as unknown as string);
-      }
-    },
-  );
+  if (medicalHistoryResponseDto.diagnostic.surgicalIntervations) {
+    for (
+      let i = 0;
+      i < medicalHistoryResponseDto.diagnostic.surgicalIntervations.length;
+      i++
+    ) {
+      const treatment =
+        medicalHistoryResponseDto.diagnostic.surgicalIntervations[i];
+      const name = treatment.name ? treatment.name : '--';
+      const intervationDate = treatment.intervationDate
+        ? treatment.intervationDate.toString()
+        : '--';
+      const description = treatment.description ? treatment.description : '--';
+
+      const row = [name, intervationDate, description];
+      surgicalInterventionsTable.rows.push(row as unknown as string);
+    }
+  }
 
   if (
     !medicalHistoryResponseDto.diagnostic.surgicalIntervations ||
