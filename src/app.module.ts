@@ -10,8 +10,10 @@ import { DatabaseModule } from './database/database.module';
 import { MailerModule } from './mailer/mailer.module';
 import { FilesModule } from './files/files.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { ProductsModule } from './products/products.module';
+import { GeneratePdfModule } from './generate-pdf/generate-pdf.module';
+import { BillsModule } from './bills/bills.module';
 import { AppController } from './app.controller';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +33,9 @@ import { AppController } from './app.controller';
     MailerModule,
     FilesModule,
     AppointmentsModule,
+    ProductsModule,
+    BillsModule,
+    GeneratePdfModule,
   ],
   controllers: [AppController],
   providers: [],

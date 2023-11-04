@@ -37,14 +37,11 @@ export class PetResponseDto {
 
   @Expose()
   @Type(() => MedicalHistoryResponseDto)
-  medicalHistory: MedicalHistoryResponseDto;
+  medicalHistories: MedicalHistoryResponseDto[];
 
   @Expose()
   @Type(() => SpecieResponseDto)
   specie: SpecieResponseDto;
-
-  @Expose()
-  medicalHistoryId: number;
 
   @ApiHideProperty()
   @Exclude()

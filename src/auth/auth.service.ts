@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import * as Jwt from 'jsonwebtoken';
 import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from '../users/dto/response/user.response';
+import { UserResponseDto } from '../users/dto/response';
 import { JwtPayload, JwtTokenType } from './interfaces/jwt.interface';
 import { UsersService } from '../users/users.service';
 import { CreateUserInput } from '../users/dto/input';
@@ -148,7 +148,7 @@ export class AuthService {
       expiresIn: '15min',
     });
 
-    this.userService.update(user.id, { recoveryToken });
+    await this.userService.update(user.id, { recoveryToken });
 
     const emailBody = getRecoveryMail(
       user.firstName,
@@ -157,7 +157,7 @@ export class AuthService {
       this.urlRecoveryFront,
     );
 
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: email,
       subject: 'Recuperación de contraseña',
       html: emailBody,

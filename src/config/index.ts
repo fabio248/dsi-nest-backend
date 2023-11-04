@@ -50,4 +50,5 @@ export const configuration = () => ({
   url: {
     recovery: process.env.URL_RECOVERY_PASSWORD,
   },
+  emailsRequestDocument: process.env.EMAIL_REQUEST_DOCUMENTS,
 });

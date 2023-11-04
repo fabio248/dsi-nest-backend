@@ -23,7 +23,7 @@ export class MailerService {
       },
     });
 
-    transporter.sendMail({
+    await transporter.sendMail({
       ...bodyMail,
       from: this.email,
     });

@@ -1,10 +1,16 @@
 import { Expose, Type } from 'class-transformer';
 import { PetResponseDto } from './pet.response';
+import { OmitType } from '@nestjs/swagger';
+
+export class PetResponseWitOutMedicalHistories extends OmitType(
+  PetResponseDto,
+  ['medicalHistories'] as const,
+) {}
 
 export class FindAllPetsResponseDto {
   @Expose()
-  @Type(() => PetResponseDto)
-  data: PetResponseDto[];
+  @Type(() => PetResponseWitOutMedicalHistories)
+  data: PetResponseWitOutMedicalHistories[];
 
   @Expose()
   totalItems: number;

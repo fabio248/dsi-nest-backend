@@ -14,17 +14,22 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { UsersService } from './users.service';
-import { CreateUserInput } from './dto/input/create-user.input';
-import { UpdateUserDto } from './dto/input/update-user.input';
-import { UserResponseDto } from './dto/response/user.response';
+import {
+  CreateUserInput,
+  UpdateUserDto,
+  CreateUserWithPetInput,
+} from './dto/input';
+import { UserResponseDto } from './dto/response';
 import RoleGuard from '../auth/guards/role.guard';
 import { Public } from '../auth/decorators/public-route.decorator';
 import { FindAllUserArgs } from './dto/args/find-all-user.args';
-import { CreatePetInput } from '../pets/dto/input/create-pet.input';
+import { CreatePetInput } from '../pets/dto/input';
 import { PetsService } from '../pets/pets.service';
-import { CreateUserWithPetInput } from './dto/input/create-user-with-pet.input';
 import { GenericArgs } from '../shared/args/generic.args';
 import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
+import { CurrentUser } from '../shared/decorator/current-user.decorator';
+import { RequestDocumentInput } from './dto/input/request-document.input';
+import { JwtPayload } from '../auth/interfaces/jwt.interface';
 
 @ApiTags('Users')
 @Controller({ path: 'users', version: '1' })
@@ -40,6 +45,21 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: CreateUserInput): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto);
+  }
+
+  @ApiBearerAuth()
+  @Post('pets')
+  createUserWithPet(@Body() createUserWithPetDto: CreateUserWithPetInput) {
+    return this.usersService.createUserWithPet(createUserWithPetDto);
+  }
+
+  @ApiBearerAuth()
+  @Post(':userId/pets')
+  createPet(
+    @Param('userId') userId: number,
+    @Body() createPetDto: CreatePetInput,
+  ) {
+    return this.petService.create(userId, createPetDto);
   }
 
   @ApiBearerAuth()
@@ -70,23 +90,18 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
-  @Post(':userId/pets')
-  createPet(
-    @Param('userId') userId: number,
-    @Body() createPetDto: CreatePetInput,
-  ) {
-    return this.petService.create(userId, createPetDto);
-  }
-
-  @ApiBearerAuth()
-  @Post('pets')
-  createUserWithPet(@Body() createUserWithPetDto: CreateUserWithPetInput) {
-    return this.usersService.createUserWithPet(createUserWithPetDto);
-  }
-
-  @ApiBearerAuth()
   @Get(':userId/pets')
   getUserWithPet(@Param('userId') userId: number, @Query() args?: GenericArgs) {
     return this.usersService.findOneWithPet(userId, args);
+  }
+
+  @ApiBearerAuth()
+  @Post('request-document/:petId')
+  requestDocument(
+    @CurrentUser() user: JwtPayload,
+    @Body() requestDocumentInput: RequestDocumentInput,
+    @Param('petId') petId: number,
+  ) {
+    return this.usersService.requestDocument(user, petId, requestDocumentInput);
   }
 }

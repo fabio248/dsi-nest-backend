@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
 import { Prisma, User, UserRole } from '@prisma/client';
@@ -20,9 +19,14 @@ import { UserWithPetResponseDto, UserResponseDto } from './dto/response';
 import { MailerService } from '../mailer/mailer.service';
 import { getWelcomeMail } from './utils/mails/welcome.mail';
 import { GenericArgs } from '../shared/args/generic.args';
-import { FilesService } from '../files/files.service';
 import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
+import { RequestDocumentInput } from './dto/input/request-document.input';
+import { JwtPayload } from '../auth/interfaces/jwt.interface';
+import { PetNotFoundException } from '../pets/exception';
+import { getRequestDocumentMail } from './utils/mails/request-document.mail';
+import { DocumentName } from './dto/enum/document-name';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -31,7 +35,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
-    private readonly fileService: FilesService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserInput): Promise<UserResponseDto> {
@@ -47,7 +51,7 @@ export class UsersService {
       data: createUserDto,
     });
 
-    this.sendWelcomeMail(user);
+    await this.sendWelcomeMail(user);
 
     return plainToInstance(UserResponseDto, user);
   }
@@ -58,8 +62,6 @@ export class UsersService {
     //@ts-ignore
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
-    const { medicalHistory } = pet;
-    const { otherPet, food, physicalExam } = medicalHistory;
 
     await this.throwErrorIfEmailIsAlreadyTaken(email);
 
@@ -73,39 +75,19 @@ export class UsersService {
       data: {
         ...createUserDto,
         pets: {
-          create: {
-            ...pet,
-            medicalHistory: {
-              create: {
-                ...medicalHistory,
-                food: {
-                  create: food,
-                },
-                otherPet: {
-                  create: otherPet,
-                },
-                physicalExam: {
-                  create: physicalExam,
-                },
-              },
-            },
-            specie: { connect: { id: pet.specieId } },
-            specieId: undefined as never,
-          },
+          create: pet,
         },
       },
       include: {
         pets: {
           include: {
-            medicalHistory: {
-              include: { food: true, physicalExam: true, otherPet: true },
-            },
+            specie: true,
           },
         },
       },
     });
 
-    this.sendWelcomeMail(user);
+    await this.sendWelcomeMail(user);
 
     return plainToInstance(UserWithPetResponseDto, user);
   }
@@ -130,26 +112,27 @@ export class UsersService {
       searchRole = this.searchInRoleField(search);
 
       where.OR = [
-        { firstName: { contains: search } },
-        { lastName: { contains: search } },
-        { email: { contains: search } },
-        { phone: { contains: search } },
-        { direction: { contains: search } },
-        { dui: { contains: search } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+        { direction: { contains: search, mode: 'insensitive' } },
+        { dui: { contains: search, mode: 'insensitive' } },
         { role: searchRole },
       ];
     }
 
-    const totalItems = await this.prisma.user.count({
-      where,
-    });
+    const [totalItems, data] = await Promise.all([
+      this.prisma.user.count({
+        where,
+      }),
+      this.prisma.user.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        where,
+      }),
+    ]);
     const paginationParams = getPaginationParams(totalItems, page, limit);
-
-    const data = await this.prisma.user.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      where,
-    });
 
     return plainToInstance(FindAllUsersResponseDto, {
       data,
@@ -199,7 +182,7 @@ export class UsersService {
           skip,
           take,
           include: {
-            medicalHistory: {
+            medicalHistories: {
               include: {
                 food: true,
                 otherPet: true,
@@ -213,24 +196,7 @@ export class UsersService {
       },
     });
 
-    const response = plainToInstance(UserWithPetResponseDto, user);
-
-    //add url to each for get files
-
-    for (const pet of response.pets) {
-      if (!pet.medicalHistory) {
-        continue;
-      }
-      for (const file of pet.medicalHistory.files) {
-        const url = await this.fileService.getUrlToGetFile(
-          file.name,
-          file.folderId,
-        );
-        file.url = url;
-      }
-    }
-
-    return response;
+    return plainToInstance(UserWithPetResponseDto, user);
   }
 
   async findOneWithSensitiveInfo(
@@ -300,9 +266,13 @@ export class UsersService {
 
     const deletePets = this.prisma.pet.deleteMany({ where: { userId: id } });
 
-    const deletUser = this.prisma.user.delete({ where: { id } });
+    const deletedUser = this.prisma.user.delete({ where: { id } });
 
-    await this.prisma.$transaction([deleteAppointments, deletePets, deletUser]);
+    await this.prisma.$transaction([
+      deleteAppointments,
+      deletePets,
+      deletedUser,
+    ]);
 
     return user;
   }
@@ -333,23 +303,51 @@ export class UsersService {
     recoveryToken: string,
   ): Promise<boolean> {
     const user = await this.findOneById(userId);
-    console.log({ recoveryToken: user.recoveryToken });
 
-    if (user.recoveryToken !== recoveryToken) {
-      return false;
-    }
-
-    return true;
+    return user.recoveryToken === recoveryToken;
   }
 
   async sendWelcomeMail(user: User): Promise<void> {
     const { firstName, lastName, email } = user;
     const welcomeMail = getWelcomeMail(firstName, lastName);
 
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: email,
       subject: 'Bienvenido a Veterinaria Mitsum',
       html: welcomeMail,
+    });
+  }
+
+  async requestDocument(
+    user: JwtPayload,
+    petId: number,
+    { typeDocument }: RequestDocumentInput,
+  ): Promise<void> {
+    const pet = await this.prisma.pet.findUnique({
+      where: { id: petId },
+      include: { user: true },
+    });
+
+    if (!pet) {
+      throw new PetNotFoundException(petId);
+    }
+
+    if (pet.userId !== user.identify) {
+      throw new ConflictException('Pet does not belong to user');
+    }
+
+    const mailBody = getRequestDocumentMail(
+      pet.user.firstName,
+      pet.user.lastName,
+      pet.user.email,
+      DocumentName[typeDocument],
+      pet.name,
+    );
+
+    await this.mailerService.sendMail({
+      to: this.configService.get('emailsRequestDocument'),
+      subject: 'Solicitud de Documento',
+      html: mailBody,
     });
   }
 }

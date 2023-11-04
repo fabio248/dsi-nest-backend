@@ -8,6 +8,7 @@ import { CreateFoodInput } from './create-food.input';
 import { CreatePhysicalExamInput } from './create-physical-exam.input';
 import { CreateOtherPetInput } from './create-other-pet.input';
 import { Type } from 'class-transformer';
+import { CreateDiagnosticInput } from './create-diagnostic.input';
 
 export class CreateMedicalHistoryInput {
   @IsNotEmpty()
@@ -48,4 +49,9 @@ export class CreateMedicalHistoryInput {
   @ValidateNested({ each: true })
   @Type(() => CreateOtherPetInput)
   otherPet: CreateOtherPetInput;
+
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => CreateDiagnosticInput)
+  diagnostic: CreateDiagnosticInput;
 }

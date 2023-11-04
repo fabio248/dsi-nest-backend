@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GetObjectCommand, PutObjectCommand, S3 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -7,24 +12,26 @@ import { plainToInstance } from 'class-transformer';
 import { CreateFileDto } from './dto/input/create-file.input';
 import { PrismaService } from '../database/database.service';
 import { FolderResponseDto, FileResponseDto } from './dto/response';
-import { PetsService } from './../pets/pets.service';
+import { PetsService } from '../pets/pets.service';
 import { GenericArgs } from '../shared/args/generic.args';
+import { FileNotFoundException } from './exceptions/file-not-found.exception';
 
 @Injectable()
 export class FilesService {
-  private readonly s3Cliente: S3;
+  private readonly s3Client: S3;
   private readonly region = this.configService.get('aws.region');
   private readonly accessKeyId = this.configService.get<string>('aws.key');
   private readonly secretKey = this.configService.get('aws.secret');
   private readonly bucketName = this.configService.get('aws.bucket');
-  private readonly EXPIRE_5MIN = 300;
+  private readonly EXPIRE_15MIN = 900;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => PetsService))
     private readonly petService: PetsService,
   ) {
-    this.s3Cliente = new S3({
+    this.s3Client = new S3({
       credentials: {
         accessKeyId: this.accessKeyId,
         secretAccessKey: this.secretKey,
@@ -39,8 +46,19 @@ export class FilesService {
       Key: `${folderName}/${key}`,
     });
 
-    return getSignedUrl(this.s3Cliente, command, {
-      expiresIn: this.EXPIRE_5MIN,
+    return getSignedUrl(this.s3Client, command, {
+      expiresIn: this.EXPIRE_15MIN,
+    });
+  }
+
+  async getLogosFiles(imageName: string): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: `${imageName}`,
+    });
+
+    return getSignedUrl(this.s3Client, command, {
+      expiresIn: this.EXPIRE_15MIN,
     });
   }
 
@@ -54,8 +72,8 @@ export class FilesService {
       Key: `${folder.name}/${key}`,
     });
 
-    return getSignedUrl(this.s3Cliente, command, {
-      expiresIn: this.EXPIRE_5MIN,
+    return getSignedUrl(this.s3Client, command, {
+      expiresIn: this.EXPIRE_15MIN,
     });
   }
 
@@ -85,8 +103,22 @@ export class FilesService {
     createFileDto: CreateFileDto,
     petId: number,
   ): Promise<FileResponseDto> {
-    const { mimetype } = createFileDto;
-    const { medicalHistoryId } = await this.petService.findOneById(petId);
+    const { mimetype, medicalHistoryId } = createFileDto;
+
+    const [pet] = await Promise.all([
+      this.petService.findOnePetById(petId),
+      this.petService.findOneMedicalHistoryById(medicalHistoryId),
+    ]);
+
+    const medicalHistoryBelongsPet = pet.medicalHistories.filter(
+      (medicalHistory) => medicalHistory.id === medicalHistoryId,
+    );
+
+    if (medicalHistoryBelongsPet.length <= 0) {
+      throw new UnprocessableEntityException(
+        `Medical history does not belong to pet with id ${petId}`,
+      );
+    }
     const folder = await this.findOrCreateFolderByPetId(petId);
     const fileName = await this.createKeyNameForFile(petId, mimetype);
 
@@ -107,18 +139,17 @@ export class FilesService {
 
   async findAll(args: GenericArgs): Promise<FileResponseDto[]> {
     const { skip, take } = args;
-    const response = [];
     const listFiles = await this.prisma.file.findMany({ skip, take });
 
-    for (const file of listFiles) {
-      const fileWithUrl = {
-        ...file,
-        url: await this.getUrlToGetFile(file.name, file.folderId),
-      };
-      response.push(plainToInstance(FileResponseDto, fileWithUrl));
-    }
-
-    return response;
+    return await Promise.all(
+      listFiles.map(async (file) => {
+        const fileWithUrl = {
+          ...file,
+          url: await this.getUrlToGetFile(file.name, file.folderId),
+        };
+        return plainToInstance(FileResponseDto, fileWithUrl);
+      }),
+    );
   }
 
   async findOne(id: number): Promise<FileResponseDto> {
@@ -133,8 +164,31 @@ export class FilesService {
   }
 
   async createKeyNameForFile(petId: number, mimetype: string) {
-    const pet = await this.petService.findOneById(petId);
+    const pet = await this.petService.findOnePetById(petId);
 
     return `${uudi()}-${pet.name}.${mimetype.split('/')[1]}`;
+  }
+
+  async delete(id: number): Promise<void> {
+    const file = await this.prisma.file.findUnique({
+      where: { id },
+      include: { folder: true },
+    });
+
+    if (!file) {
+      throw new FileNotFoundException(id);
+    }
+
+    try {
+      await this.prisma.$transaction(async (prisma: PrismaService) => {
+        await prisma.file.delete({ where: { id } });
+        await this.s3Client.deleteObject({
+          Bucket: this.bucketName,
+          Key: `${file.folder.name}/${file.name}`,
+        });
+      });
+    } catch (e) {
+      throw new UnprocessableEntityException(e.message);
+    }
   }
 }
