@@ -10,6 +10,7 @@ import { DatabaseModule } from './database/database.module';
 import { MailerModule } from './mailer/mailer.module';
 import { FilesModule } from './files/files.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
     FilesModule,
     AppointmentsModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
