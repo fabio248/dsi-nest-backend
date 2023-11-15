@@ -1,7 +1,10 @@
+import { zonedTimeToUtc } from 'date-fns-tz';
 export function TransformStringToDate(dateInSpanishFormat: string): Date {
-  const splitedDate = dateInSpanishFormat.split('/');
+  const splitDate = dateInSpanishFormat.split('/');
 
-  const dateEnglishFormat = `${splitedDate[1]}/${splitedDate[0]}/${splitedDate[2]}`;
+  const dateEnglishFormat = `${splitDate[1]}/${splitDate[0]}/${splitDate[2]}`;
 
-  return new Date(dateEnglishFormat);
+  const date = new Date(dateEnglishFormat);
+
+  return zonedTimeToUtc(date, 'America/El_Salvador')
 }

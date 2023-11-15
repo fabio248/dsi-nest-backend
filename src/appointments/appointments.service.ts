@@ -113,6 +113,9 @@ export class AppointmentsService {
           select: this.infoClientToInclude,
         },
       },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
 
     return listAppointments.map((appointment: Appointment) =>

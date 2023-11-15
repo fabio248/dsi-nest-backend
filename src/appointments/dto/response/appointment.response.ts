@@ -11,7 +11,7 @@ export class AppointmentResponseDto {
    */
   @Expose()
   @Transform(({ value }) =>
-    value.toLocaleString('en-US', { timeZone: 'America/El_Salvador' }),
+    value.toLocaleString('es-ES', { timeZone: 'America/El_Salvador' }),
   )
   startDate: string;
 
@@ -21,7 +21,7 @@ export class AppointmentResponseDto {
    */
   @Expose()
   @Transform(({ value }) =>
-    value.toLocaleString('en-US', { timeZone: 'America/El_Salvador' }),
+    value.toLocaleString('es-ES', { timeZone: 'America/El_Salvador' }),
   )
   endDate: string;
 
