@@ -1,4 +1,4 @@
-import { PrismaClient, Category } from "@prisma/client";
+import { PrismaClient, Category, Prisma } from "@prisma/client";
 import { Logger } from "@nestjs/common";
 
 const prisma = new PrismaClient();
@@ -10,7 +10,6 @@ interface Product {
     sizeProduct: string;
     sellingProduct: number;
 }
-
 const products: Product[] = [
     {
         nameProduct: 'Collar de Cuero',
@@ -174,6 +173,76 @@ async function main() {
             Logger.log(`Product ${newProduct.nameProduct} created`, 'Seeder');
         }
     }
+
+    function getRandomDate(start: Date, end: Date): Date {
+        return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    }
+
+    function generateBillDetails(numberOfDetails: number) {
+        const details = [];
+        const usedProductIds = new Set();
+        let totalSales = 0;
+
+        for (let i = 0; i < numberOfDetails; i++) {
+            let product;
+
+            // Ensure unique productId for each bill detail
+            do {
+                product = storedProducts[Math.floor(Math.random() * products.length)];
+            } while (usedProductIds.has(product.id));
+
+            usedProductIds.add(product.id);
+
+            const quantity = Math.floor(Math.random() * 5) + 1;
+            const unitPrice = product.sellingProduct;
+            const taxableSales = unitPrice * quantity;
+
+            totalSales += taxableSales;
+
+            details.push({
+                quantity,
+                description: product.nameProduct,
+                unitPrice,
+                exemptSales: 0,
+                nonTaxableSales: 0,
+                taxableSales,
+                productId: product.id,
+                createdAt: getRandomDate(new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000), new Date()).toISOString(),
+            });
+        }
+
+        return { details, totalSales };
+    }
+
+    const bills: Prisma.BillCreateInput[]  = [];
+
+    for (let i = 1; i <= 50; i++) {
+        const clientId = Math.floor(Math.random() * 3) + 1;
+        const numberOfDetails = Math.floor(Math.random() * 5) + 1;
+        const { details, totalSales } = generateBillDetails( numberOfDetails);
+
+        bills.push({
+            totalSales: +totalSales.toFixed(2),
+            client: {
+                connect: {
+                    id: clientId,
+                },
+            },
+            billsDetails: {
+                createMany: {
+                    data: details
+                }}
+        });
+    }
+
+    await prisma.$transaction(async (tPrisma)=>{
+        for await (const bill of bills) {
+            const newBill = await tPrisma.bill.create({
+                data: bill,
+            });
+            Logger.log(`Bill created id: ${newBill.id}, totalSale: ${newBill.totalSales}`, 'Seeder');
+        }
+    });
 }
 
 main()
