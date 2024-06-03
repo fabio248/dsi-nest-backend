@@ -121,7 +121,7 @@ export class PdfGeneratesService {
         const templatePath = path.resolve(
             __dirname,
             `templates/${temPath}`,
-        );;
+        );
         const templateHtml = fs.readFileSync(templatePath, 'utf8');
         const template = handlebars.compile(templateHtml);
 
