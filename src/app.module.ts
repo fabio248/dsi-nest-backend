@@ -14,6 +14,7 @@ import { ProductsModule } from './products/products.module';
 import { GeneratePdfModule } from './generate-pdf/generate-pdf.module';
 import { BillsModule } from './bills/bills.module';
 import { AppController } from './app.controller';
+import { PdfGeneratesModule } from './pdf-generates/pdf-generates.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,6 +37,7 @@ import { AppController } from './app.controller';
     ProductsModule,
     BillsModule,
     GeneratePdfModule,
+    PdfGeneratesModule,
   ],
   controllers: [AppController],
   providers: [],

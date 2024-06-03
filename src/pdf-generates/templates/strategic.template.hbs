@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de los 5 Más Vendidos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .date-range, .totals, .product-list {
+            margin-bottom: 20px;
+        }
+        .totals {
+            display: flex;
+            justify-content: space-between;
+        }
+        .product-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .product-list th, .product-list td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .product-list th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Reporte de los 5 Más Vendidos</h1>
+
+    <div class="date-range">
+        <h2>Rango de Fechas</h2>
+        <p>Desde: {{startDate}} Hasta: {{endDate}}</p>
+    </div>
+
+    <div class="totals">
+        <div class="total-sold">
+            <h2>Monto Total Vendido</h2>
+            <p>{{totalAmount}}</p>
+        </div>
+        <div class="total-products">
+            <h2>Total de Productos Vendidos</h2>
+            <p>{{totalProducts}}</p>
+        </div>
+    </div>
+
+    <div class="product-list">
+        <h2>Top 5 Productos</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad Vendida</th>
+                <th>Monto Vendido</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each topProducts}}
+                <tr>
+                    <td>{{this.productName}}</td>
+                    <td>{{this.quantitySold}}</td>
+                    <td>{{this.amountSold}}</td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Generado el {{currentDate}}</p>
+    </div>
+</div>
+</body>
+</html>

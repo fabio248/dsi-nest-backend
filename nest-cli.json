@@ -4,6 +4,13 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
+    "assets": [
+      {
+      "include": "pdf-generates/templates/*.hbs",
+      "watchAssets": true,
+      "outDir": "dist/src"
+      }
+    ],
     "plugins": [
       {
         "name": "@nestjs/swagger",
