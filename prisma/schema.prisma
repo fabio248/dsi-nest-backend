@@ -30,6 +30,7 @@ model User {
   pets         Pet[]
   appointments Appointment[]
   Bill         Bill[]
+  reports      Report[]
 
   @@map("user")
 }
@@ -321,4 +322,50 @@ enum UserRole {
 enum Gender {
   macho
   hembra
+}
+
+model Report {
+  id        String    @unique() @default(uuid())
+  startDate DateTime? @map("rango_inicio")
+  endDate   DateTime? @map("rango_finalizacion")
+
+  createdAt DateTime  @default(now()) @map("fecha_creacion")
+  updatedAt DateTime  @updatedAt() @map("fecha_modificacion")
+  deletedAt DateTime? @map("eliminado_en")
+
+  userId       Int        @map("usuario_creador")
+  user         User       @relation(fields: [userId], references: [id])
+  fileId       String     @unique() @map("archivo")
+  file         File2      @relation(fields: [fileId], references: [id])
+  reportTypeId String     @map("tipo_reporte")
+  reportType   ReportType @relation(fields: [reportTypeId], references: [id])
+
+  @@map("mtn_reporte")
+}
+
+model File2 {
+  id   String @unique() @default(uuid())
+  key  String @map("nombre_clave")
+  type String @map("tipo")
+
+  report Report?
+
+  createdAt DateTime  @default(now()) @map("fecha_creacion")
+  updatedAt DateTime  @updatedAt() @map("fecha_modificacion")
+  deletedAt DateTime? @map("eliminado_en")
+
+  @@map("mnt_archivo")
+}
+
+model ReportType {
+  id   String @unique() @default(uuid())
+  name String @unique() @map("nombre")
+
+  reports Report[]
+
+  createdAt DateTime  @default(now()) @map("fecha_creacion")
+  updatedAt DateTime  @updatedAt() @map("fecha_modificacion")
+  deletedAt DateTime? @map("eliminado_en")
+
+  @@map("ctl_tipo_reporte")
 }
