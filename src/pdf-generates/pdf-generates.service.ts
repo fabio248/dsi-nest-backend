@@ -4,19 +4,24 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
 import {PrismaService} from "../database/database.service";
-import {Prisma, User} from "@prisma/client";
+import {Prisma} from "@prisma/client";
 import {StrategicReport, TacticalReport, TopProduct} from "./interfaces";
 import {Response} from "express";
 import {StrategicReportDto} from "./dtos/request/strategic-report.input";
 import {format} from "date-fns";
+import {reportTypes} from "../../prisma/seeds/seed";
+import { v4 as uuidv4 } from "uuid";
+import {FilesService} from "../files/files.service";
+import {JwtPayload} from "../auth/interfaces/jwt.interface";
+
 
 export type TemplatePath = 'strategic.template.hbs' | 'tactical.template.hbs';
 
 @Injectable()
 export class PdfGeneratesService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService, private readonly fileService: FilesService) {}
 
-    async strategicGenerate(res: Response, user: User, strategicReportDto: StrategicReportDto) {
+    async strategicGenerate(res: Response, user: JwtPayload, strategicReportDto: StrategicReportDto) {
         console.log(user, strategicReportDto);
         const { startDate, endDate } = strategicReportDto;
         const whereInput: Prisma.BillWhereInput = {};
@@ -86,7 +91,39 @@ export class PdfGeneratesService {
             currentDate: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
         };
 
-        const buffer = await this.generate('strategic.template.hbs', report);
+        const buffer =  await this.prisma.$transaction(async (tPrisma) => {
+            const keyNameFile = `${uuidv4()}-strategic-report.pdf`;
+
+            const [buffer] = await Promise.all([
+                this.generate('strategic.template.hbs', report),
+                tPrisma.report.create({
+                    data: {
+                        startDate,
+                        endDate,
+                        reportType: {
+                            connect: {
+                                name: reportTypes.STRATEGIC_REPORT.name
+                            }
+                        },
+                        file: {
+                            create: {
+                                type: 'pdf',
+                                key: keyNameFile,
+                            },
+                        },
+                        user: {
+                            connect: {
+                                id: +user.identify
+                            }
+                        }
+                    }
+                }),
+            ]);
+
+            await this.fileService.uploadFile(buffer, `reports/${keyNameFile}`)
+
+            return buffer
+        })
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=strategic-report.pdf');

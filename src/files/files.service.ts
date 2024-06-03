@@ -40,6 +40,21 @@ export class FilesService {
     });
   }
 
+  async uploadFile(file: Buffer, key: string): Promise<void> {
+    try {
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: file,
+        ContentType: 'application/pdf'
+      });
+
+      await this.s3Client.send(command);
+    }catch (e) {
+        throw new UnprocessableEntityException(e.message);
+    }
+  }
+
   getUrlToUploadFile(key: string, folderName: string) {
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
