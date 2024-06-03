@@ -114,8 +114,8 @@ export class AppointmentsService {
         },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     return listAppointments.map((appointment: Appointment) =>

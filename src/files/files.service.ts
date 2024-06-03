@@ -46,12 +46,12 @@ export class FilesService {
         Bucket: this.bucketName,
         Key: key,
         Body: file,
-        ContentType: 'application/pdf'
+        ContentType: 'application/pdf',
       });
 
       await this.s3Client.send(command);
-    }catch (e) {
-        throw new UnprocessableEntityException(e.message);
+    } catch (e) {
+      throw new UnprocessableEntityException(e.message);
     }
   }
 

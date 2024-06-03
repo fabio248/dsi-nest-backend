@@ -6,5 +6,5 @@ export function TransformStringToDate(dateInSpanishFormat: string): Date {
 
   const date = new Date(dateEnglishFormat);
 
-  return zonedTimeToUtc(date, 'America/El_Salvador')
+  return zonedTimeToUtc(date, 'America/El_Salvador');
 }
