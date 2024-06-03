@@ -7,7 +7,7 @@ export interface StrategicReport {
     currentDate: string;      // Fecha de generación del reporte
 }
 
-interface TopProduct {
+export interface TopProduct {
     productName: string;     // Nombre del producto
     quantitySold: number;    // Cantidad vendida del producto
     amountSold: string;      // Monto vendido del producto

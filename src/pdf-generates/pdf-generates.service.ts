@@ -5,28 +5,89 @@ import * as path from 'path';
 import * as handlebars from 'handlebars';
 import {PrismaService} from "../database/database.service";
 import {User} from "@prisma/client";
-import {StrategicReport, TacticalReport} from "./interfaces";
+import {StrategicReport, TacticalReport, TopProduct} from "./interfaces";
 import {Response} from "express";
+import {StrategicReportDto} from "./dtos/request/strategic-report.input";
+import {format} from "date-fns";
 
 export type TemplatePath = 'strategic.template.hbs' | 'tactical.template.hbs';
 
 @Injectable()
 export class PdfGeneratesService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
-    async strategicGenerate(res: Response, user: User) {
-        console.log(user)
-        const products = await this.prismaService.product.findMany({
+    async strategicGenerate(res: Response, user: User, strategicReportDto: StrategicReportDto) {
+        console.log(user, strategicReportDto);
+        const { startDate, endDate } = strategicReportDto;
+        const bills = await this.prisma.bill.findMany({
             where: {
                 createdAt: {
-                    lte: new Date(),
+                    gte: new Date(startDate),
+                    lte: new Date(endDate),
+                }
+            },
+            include: {
+                billsDetails: {
+                    include: {
+                        product: true,
+                    }
                 }
             }
         });
 
-        console.log('products', products);
+        // Calculate total amount and total products
+        let totalAmount = 0;
+        let totalProducts = 0;
 
-        return;
+        const productSales = new Map<number, { productName: string; quantitySold: number; amountSold: number }>();
+
+        bills.forEach(bill => {
+            totalAmount += bill.totalSales;
+
+            bill.billsDetails.forEach(detail => {
+                totalProducts += detail.quantity;
+
+                const product = detail.product;
+                const existingProduct = productSales.get(product.id);
+
+                if (existingProduct) {
+                    existingProduct.quantitySold += detail.quantity;
+                    existingProduct.amountSold += detail.taxableSales;
+                } else {
+                    productSales.set(product.id, {
+                        productName: product.nameProduct,
+                        quantitySold: detail.quantity,
+                        amountSold: detail.taxableSales,
+                    });
+                }
+            });
+        });
+
+        // Get top 5 products by quantity sold
+        const topProducts: TopProduct[] = Array.from(productSales.values())
+            .sort((a, b) => b.quantitySold - a.quantitySold)
+            .slice(0, 5)
+            .map(product => ({
+                productName: product.productName,
+                quantitySold: product.quantitySold,
+                amountSold: product.amountSold.toFixed(2), // Format to string with 2 decimal places
+            }));
+
+        const report: StrategicReport = {
+            startDate: format(new Date(startDate), 'dd/MM/yyyy'),
+            endDate: format(new Date(endDate), 'dd/MM/yyyy'),
+            totalAmount: totalAmount.toFixed(2), // Format to string with 2 decimal places
+            totalProducts,
+            topProducts,
+            currentDate: format(new Date(), 'dd/MM/yyyy'),
+        };
+
+        const buffer = await this.generate('strategic.template.hbs', report);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=strategic-report.pdf');
+        res.setHeader('Content-Length', buffer.length);
+        res.send(buffer);
     }
 
     async generate(templatePath: TemplatePath, data: StrategicReport | TacticalReport ){
@@ -56,7 +117,7 @@ export class PdfGeneratesService {
     async compile(temPath: TemplatePath, data: StrategicReport | TacticalReport ) {
         const templatePath = path.resolve(
             __dirname,
-            temPath,
+            `templates/${temPath}`,
         );;
         const templateHtml = fs.readFileSync(templatePath, 'utf8');
         const template = handlebars.compile(templateHtml);
