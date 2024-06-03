@@ -153,13 +153,21 @@ const products: Product[] = [
     }
 ];
 
-
+export const reportTypes = {
+    "STRATEGIC_REPORT": {
+        name: 'Informe de Ingresos por Ventas de Productos y Medicamentos'
+    },
+    "TACTICAL_REPORT": {
+        name: 'Informe sobre el Registro de Citas Veterinarias Programadas',
+    }
+}
 
 async function main() {
     Logger.log('Seeding started', 'Seeder');
 
-    const [storedProducts] = await Promise.all([
+    const [storedProducts, storedReportType] = await Promise.all([
         prisma.product.findMany(),
+        prisma.reportType.findMany()
     ])
 
     for await (const product of products) {
@@ -243,6 +251,17 @@ async function main() {
             Logger.log(`Bill created id: ${newBill.id}, totalSale: ${newBill.totalSales}`, 'Seeder');
         }
     });
+
+    for await (const reportType of Object.values(reportTypes)) {
+        const existingReportType = storedReportType.find((rt) => rt.name === reportType.name);
+
+        if (!existingReportType) {
+            const newReportType = await prisma.reportType.create({
+                data: reportType,
+            });
+            Logger.log(`ReportType ${newReportType.name} created`, 'Seeder');
+        }
+    }
 }
 
 main()
