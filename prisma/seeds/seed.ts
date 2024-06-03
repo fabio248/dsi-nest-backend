@@ -207,7 +207,7 @@ async function main() {
                 nonTaxableSales: 0,
                 taxableSales,
                 productId: product.id,
-                createdAt: getRandomDate(new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000), new Date()).toISOString(),
+                createdAt: getRandomDate(new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000), new Date()).toISOString(),
             });
         }
 
@@ -216,7 +216,7 @@ async function main() {
 
     const bills: Prisma.BillCreateInput[]  = [];
 
-    for (let i = 1; i <= 50; i++) {
+    for (let i = 1; i <= 150; i++) {
         const clientId = Math.floor(Math.random() * 3) + 1;
         const numberOfDetails = Math.floor(Math.random() * 5) + 1;
         const { details, totalSales } = generateBillDetails( numberOfDetails);

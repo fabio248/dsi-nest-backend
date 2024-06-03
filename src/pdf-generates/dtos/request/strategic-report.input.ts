@@ -1,11 +1,11 @@
-import {IsDateString, IsNotEmpty} from "class-validator";
+import {IsDateString, IsOptional} from "class-validator";
 
 export class StrategicReportDto {
-    @IsNotEmpty()
+    @IsOptional()
     @IsDateString()
-    startDate: Date;
+    startDate?: Date;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsDateString()
     endDate?: Date;
 }

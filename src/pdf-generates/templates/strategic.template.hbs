@@ -53,7 +53,11 @@
 
     <div class="date-range">
         <h2>Rango de Fechas</h2>
-        <p>Desde: {{startDate}} Hasta: {{endDate}}</p>
+        {{#if startDate}}
+            <p>Desde: {{startDate}} Hasta: {{endDate}}</p>
+        {{else}}
+            <p>Se han tomado todos los registros.</p>
+        {{/if}}
     </div>
 
     <div class="totals">

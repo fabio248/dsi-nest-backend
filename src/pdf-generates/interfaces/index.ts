@@ -1,6 +1,6 @@
 export interface StrategicReport {
-    startDate: string;        // Fecha de inicio del rango
-    endDate: string;          // Fecha de fin del rango
+    startDate?: string;        // Fecha de inicio del rango
+    endDate?: string;          // Fecha de fin del rango
     totalAmount: string;      // Monto total vendido
     totalProducts: number;    // Total de productos vendidos
     topProducts: TopProduct[]; // Lista de los 5 productos más vendidos

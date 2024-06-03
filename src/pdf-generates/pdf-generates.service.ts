@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
 import {PrismaService} from "../database/database.service";
-import {User} from "@prisma/client";
+import {Prisma, User} from "@prisma/client";
 import {StrategicReport, TacticalReport, TopProduct} from "./interfaces";
 import {Response} from "express";
 import {StrategicReportDto} from "./dtos/request/strategic-report.input";
@@ -19,13 +19,17 @@ export class PdfGeneratesService {
     async strategicGenerate(res: Response, user: User, strategicReportDto: StrategicReportDto) {
         console.log(user, strategicReportDto);
         const { startDate, endDate } = strategicReportDto;
+        const whereInput: Prisma.BillWhereInput = {};
+
+        if(startDate !== undefined && endDate !== undefined) {
+            whereInput.createdAt = {
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+            }
+        }
+
         const bills = await this.prisma.bill.findMany({
-            where: {
-                createdAt: {
-                    gte: new Date(startDate),
-                    lte: new Date(endDate),
-                }
-            },
+            where: whereInput,
             include: {
                 billsDetails: {
                     include: {
@@ -74,8 +78,8 @@ export class PdfGeneratesService {
             }));
 
         const report: StrategicReport = {
-            startDate: format(new Date(startDate), 'dd/MM/yyyy'),
-            endDate: format(new Date(endDate), 'dd/MM/yyyy'),
+            startDate: startDate ? format(new Date(startDate), 'dd/MM/yyyy') : null,
+            endDate: endDate ? format(new Date(endDate), 'dd/MM/yyyy') : null,
             totalAmount: totalAmount.toFixed(2), // Format to string with 2 decimal places
             totalProducts,
             topProducts,
