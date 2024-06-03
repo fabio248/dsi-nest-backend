@@ -77,14 +77,25 @@ export class FilesService {
     });
   }
 
-  async getUrlToGetFile(key: string, folderId: number): Promise<string> {
-    const folder = await this.prisma.folder.findUnique({
-      where: { id: folderId },
-    });
+  async getUrlToGetFile(
+    key: string,
+    folderId: number | string,
+  ): Promise<string> {
+    let folderName: string;
+
+    if (typeof folderId === 'number') {
+      const { name } = await this.prisma.folder.findUnique({
+        where: { id: folderId },
+      });
+
+      folderName = name;
+    } else {
+      folderName = folderId;
+    }
 
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
-      Key: `${folder.name}/${key}`,
+      Key: `${folderName}/${key}`,
     });
 
     return getSignedUrl(this.s3Client, command, {

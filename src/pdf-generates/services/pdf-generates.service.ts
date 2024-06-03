@@ -3,16 +3,16 @@ import * as puppeteer from 'puppeteer';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
-import { PrismaService } from '../database/database.service';
+import { PrismaService } from '../../database/database.service';
 import { Prisma } from '@prisma/client';
-import { StrategicReport, TacticalReport, TopProduct } from './interfaces';
+import { StrategicReport, TacticalReport, TopProduct } from '../interfaces';
 import { Response } from 'express';
-import { StrategicReportDto } from './dtos/request/strategic-report.input';
+import { StrategicReportDto } from '../dtos/request/strategic-report.input';
 import { format } from 'date-fns';
-import { reportTypes } from '../../prisma/seeds/seed';
+import { reportTypes } from '../../../prisma/seeds/seed';
 import { v4 as uuidv4 } from 'uuid';
-import { FilesService } from '../files/files.service';
-import { JwtPayload } from '../auth/interfaces/jwt.interface';
+import { FilesService } from '../../files/files.service';
+import { JwtPayload } from '../../auth/interfaces/jwt.interface';
 
 export type TemplatePath = 'strategic.template.hbs' | 'tactical.template.hbs';
 

@@ -57,7 +57,6 @@ export class ProductsService {
     const where: Prisma.ProductWhereInput = {};
 
     if (search) {
-      console.log({ search });
       where.OR = [
         { descriptionProduct: { contains: search, mode: 'insensitive' } },
         { nameProduct: { contains: search, mode: 'insensitive' } },
