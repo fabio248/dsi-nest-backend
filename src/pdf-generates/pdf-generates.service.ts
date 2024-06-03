@@ -83,7 +83,7 @@ export class PdfGeneratesService {
             totalAmount: totalAmount.toFixed(2), // Format to string with 2 decimal places
             totalProducts,
             topProducts,
-            currentDate: format(new Date(), 'dd/MM/yyyy'),
+            currentDate: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
         };
 
         const buffer = await this.generate('strategic.template.hbs', report);
@@ -109,7 +109,6 @@ export class PdfGeneratesService {
 
         const buffer = await page.pdf({
             format: 'A4',
-            margin: { top: 20, left: 20, bottom: 20, right: 20 },
             printBackground: true,
         });
 

@@ -207,7 +207,6 @@ async function main() {
                 nonTaxableSales: 0,
                 taxableSales,
                 productId: product.id,
-                createdAt: getRandomDate(new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000), new Date()).toISOString(),
             });
         }
 
@@ -231,7 +230,8 @@ async function main() {
             billsDetails: {
                 createMany: {
                     data: details
-                }}
+                }},
+            createdAt: getRandomDate(new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000), new Date()).toISOString(),
         });
     }
 
