@@ -7,7 +7,7 @@ import { PrismaService } from '../../database/database.service';
 import { Prisma } from '@prisma/client';
 import { StrategicReport, TacticalReport, TopProduct } from '../interfaces';
 import { Response } from 'express';
-import { StrategicReportDto } from '../dtos/request/strategic-report.input';
+import { ReportInputDto } from '../dtos/request/strategic-report.input';
 import { format } from 'date-fns';
 import { reportTypes } from '../../../prisma/seeds/seed';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,7 +26,7 @@ export class PdfGeneratesService {
   async strategicGenerate(
     res: Response,
     user: JwtPayload,
-    strategicReportDto: StrategicReportDto,
+    strategicReportDto: ReportInputDto,
   ) {
     const { startDate, endDate } = strategicReportDto;
     const whereInput: Prisma.BillWhereInput = {};
@@ -142,6 +142,134 @@ export class PdfGeneratesService {
     res.send(buffer);
   }
 
+
+  async tacticalGenerate(res: Response, user: JwtPayload, reportInputDto: ReportInputDto) {
+    const { startDate, endDate } = reportInputDto;
+    const whereInput: Prisma.AppointmentWhereInput = {};
+
+    if (startDate !== undefined && endDate !== undefined) {
+      whereInput.createdAt = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      };
+    }
+
+    const appointments = await this.prisma.appointment.findMany({
+      where: whereInput,
+      include: {
+        client: true,
+      },
+    });
+
+    // Calculating the required data for the report
+    const totalAppointments = appointments.length;
+
+    const appointmentTypes = [
+      'Consulta General',
+      'Cirugía General',
+      'Esterilización',
+      'Vacunación',
+      'Limpieza Dental',
+      'Desparazitación'
+    ];
+
+    const appointmentsByType = appointmentTypes.map(type => ({
+      type,
+      count: appointments.filter(appointment => appointment.name === type).length,
+    }));
+
+    const weekdaysCount = {
+      monday: 0,
+      tuesday: 0,
+      wednesday: 0,
+      thursday: 0,
+      friday: 0,
+      saturday: 0,
+      sunday: 0,
+    };
+
+    appointments.forEach(appointment => {
+      const dayOfWeek = new Date(appointment.startDate).getDay();
+      switch(dayOfWeek) {
+        case 0:
+          weekdaysCount.sunday++;
+          break;
+        case 1:
+          weekdaysCount.monday++;
+          break;
+        case 2:
+          weekdaysCount.tuesday++;
+          break;
+        case 3:
+          weekdaysCount.wednesday++;
+          break;
+        case 4:
+          weekdaysCount.thursday++;
+          break;
+        case 5:
+          weekdaysCount.friday++;
+          break;
+        case 6:
+          weekdaysCount.saturday++;
+          break;
+      }
+    });
+
+    const reportData: TacticalReport = {
+      startDate: startDate ? format(new Date(startDate), 'dd/MM/yyyy') : null,
+      endDate: endDate ? format(new Date(endDate), 'dd/MM/yyyy') : null,
+      totalAppointments,
+      appointmentsByType,
+      weekdays: weekdaysCount,
+      currentDate: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
+    };
+
+
+    const buffer = await this.prisma.$transaction(async (tPrisma) => {
+      const keyNameFile = `${uuidv4()}-tactical-report.pdf`;
+
+      const [buffer] = await Promise.all([
+        this.generate('tactical.template.hbs', reportData),
+        tPrisma.report.create({
+          data: {
+            startDate,
+            endDate,
+            reportType: {
+              connect: {
+                name: reportTypes.STRATEGIC_REPORT.name,
+              },
+            },
+            file: {
+              create: {
+                type: 'pdf',
+                key: keyNameFile,
+              },
+            },
+            user: {
+              connect: {
+                id: +user.identify,
+              },
+            },
+          },
+        }),
+      ]);
+
+      await this.fileService.uploadFile(buffer, `reports/${keyNameFile}`);
+
+      return buffer;
+    });
+
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=tactical-report.pdf',
+    );
+    res.setHeader('Content-Length', buffer.length);
+    return res.send(buffer);
+  }
+
+
   async generate(
     templatePath: TemplatePath,
     data: StrategicReport | TacticalReport,
@@ -169,7 +297,7 @@ export class PdfGeneratesService {
   }
 
   async compile(temPath: TemplatePath, data: StrategicReport | TacticalReport) {
-    const templatePath = path.resolve(__dirname, `templates/${temPath}`);
+    const templatePath = path.resolve(path.dirname(__dirname), `templates/${temPath}`);
     const templateHtml = fs.readFileSync(templatePath, 'utf8');
     const template = handlebars.compile(templateHtml);
 

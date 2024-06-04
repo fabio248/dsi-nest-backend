@@ -1,6 +1,6 @@
 import { IsDateString, IsOptional } from 'class-validator';
 
-export class StrategicReportDto {
+export class ReportInputDto {
   @IsOptional()
   @IsDateString()
   startDate?: Date;

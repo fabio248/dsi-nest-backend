@@ -13,7 +13,7 @@ import RoleGuard from '../auth/guards/role.guard';
 import { UserRole } from '../users/dto/enum/role.enum';
 import { CurrentUser } from '../shared/decorator/current-user.decorator';
 import { Response } from 'express';
-import { StrategicReportDto } from './dtos/request/strategic-report.input';
+import { ReportInputDto } from './dtos/request/strategic-report.input';
 import { JwtPayload } from '../auth/interfaces/jwt.interface';
 import { ReportsService } from './services/reports.service';
 import { GenericWithSearchArgs } from '../shared/args/generic-with-search.args';
@@ -32,7 +32,7 @@ export class ReportsController {
   async strategicGenerate(
     @Res() res: Response,
     @CurrentUser() user: JwtPayload,
-    @Body() strategicReportDto: StrategicReportDto,
+    @Body() strategicReportDto: ReportInputDto,
   ) {
     return this.pdfGeneratesService.strategicGenerate(
       res,
@@ -40,6 +40,15 @@ export class ReportsController {
       strategicReportDto,
     );
   }
+
+  @Post('tactical')
+    async tacticalGenerate(
+        @Res() res: Response,
+        @CurrentUser() user: JwtPayload,
+        @Body() tacticalReportDto: ReportInputDto,
+    ) {
+        return this.pdfGeneratesService.tacticalGenerate(res, user, tacticalReportDto);
+    }
 
   @Get('')
   async findAll(@Query() args: GenericWithSearchArgs) {

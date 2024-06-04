@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Agendado de Citas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .date-range, .totals, .appointments-list, .weekday-count {
+            margin-bottom: 20px;
+        }
+        .totals {
+            display: flex;
+            justify-content: space-between;
+        }
+        .appointments-list table, .weekday-count table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .appointments-list th, .appointments-list td, .weekday-count th, .weekday-count td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .appointments-list th, .weekday-count th {
+            background-color: #f2f2f2;
+        }
+        .footer {
+            text-align: center;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Reporte de Agendado de Citas</h1>
+
+    <div class="date-range">
+        <h2>Rango de Fechas</h2>
+        {{#if startDate}}
+            <p>Desde: {{startDate}} Hasta: {{endDate}}</p>
+        {{else}}
+            <p>Se han tomado en cuenta todos los registros</p>
+        {{/if}}
+    </div>
+
+    <div class="totals">
+        <div class="total-appointments">
+            <h2>Total de Citas</h2>
+            <p>{{totalAppointments}}</p>
+        </div>
+    </div>
+
+    <div class="appointments-list">
+        <h2>Cantidad de Citas por Tipo</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Tipo de Cita</th>
+                <th>Cantidad</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each appointmentsByType}}
+                <tr>
+                    <td>{{this.type}}</td>
+                    <td>{{this.count}}</td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="weekday-count">
+        <h2>Citas por Día de la Semana</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Día de la Semana</th>
+                <th>Cantidad</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Lunes</td>
+                <td>{{weekdays.monday}}</td>
+            </tr>
+            <tr>
+                <td>Martes</td>
+                <td>{{weekdays.tuesday}}</td>
+            </tr>
+            <tr>
+                <td>Miércoles</td>
+                <td>{{weekdays.wednesday}}</td>
+            </tr>
+            <tr>
+                <td>Jueves</td>
+                <td>{{weekdays.thursday}}</td>
+            </tr>
+            <tr>
+                <td>Viernes</td>
+                <td>{{weekdays.friday}}</td>
+            </tr>
+            <tr>
+                <td>Sábado</td>
+                <td>{{weekdays.saturday}}</td>
+            </tr>
+            <tr>
+                <td>Domingo</td>
+                <td>{{weekdays.sunday}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Generado el {{currentDate}}</p>
+    </div>
+</div>
+</body>
+</html>
