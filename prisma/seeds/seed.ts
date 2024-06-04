@@ -262,6 +262,32 @@ async function main() {
             Logger.log(`ReportType ${newReportType.name} created`, 'Seeder');
         }
     }
+
+    const names = ['Consulta General', 'Cirugía General', 'Esterilización', 'Vacunación', 'Limpieza Dental', 'Desparazitación'];
+
+    for (let i = 0; i < 75; i++) {
+        const name = names[Math.floor(Math.random() * names.length)];
+        const startDate = getRandomDate(new Date(Date.now() - 12 * 30 * 24 * 60 * 60 * 1000), new Date());
+        const endDate = new Date(startDate.getTime() + Math.random() * (24 * 60 * 60 * 1000)); // endDate is up to 24 hours after startDate
+        const description = name;
+        const createdAt = startDate;
+
+        await prisma.appointment.create({
+            data: {
+                name,
+                startDate,
+                endDate,
+                description,
+                createdAt,
+                client: {
+                    connect: {
+                        id: Math.floor(Math.random() * 3) + 1,
+                    },
+                },
+            }
+        })
+    }
+
 }
 
 main()
