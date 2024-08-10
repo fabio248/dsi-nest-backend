@@ -17,9 +17,10 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
+  const PREFIX = 'api/v';
   app.enableVersioning({
     type: VersioningType.URI,
-    prefix: 'api/v',
+    prefix: PREFIX,
     defaultVersion: '1',
   });
 
@@ -32,8 +33,11 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup(`${PREFIX}1/docs`, app, document);
 
-  await app.listen(port);
+  await app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}/${PREFIX}1`);
+    console.log(`Swagger running on http://localhost:${port}/${PREFIX}1/docs`);
+  });
 }
 bootstrap();
