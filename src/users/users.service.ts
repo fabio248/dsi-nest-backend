@@ -172,9 +172,7 @@ export class UsersService {
     return plainToInstance(UserResponseDto, user);
   }
 
-  async findOneWithPet(userId: number, args?: GenericArgs) {
-    const { skip, take } = args;
-
+  async findOneWithPet(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {

@@ -91,8 +91,8 @@ export class UsersController {
 
   @ApiBearerAuth()
   @Get(':userId/pets')
-  getUserWithPet(@Param('userId') userId: number, @Query() args?: GenericArgs) {
-    return this.usersService.findOneWithPet(userId, args);
+  getUserWithPet(@Param('userId') userId: number) {
+    return this.usersService.findOneWithPet(userId);
   }
 
   @ApiBearerAuth()
