@@ -179,8 +179,6 @@ export class UsersService {
       where: { id: userId },
       include: {
         pets: {
-          skip,
-          take,
           include: {
             medicalHistories: {
               include: {
