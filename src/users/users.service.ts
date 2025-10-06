@@ -18,7 +18,6 @@ import { PrismaService } from '../database/database.service';
 import { UserWithPetResponseDto, UserResponseDto } from './dto/response';
 import { MailerService } from '../mailer/mailer.service';
 import { getWelcomeMail } from './utils/mails/welcome.mail';
-import { GenericArgs } from '../shared/args/generic.args';
 import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
 import { getPaginationParams } from '../shared/helper/pagination-params.helper';
 import { RequestDocumentInput } from './dto/input/request-document.input';

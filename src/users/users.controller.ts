@@ -25,7 +25,6 @@ import { Public } from '../auth/decorators/public-route.decorator';
 import { FindAllUserArgs } from './dto/args/find-all-user.args';
 import { CreatePetInput } from '../pets/dto/input';
 import { PetsService } from '../pets/pets.service';
-import { GenericArgs } from '../shared/args/generic.args';
 import { FindAllUsersResponseDto } from './dto/response/find-all-users.response';
 import { CurrentUser } from '../shared/decorator/current-user.decorator';
 import { RequestDocumentInput } from './dto/input/request-document.input';
