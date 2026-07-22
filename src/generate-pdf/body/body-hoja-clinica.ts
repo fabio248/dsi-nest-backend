@@ -16,6 +16,8 @@ import {
   MerriweatherBlack,
   MerriweatherLight,
 } from '../utils/fonts/fonts.style';
+//estilos reutilizables del PDF (titulos de seccion y saltos inteligentes)
+import { sectionTitle, ensureSpace } from '../utils/pdf-style.utils';
 
 export function addFieldsHojaClinica(
   dataPet: PetResponseDto,
@@ -25,19 +27,8 @@ export function addFieldsHojaClinica(
   age: number,
   medicalHistoryResponseDto: MedicalHistoryResponseDto,
 ) {
-  const minHeightNeededForNextContent = 100;
   doc.fontSize(12); // Tamaño de fuente más pequeño
-  doc.moveDown(2);
-  doc.font(MerriweatherBlack).text('DATOS DEL PACIENTE ', {
-    align: 'center',
-  });
-  function addPageIfNecessary() {
-    if (doc.y + minHeightNeededForNextContent > doc.page.height) {
-      doc.addPage({ size: [612, 841.89], margin: 50 });
-    }
-  }
-  // Añade espacio vertical entre el texto anterior y la tabla
-  doc.moveDown(2);
+  sectionTitle(doc, 'Datos del paciente');
 
   // Paciente
   doc.font(MerriweatherBlack).text(`Nombre del paciente: `, {
@@ -136,14 +127,7 @@ export function addFieldsHojaClinica(
     );
   doc.moveDown(0.7);
 
-  // Añade espacio vertical entre los campos anteriores y el siguiente bloque
-  doc.moveDown(2);
-
-  doc.font(MerriweatherBlack).text('DATOS DEL PROPIETARIO ', {
-    align: 'center',
-  });
-
-  doc.moveDown(2);
+  sectionTitle(doc, 'Datos del propietario');
   // Propiedad de Sr. (Sra.)
   doc.font(MerriweatherBlack).text(`Nombre del propietario: `, {
     continued: true,
@@ -215,12 +199,7 @@ export function addFieldsHojaClinica(
     .font(MerriweatherLight)
     .text(dataPet.user.direction, { align: 'left' });
 
-  doc.moveDown(2);
-
-  doc.addPage({ size: [612, 841.89], margin: 50 });
-  doc.font(MerriweatherBlack).text('CONTROL PROFILÁCTICO', {
-    align: 'center',
-  });
+  sectionTitle(doc, 'Control profiláctico');
 
   // tabla inicial sobre desparacitacion
   const tableDeworming = {
@@ -261,6 +240,7 @@ export function addFieldsHojaClinica(
 
   //enviamos la carga de codigo junto a la funcion a los formatos de tabla
   //en utils dentro de utils/calc/utils-calc-tableFormat
+  ensureSpace(doc, 160);
   const formatDeworming = formatTable(
     doc,
     tableDeworming as unknown as TableFunction,
@@ -309,6 +289,7 @@ export function addFieldsHojaClinica(
   }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat
+  ensureSpace(doc, 160);
   const tableVaccinesFormat = formatTable(
     doc,
     tableVaccines as unknown as TableFunction,
@@ -353,6 +334,7 @@ export function addFieldsHojaClinica(
   }
 
   //mismo proceso mandamos la carga de codigo del formato de la tabla a Utils/Calc/utils-calc-tableFormat
+  ensureSpace(doc, 140);
   const tableCelosFormat = formatTable(
     doc,
     tableCelos as unknown as TableFunction,
@@ -360,20 +342,14 @@ export function addFieldsHojaClinica(
   //renderizamos el contenido de la funcion
   tableCelosFormat;
 
-  addPageIfNecessary();
-  doc.moveDown(2);
-  doc.addPage({ size: [612, 841.89], margin: 50 });
   doc.fontSize(12);
-  doc.font(MerriweatherBlack).text('DATOS CLÍNICOS ', {
+  sectionTitle(doc, 'Datos clínicos');
+
+  doc.font(MerriweatherBlack).fontSize(11).text('Datos de la anamnesis', {
     align: 'center',
   });
-
-  doc.moveDown(1);
-  doc.font(MerriweatherBlack).text('DATOS DE LA ANAMNESIS ', {
-    align: 'center',
-  });
-
-  doc.moveDown(2);
+  doc.fontSize(12);
+  doc.moveDown(1.5);
   doc
     .font(MerriweatherBlack)
     .text(
@@ -485,11 +461,7 @@ export function addFieldsHojaClinica(
       ', para garantizar que todas sus necesidades básicas estén satisfechas y promover su salud y bienestar óptimos.',
     );
 
-  doc.moveDown(2);
-  doc.font(MerriweatherBlack).text('EXÁMEN FÍSICO  ', {
-    align: 'center',
-  });
-  doc.moveDown(1);
+  sectionTitle(doc, 'Examen físico');
 
   // Temperatura
   doc.font(MerriweatherBlack).text(`Temperatura Corporal:  `, {
@@ -565,15 +537,7 @@ export function addFieldsHojaClinica(
     });
   doc.moveDown(0.5);
 
-  doc.addPage({
-    size: [612, 841.89],
-    margin: 50,
-    separation: true,
-  });
-
-  doc.font(MerriweatherBlack).text('TRATAMIENTOS BRINDADOS', {
-    align: 'center',
-  });
+  sectionTitle(doc, 'Tratamientos brindados');
   const treatmentsTable = {
     title: 'Tratamientos:',
     headers: ['Medicamento', 'Cantidad', 'Frecuencia', 'Duración (días)'],
@@ -609,17 +573,14 @@ export function addFieldsHojaClinica(
     treatmentsTable.rows.push(emptyRow as unknown as string);
   }
 
+  ensureSpace(doc, 160);
   const treatmentsTableFormat = formatTable(
     doc,
     treatmentsTable as unknown as TableFunction,
   );
   treatmentsTableFormat;
 
-  doc.moveDown(1);
-
-  doc.font(MerriweatherBlack).text('INTERVENCIONES QUIRÚRGICAS', {
-    align: 'center',
-  });
+  sectionTitle(doc, 'Intervenciones quirúrgicas');
 
   const surgicalInterventionsTable = {
     title: 'Intervenciones:',
@@ -656,18 +617,14 @@ export function addFieldsHojaClinica(
     surgicalInterventionsTable.rows.push(emptyRow as unknown as string);
   }
 
+  ensureSpace(doc, 160);
   const surgicalInterventionsTableFormat = formatTable(
     doc,
     surgicalInterventionsTable as unknown as TableFunction,
   );
   surgicalInterventionsTableFormat;
 
-  doc.moveDown(2);
-  doc.font(MerriweatherBlack).text('OTROS DATOS IMPORTANTES', {
-    align: 'center',
-  });
-
-  doc.moveDown(1);
+  sectionTitle(doc, 'Otros datos importantes');
 
   doc.font(MerriweatherLight).text(createHojaClinicaInput.moreImportsData, {
     align: 'left',

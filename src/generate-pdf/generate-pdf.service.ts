@@ -37,6 +37,7 @@ import { finalTextConstanciaDeSalud } from './footer/footer-constancia-salud';
 import { finalTextEutanasia } from './footer/footer-eutanasia';
 import { finalTextConsentimiento } from './footer/footer-consentimiento';
 import { LogoImageName } from './utils/fonts/fonts.style';
+import { addPageNumbers } from './utils/pdf-style.utils';
 import { FilesService } from '../files/files.service';
 
 @Injectable()
@@ -255,6 +256,9 @@ export class GeneratePdfService {
         const pdfData = Buffer.concat(buffer);
         resolve(pdfData);
       });
+
+      // Numera todas las paginas al pie (requiere bufferPages: true)
+      addPageNumbers(doc);
 
       doc.end();
     });

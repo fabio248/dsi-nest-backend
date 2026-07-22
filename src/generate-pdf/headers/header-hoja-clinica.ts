@@ -15,7 +15,7 @@ export async function addHeaderHojaClinica(
 
   const fechaFormateada = `${dia}/${mes}/${anio}`;
   // Agrega el texto del encabezado agrupado
-  doc.font(MerriweatherBlack).text(`Clínica Veterinaria Mistun.`, 50, 40, {
+  doc.font(MerriweatherBlack).text(`Clínica Veterinaria Mitsum.`, 50, 40, {
     width: doc.page.width - 100,
     align: `center`,
   });
