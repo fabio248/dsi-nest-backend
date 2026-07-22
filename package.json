@@ -22,7 +22,11 @@
     "docker:down": "docker compose down",
     "prisma:migrate:save": "npx prisma migrate dev --preview-feature --skip-seed --create-only",
     "prisma:migrate:update": "npx prisma migrate dev --skip-seed",
-    "prisma:migrate:run": "npx prisma migrate deploy --preview-feature"
+    "prisma:migrate:run": "npx prisma migrate deploy --preview-feature",
+    "prisma:seed": "npx prisma db seed"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.367.0",
