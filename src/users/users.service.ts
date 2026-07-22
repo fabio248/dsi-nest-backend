@@ -42,9 +42,13 @@ export class UsersService {
 
     const { birthday, email } = createUserDto;
 
-    await this.throwErrorIfEmailIsAlreadyTaken(email);
+    if (email) {
+      await this.throwErrorIfEmailIsAlreadyTaken(email);
+    }
 
-    createUserDto.birthday = TransformStringToDate(birthday as string);
+    if (birthday) {
+      createUserDto.birthday = TransformStringToDate(birthday as string);
+    }
 
     const user = await this.prisma.user.create({
       data: createUserDto,
@@ -62,13 +66,17 @@ export class UsersService {
     const createUserDto = { ...createUserWithPetDto, pet: undefined };
     const { pet, email } = createUserWithPetDto;
 
-    await this.throwErrorIfEmailIsAlreadyTaken(email);
+    if (email) {
+      await this.throwErrorIfEmailIsAlreadyTaken(email);
+    }
 
     pet.birthday = TransformStringToDate(pet.birthday as string);
 
-    createUserDto.birthday = TransformStringToDate(
-      createUserDto.birthday as string,
-    );
+    if (createUserDto.birthday) {
+      createUserDto.birthday = TransformStringToDate(
+        createUserDto.birthday as string,
+      );
+    }
 
     const user = await this.prisma.user.create({
       data: {
@@ -304,6 +312,12 @@ export class UsersService {
 
   async sendWelcomeMail(user: User): Promise<void> {
     const { firstName, lastName, email } = user;
+
+    if (!email) {
+      this.logger.log('User has no email, skipping welcome mail');
+      return;
+    }
+
     const welcomeMail = getWelcomeMail(firstName, lastName);
 
     await this.mailerService.sendMail({

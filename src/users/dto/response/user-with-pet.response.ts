@@ -36,7 +36,7 @@ export class UserWithPetResponseDto {
    * La fecha es retornada en este formato: dd/mm/aaaa
    */
   @Expose()
-  @Transform(({ value }) => value.toLocaleDateString('es-SV'))
+  @Transform(({ value }) => (value ? value.toLocaleDateString('es-SV') : value))
   birthday?: Date;
 
   @ApiHideProperty()

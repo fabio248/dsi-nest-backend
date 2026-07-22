@@ -11,14 +11,16 @@ import * as bcrypt from 'bcryptjs';
 import { UserRole } from '../enum/role.enum';
 
 export class CreateUserInput {
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @Transform(({ value }: { value: string }) => bcrypt.hashSync(value, 10))
-  password: string;
+  @Transform(({ value }: { value: string }) =>
+    value ? bcrypt.hashSync(value, 10) : value,
+  )
+  password?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -32,11 +34,11 @@ export class CreateUserInput {
    * Fecha nacimiento en formato dd/mm/aaaa
    * @example 19/12/2000
    */
-  @IsNotEmpty()
+  @IsOptional()
   @Matches(/^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/, {
     message: 'The valid format is dd/mm/yyyy',
   })
-  birthday: string | Date;
+  birthday?: string | Date;
 
   /**
    * Numero de telefono en formato 0000-0000
