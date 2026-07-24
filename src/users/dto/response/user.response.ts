@@ -38,11 +38,11 @@ export class UserResponseDto {
   @Exclude()
   password: string;
 
-  @Exclude()
-  createdAt: string;
+  @Expose()
+  createdAt: Date;
 
-  @Exclude()
-  updatedAt: string;
+  @Expose()
+  updatedAt: Date;
 
   recoveryToken: string;
 }
