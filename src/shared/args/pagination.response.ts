@@ -2,6 +2,12 @@ import { Expose } from 'class-transformer';
 
 export class PaginationResponse {
   @Expose()
+  readonly page: number;
+
+  @Expose()
+  readonly limit: number;
+
+  @Expose()
   readonly totalItems: number;
 
   @Expose()

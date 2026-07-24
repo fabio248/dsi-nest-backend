@@ -8,10 +8,15 @@ import {
   CreateTreatmentInput,
   CreateSurgicalInterventionInput,
 } from './dto/input';
-import { FindAllPetsArgs } from './dto/args/find-all-pets.args';
+import { FindAllPetsArgs, PetSortBy } from './dto/args/find-all-pets.args';
 import { PrismaService } from '../database/database.service';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { TransformStringToDate } from '../shared/utils/transform-date.utils';
+import {
+  TransformStringToDate,
+  startOfDayFromISO,
+  endOfDayFromISO,
+} from '../shared/utils/transform-date.utils';
+import { SortOrder } from '../shared/args/sort-order.enum';
 import { SpeciesService } from '../species/species.service';
 import { UsersService } from '../users/users.service';
 import { plainToInstance } from 'class-transformer';
@@ -104,19 +109,33 @@ export class PetsService {
   async findAll(
     findAllPetsArgs: FindAllPetsArgs,
   ): Promise<FindAllPetsResponseDto> {
-    const { page, limit, search } = findAllPetsArgs;
+    const {
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      specieId,
+      gender,
+      pedigree,
+      isHaveTatto,
+      userId,
+      birthdayFrom,
+      birthdayTo,
+    } = findAllPetsArgs;
     const where: Prisma.PetWhereInput = {};
-    let searchGender;
 
     if (search) {
-      searchGender = this.searchInGenderField(search);
+      const searchGender = this.searchInGenderField(search);
 
       where.OR = [
         { raza: { contains: search, mode: 'insensitive' } },
         { color: { contains: search, mode: 'insensitive' } },
         { name: { contains: search, mode: 'insensitive' } },
         { specie: { name: { contains: search, mode: 'insensitive' } } },
-        { gender: searchGender },
+        // Only when the term maps to a gender: `{ gender: undefined }` is an
+        // empty branch, which would make the whole OR match every pet.
+        ...(searchGender ? [{ gender: searchGender }] : []),
         {
           user: {
             OR: [
@@ -129,11 +148,47 @@ export class PetsService {
       ];
     }
 
+    const filters: Prisma.PetWhereInput[] = [];
+
+    if (specieId?.length) {
+      filters.push({ specieId: { in: specieId } });
+    }
+
+    if (gender?.length) {
+      filters.push({ gender: { in: gender } });
+    }
+
+    if (pedigree !== undefined) {
+      filters.push({ pedigree });
+    }
+
+    if (isHaveTatto !== undefined) {
+      filters.push({ isHaveTatto });
+    }
+
+    if (userId !== undefined) {
+      filters.push({ userId });
+    }
+
+    if (birthdayFrom || birthdayTo) {
+      filters.push({
+        birthday: {
+          ...(birthdayFrom && { gte: startOfDayFromISO(birthdayFrom) }),
+          ...(birthdayTo && { lte: endOfDayFromISO(birthdayTo) }),
+        },
+      });
+    }
+
+    if (filters.length) {
+      where.AND = filters;
+    }
+
     const [data, totalItems] = await Promise.all([
       this.prisma.pet.findMany({
         skip: (page - 1) * limit,
         take: limit,
         where,
+        orderBy: this.buildOrderBy(sortBy, sortOrder),
         include: {
           user: true,
           specie: true,
@@ -147,6 +202,36 @@ export class PetsService {
       data,
       ...paginationParams,
     });
+  }
+
+  private buildOrderBy(
+    sortBy: PetSortBy | undefined,
+    sortOrder: SortOrder,
+  ): Prisma.PetOrderByWithRelationInput[] {
+    // `id` is the tiebreaker: without it rows sharing a sort value can repeat
+    // or disappear as the client pages through the result set.
+    const tiebreak: Prisma.PetOrderByWithRelationInput = { id: 'asc' };
+
+    if (!sortBy) {
+      return [tiebreak];
+    }
+
+    const direction = sortOrder as Prisma.SortOrder;
+
+    // Every sortable pet column is non-nullable, so none of these need
+    // `nulls: 'last'`.
+    switch (sortBy) {
+      case PetSortBy.specie:
+        return [{ specie: { name: direction } }, tiebreak];
+      case PetSortBy.owner:
+        return [
+          { user: { firstName: direction } },
+          { user: { lastName: direction } },
+          tiebreak,
+        ];
+      default:
+        return [{ [sortBy]: direction }, tiebreak];
+    }
   }
 
   searchInGenderField(search: string): Gender | undefined {

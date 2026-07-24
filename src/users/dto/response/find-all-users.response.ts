@@ -7,6 +7,12 @@ export class FindAllUsersResponseDto {
   data: UserResponseDto[];
 
   @Expose()
+  page: number;
+
+  @Expose()
+  limit: number;
+
+  @Expose()
   totalItems: number;
 
   @Expose()

@@ -38,11 +38,9 @@ export class UserResponseDto {
   @Exclude()
   password: string;
 
-  @ApiHideProperty()
   @Exclude()
   createdAt: string;
 
-  @ApiHideProperty()
   @Exclude()
   updatedAt: string;
 

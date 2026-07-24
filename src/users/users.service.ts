@@ -12,8 +12,13 @@ import {
   EmailAlreadyTakenException,
   InvalidCredentialsException,
 } from './exception';
-import { TransformStringToDate } from '../shared/utils/transform-date.utils';
-import { FindAllUserArgs } from './dto/args/find-all-user.args';
+import {
+  TransformStringToDate,
+  startOfDayFromISO,
+  endOfDayFromISO,
+} from '../shared/utils/transform-date.utils';
+import { FindAllUserArgs, UserSortBy } from './dto/args/find-all-user.args';
+import { SortOrder } from '../shared/args/sort-order.enum';
 import { PrismaService } from '../database/database.service';
 import { UserWithPetResponseDto, UserResponseDto } from './dto/response';
 import { MailerService } from '../mailer/mailer.service';
@@ -26,6 +31,15 @@ import { PetNotFoundException } from '../pets/exception';
 import { getRequestDocumentMail } from './utils/mails/request-document.mail';
 import { DocumentName } from './dto/enum/document-name';
 import { ConfigService } from '@nestjs/config';
+
+// Sortable columns that are nullable in the schema, so they can take
+// `nulls: 'last'` — passing it on a required column is a Prisma error.
+const NULLABLE_USER_SORT_FIELDS: ReadonlySet<string> = new Set([
+  UserSortBy.email,
+  UserSortBy.role,
+  UserSortBy.dui,
+  UserSortBy.birthday,
+]);
 
 @Injectable()
 export class UsersService {
@@ -111,12 +125,20 @@ export class UsersService {
 
   async findAll(args: FindAllUserArgs): Promise<FindAllUsersResponseDto> {
     this.logger.log('Retrieve all users');
-    const { page, limit, search } = args;
+    const {
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      role,
+      birthdayFrom,
+      birthdayTo,
+    } = args;
     const where: Prisma.UserWhereInput = {};
-    let searchRole;
 
     if (search) {
-      searchRole = this.searchInRoleField(search);
+      const searchRole = this.searchInRoleField(search);
 
       where.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },
@@ -125,8 +147,29 @@ export class UsersService {
         { phone: { contains: search, mode: 'insensitive' } },
         { direction: { contains: search, mode: 'insensitive' } },
         { dui: { contains: search, mode: 'insensitive' } },
-        { role: searchRole },
+        // Only when the term maps to a role: `{ role: undefined }` is an empty
+        // branch, which would make the whole OR match every user.
+        ...(searchRole ? [{ role: searchRole }] : []),
       ];
+    }
+
+    const filters: Prisma.UserWhereInput[] = [];
+
+    if (role?.length) {
+      filters.push({ role: { in: role } });
+    }
+
+    if (birthdayFrom || birthdayTo) {
+      filters.push({
+        birthday: {
+          ...(birthdayFrom && { gte: startOfDayFromISO(birthdayFrom) }),
+          ...(birthdayTo && { lte: endOfDayFromISO(birthdayTo) }),
+        },
+      });
+    }
+
+    if (filters.length) {
+      where.AND = filters;
     }
 
     const [totalItems, data] = await Promise.all([
@@ -137,6 +180,7 @@ export class UsersService {
         skip: (page - 1) * limit,
         take: limit,
         where,
+        orderBy: this.buildOrderBy(sortBy, sortOrder),
       }),
     ]);
     const paginationParams = getPaginationParams(totalItems, page, limit);
@@ -145,6 +189,28 @@ export class UsersService {
       data,
       ...paginationParams,
     });
+  }
+
+  private buildOrderBy(
+    sortBy: UserSortBy | undefined,
+    sortOrder: SortOrder,
+  ): Prisma.UserOrderByWithRelationInput[] {
+    // `id` is the tiebreaker: without it rows sharing a sort value can repeat
+    // or disappear as the client pages through the result set.
+    if (!sortBy) {
+      return [{ id: 'asc' }];
+    }
+
+    const direction = sortOrder as Prisma.SortOrder;
+
+    return [
+      {
+        [sortBy]: NULLABLE_USER_SORT_FIELDS.has(sortBy)
+          ? { sort: direction, nulls: 'last' }
+          : direction,
+      },
+      { id: 'asc' },
+    ];
   }
 
   searchInRoleField(search: string): UserRole | undefined {

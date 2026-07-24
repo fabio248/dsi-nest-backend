@@ -1,21 +1,28 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsPositive, IsString, Max, Min } from 'class-validator';
-import { toNumber } from '../helper/cast.helper';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { toOptionalTrimmed, toStrictNumber } from '../helper/cast.helper';
+import { SortOrder } from './sort-order.enum';
 
 export class GenericWithSearchArgs {
   @IsOptional()
-  @IsPositive()
-  @Transform(({ value }) => toNumber(value))
+  @IsInt()
+  @Min(1)
+  @Transform(({ value }) => toStrictNumber(value))
   page?: number = 1;
 
   @IsOptional()
-  @IsPositive()
+  @IsInt()
   @Min(1)
-  @Max(25)
-  @Transform(({ value }) => toNumber(value))
+  @Max(100)
+  @Transform(({ value }) => toStrictNumber(value))
   limit?: number = 10;
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => toOptionalTrimmed(value))
   search?: string;
+
+  @IsOptional()
+  @IsEnum(SortOrder)
+  sortOrder?: SortOrder = SortOrder.asc;
 }

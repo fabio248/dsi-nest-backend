@@ -13,6 +13,12 @@ export class FindAllPetsResponseDto {
   data: PetResponseWitOutMedicalHistories[];
 
   @Expose()
+  page: number;
+
+  @Expose()
+  limit: number;
+
+  @Expose()
   totalItems: number;
 
   @Expose()

@@ -3,7 +3,6 @@ import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { UserResponseDto } from '../../../users/dto/response/user.response';
 import { MedicalHistoryResponseDto } from './medical-history.response';
 import { SpecieResponseDto } from '../../../species/dto/response/specie.response';
-import { ApiHideProperty } from '@nestjs/swagger';
 
 export class PetResponseDto {
   @Expose()
@@ -43,11 +42,9 @@ export class PetResponseDto {
   @Type(() => SpecieResponseDto)
   specie: SpecieResponseDto;
 
-  @ApiHideProperty()
   @Exclude()
   createdAt: Date;
 
-  @ApiHideProperty()
   @Exclude()
   updatedAt: Date;
 }

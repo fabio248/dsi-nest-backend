@@ -12,6 +12,8 @@ export function getPaginationParams(
   const previousPage = hasPreviousPage ? page - 1 : null;
 
   return {
+    page,
+    limit,
     totalItems,
     totalPages,
     hasNextPage,
