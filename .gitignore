@@ -4,6 +4,10 @@
 /postgres_data
 /postgres_data_test
 
+# TypeScript incremental build cache. Never commit: a stale one makes tsc
+# think the project is already built, so the build emits nothing at all.
+*.tsbuildinfo
+
 # Logs
 logs
 *.log
